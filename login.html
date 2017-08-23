@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form action="">
+<input type="text" name="username" value="admin">
+<input type="text" name="pwd" value="1">
+<input type="submit" value="login" id="login">
+</form>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
+<script>
+    $("#login").bind("click", function(){
+        var username = $("input[name=username]").val()
+        var pwd = $("inpit[name=pwd]").val()
+        $.ajax({
+            url: commonURL + "t/user/login.do",
+            data: {
+                username: username,
+                pwd: pwd
+            },
+            dataType: 'json',
+            type: 'post',
+            success: function (data) {
+                if(data.success){
+                    window.location.href = "index.html";
+                }
+            }
+        })
+    })
+</script>
+</body>
+</html>

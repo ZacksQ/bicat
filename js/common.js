@@ -1,0 +1,1 @@
+var commonURL = "http://115.159.225.127:7070/bjcat／";
