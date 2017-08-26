@@ -3,3 +3,18 @@
 .fr{
     float: right;}
 a{ text-decoration: none; color:#000;}
+.header{ background-color: #0052A3;
+    color: #fff;
+    line-height:26px;
+    padding:5px;}
+.header .welcometip{
+    margin-right:5px;
+    font-size: 14px;}
+.w-userinfo{ padding: 6px}
+.w-userinfo .avatar{
+    text-align: center;
+    width:240px;
+    overflow: hidden;}
+.w-userinfo .avatar img{
+    width:200px;}
+#nav{ margin:10px 0 10px 12px;}
