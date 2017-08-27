@@ -18,3 +18,7 @@ a{ text-decoration: none; color:#000;}
 .w-userinfo .avatar img{
     width:200px;}
 #nav{ margin:10px 0 10px 12px;}
+.error{
+    color:#f00;}
+.hide{
+    display: none;}
