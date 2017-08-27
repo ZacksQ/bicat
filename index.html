@@ -14,28 +14,31 @@
         <div class="easyui-layout" data-options="fit:true">
 			<div data-options="region:'north'" class="header" style="height:110px">
 				<a href="#" class="easyui-linkbutton fr" data-options="iconCls:'icon-undo'">退出登录</a>
-				<span class="welcometip fr">北京经贸学院校园信息门户欢迎您的登录</span>
+				<span class="welcometip fr">登录用户：<span class="username">刘昴星</span>，北京经贸学院校园信息门户系统欢迎您！</span>
 			</div>
             <div data-options="region:'west'" title="功能导航" style="width:220px">
             	<ul id="nav" class="easyui-tree">
 
 				</ul>
             </div>
-            <div id="tt" class="easyui-tabs" data-options="region:'center'" >
+            <div id="tt" class="easyui-tabs" data-options="region:'center'" style="height: auto;">
 			    <!--<div title="welcome" href="welcome.html" class="content-doc"></div>-->
-				<iframe scrolling="auto" frameborder="0"  src="welcome.html" style="width:100%;height:100%;"></iframe>
+				<!--<iframe scrolling="auto" frameborder="0" title="wl" src="welcome.html" style="width:100%;height:100%;"></iframe>-->
 			</div>
         </div>
     </div>
 	<script src="js/common.js"></script>
     <script>
-			function openiniframe(plugin){
+
+			function openiniframe(node){
+			    var plugin = node.url
+			    var title = node.text
 				var content = '<iframe scrolling="auto" frameborder="0"  src="'+plugin+'.html?='+Math.random()+'" style="width:100%;height:100%;"></iframe>';
 				if ($('#tt').tabs('exists',plugin)){
 					$('#tt').tabs('select', plugin);
 				} else {
 					$('#tt').tabs('add',{
-						title:plugin,
+						title:title,
 						// href:plugin+'.html',
 						closable:true,
 						// bodyCls:'content-doc',
@@ -49,14 +52,23 @@
                     $("#nav").tree({
                         data: json.data.menulist,
 						onClick: function(node){
-                            var openlink = node.url
+                            var openlink = node
                             openiniframe(openlink)
 						}
                     })
+                    openiniframe({url: "welcome", text: "欢迎"})
 				}else{
 			        alert(json.msg)
 				}
 			}, 'json')
+
+            $.post(commonURL + 'm/user/loginInfo.do', {}, function(json){
+                if(json.success){
+                    $(".username").text(json.data.name)
+                }else{
+                    alert(json.msg)
+                }
+            }, 'json')
 
     </script>	
 </body>
