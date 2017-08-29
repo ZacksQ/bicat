@@ -46,7 +46,12 @@
         <tr>
             <td>合同截止时间:</td>
             <td><input class="easyui-datebox" name="endTime" style="width:100%" data-options="required:true"
-                       readonly="readonly"></input>
+            ></input>
+            </td>
+        </tr>
+        <tr>
+            <td>合同文件:</td>
+            <td><input class="easyui-filebox" name="contractfiles" style="width:100%"></input>
             </td>
         </tr>
     </table>
@@ -73,7 +78,7 @@
         url: commonURL + 'm/agreement/list.do',
         pagination: true,
         pageSize: 10,
-        pageList: [10, 20],
+        pageList: [10],
         loadFilter: function (data) {
             if (data.data) {
                 return data.data;
@@ -88,9 +93,9 @@
         },
         columns: [[
             {field: 'id', title: '合同ID', width: 100},
-            {field: 'name', title: '姓名', editor: {type:'validatebox',options:{required:true}}, width: 100},
-            {field: 'username', title: '职工号', editor: {type:'validatebox',options:{required:true}}, width: 100},
-            {field: 'title', title: '合同名', editor: {type:'validatebox',options:{required:true}}, width: 100},
+            {field: 'name', title: '姓名', editor: {type: 'validatebox', options: {required: true}}, width: 100},
+            {field: 'username', title: '职工号', editor: {type: 'validatebox', options: {required: true}}, width: 100},
+            {field: 'title', title: '合同名', editor: {type: 'validatebox', options: {required: true}}, width: 100},
             {
                 field: 'type', title: 'type', width: 100,
                 formatter: function (value, row, index) {
@@ -109,8 +114,8 @@
                     }
                 }
             },
-            {field: 'descs', title: '合同描述', editor: {type:'validatebox',options:{required:true}}, width: 100},
-            {field: 'ent_timestr', title: '合同到期时间', editor: {type:'datebox',options:{required:true}}, width: 100},
+            {field: 'descs', title: '合同描述', editor: {type: 'validatebox', options: {required: true}}, width: 100},
+            {field: 'ent_timestr', title: '合同到期时间', editor: {type: 'datebox', options: {required: true}}, width: 100},
             {
                 field: 'contractfiles', title: '合同文件', formatter: function (value, row, index) {
                 return '<a href="javascript:;" onclick="showcontract(\'' + row.id + '\')">获取合同文件</a>'
@@ -123,16 +128,16 @@
         },
         onAfterEdit: function (index, row, changes) {
             changes.agrId = row.id
-            if(changes.ent_timestr != undefined){
+            if (changes.ent_timestr != undefined) {
                 changes.endTime = changes.ent_timestr
             }
-            if(changes.descs != undefined){
+            if (changes.descs != undefined) {
                 changes.desc = changes.descs
             }
             $.post(commonURL + 'm/agreement/edit.do', changes, function (json) {
-                if(json.success){
+                if (json.success) {
                     $.messager.alert('提示', '修改成功！', 'info');
-                }else{
+                } else {
                     alert(json.msg)
                 }
             }, 'json')
@@ -164,24 +169,55 @@
                     return false
                 }
                 $("#addcontract .error").addClass("hide")
-                $.post(commonURL + 'm/agreement/add.do', postdata, function (json) {
-                    if (json.success) {
-                        $("input[name=title]").val('')
-                        $("input[name=username]").val('')
-                        $("input[name=name]").val('')
-                        $("input[name=type]").val('')
-                        $("input[name=desc]").val('')
-                        $("input[name=endTime]").val('')
-                        $("#addcontract").dialog("close")
-                        alert("添加成功")
-                        $("#contractlist").datagrid('reload', {})
-                    } else {
-                        alert(json.msg)
-                    }
-                }, 'json')
+
+                var file = $("input[name=contractfiles]").get(0).files[0]
+                if (file != undefined) {
+                    //首先上传文件，获取文件id
+                    //注：服务端现在只做了单文件上传
+                    var fd = new FormData()
+                    fd.append('file', file)
+                    fd.append('filetype', 3)
+
+                    $.ajax({
+                        url: commonURL + 'm/file/up.do',
+                        type: "post",
+                        dataType: "json",
+                        data: fd,
+                        processData: false,
+                        contentType: false,
+                        success: function (json) {
+                            if (json["success"]) {
+                                postdata.fileIds = json.data.fileId
+                                updateContract(postdata)
+                            } else {
+                                alert(json.msg);
+                            }
+                        }
+                    });
+                } else {
+                    updateContract(postdata)
+                }
             }
         }]
     })
+
+    function updateContract(postdata) {
+        $.post(commonURL + 'm/agreement/add.do', postdata, function (json) {
+            if (json.success) {
+                $("input[name=title]").val('')
+                $("input[name=username]").val('')
+                $("input[name=name]").val('')
+                $("input[name=type]").val('')
+                $("input[name=desc]").val('')
+                $("input[name=endTime]").val('')
+                $("#addcontract").dialog("close")
+                alert("添加成功")
+                $("#contractlist").datagrid('reload', {})
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
 
     function showcontract(contractid) { //显示合同文件
         $.post(commonURL + 'm/agreement/getFilelist.do', {agreementId: contractid}, function (json) {
@@ -190,7 +226,10 @@
                 var filehtml = ''
                 if (filelist.length > 0) {
                     filelist.forEach(function (t, i) {
-                        filehtml += '<a href="' + commonURL + t.mename + '" target="_blank">合同文件' + (i + 1) + '</a>&nbsp;&nbsp;'
+                        filehtml += '<div></div><a href="' + commonURL + t.mename + '" target="_blank">合同文件' +
+                            //                            (i + 1) +
+                            '</a>' +
+                            '<a href="javascript:;" class="fr" onclick="delfile(\'' + t.id + '\', \'' + contractid + '\')">删除</a></div>'
                     })
                 } else {
                     filehtml = "暂无合同文件"
@@ -230,6 +269,22 @@
     function saverow() {
         var rowIndex = editRowIndex
         $("#contractlist").datagrid('endEdit', rowIndex)
+    }
+
+    function delfile(id, agrId) {
+        $.messager.confirm('提示', '你确定要删除这个合同文件吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/agreement/edit.do', {agrId: agrId, delfileIds: id}, function (json) {
+                    if (json.success) {
+                        $.messager.alert('提示', '合同文件删除成功！', 'info');
+                        $("#contractfiles").dialog('close')
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+
     }
 
 </script>
