@@ -99,11 +99,13 @@
             {
                 field: 'type', title: '合同类型', width: 100,
                 formatter: function (value, row, index) {
-                    if (value == 1) {
-                        return "聘用合同"
-                    } else {
-                        return "其他"
-                    }
+                    var returnText = null
+                    type.forEach(function (t, i) {
+                        if(t["value"] == value){
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
                 },
                 editor: {
                     type: 'combobox',
