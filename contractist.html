@@ -51,7 +51,7 @@
         </tr>
         <tr>
             <td>合同文件:</td>
-            <td><input class="easyui-filebox" name="contractfiles" style="width:100%"></input>
+            <td><input class="easyui-filebox" name="contractfiles" buttonText="选择文件" style="width:100%"></input>
             </td>
         </tr>
     </table>
@@ -101,7 +101,7 @@
                 formatter: function (value, row, index) {
                     var returnText = null
                     type.forEach(function (t, i) {
-                        if(t["value"] == value){
+                        if (t["value"] == value) {
                             returnText = t["text"]
                         }
                     })
@@ -119,16 +119,19 @@
             {field: 'descs', title: '合同描述', editor: {type: 'validatebox', options: {required: true}}, width: 100},
             {field: 'ent_timestr', title: '合同到期时间', editor: {type: 'datebox', options: {required: true}}, width: 100},
             {
-                field: 'contractfiles', title: '合同文件', formatter: function (value, row, index) {
-                return '<a href="javascript:;" onclick="showcontract(\'' + row.id + '\')">获取合同文件</a>'
-            }
+                field: 'contractfiles',
+                title: '合同文件',
+                editor: {type: 'filebox', options: {buttonText: '选择文件'}},
+                formatter: function (value, row, index) {
+                    return '<a href="javascript:;" onclick="showcontract(\'' + row.id + '\')">获取合同文件</a>'
+                }
             }
         ]],
         onSelect: function (index, row) {
             if (editRowIndex == null) return;
             $('#contractlist').datagrid('cancelEdit', editRowIndex);
         },
-        onAfterEdit: function (index, row, changes) {
+        onEndEdit: function (index, row, changes) {
             changes.agrId = row.id
             if (changes.ent_timestr != undefined) {
                 changes.endTime = changes.ent_timestr
@@ -136,15 +139,46 @@
             if (changes.descs != undefined) {
                 changes.desc = changes.descs
             }
-            $.post(commonURL + 'm/agreement/edit.do', changes, function (json) {
-                if (json.success) {
-                    $.messager.alert('提示', '修改成功！', 'info');
-                } else {
-                    alert(json.msg)
-                }
-            }, 'json')
+
+            if (changes.contractfiles != "") {
+                var filebox = $('#contractlist').datagrid('getEditor', {index: index, field: 'contractfiles'});
+//                console.log($(filebox.target[0]).get(0).files[0])
+                var files = $(filebox.target[0]).parent().find("input[type=file]").get(0).files[0] //先拿一个吧
+                var fd = new FormData()
+                fd.append('file', files)
+                fd.append('filetype', 3)
+
+                $.ajax({
+                    url: commonURL + 'm/file/up.do',
+                    type: "post",
+                    dataType: "json",
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    success: function (json) {
+                        if (json["success"]) {
+                            changes.fileIds = json.data.fileId
+                            updateContract(changes)
+                        } else {
+                            alert(json.msg);
+                        }
+                    }
+                });
+                return
+            }
+            updateContract(changes)
         }
     });
+
+    function updateContract(changes) {
+        $.post(commonURL + 'm/agreement/edit.do', changes, function (json) {
+            if (json.success) {
+                $.messager.alert('提示', '修改成功！', 'info');
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
 
 
     function addrow() {
@@ -190,20 +224,20 @@
                         success: function (json) {
                             if (json["success"]) {
                                 postdata.fileIds = json.data.fileId
-                                updateContract(postdata)
+                                insertContract(postdata)
                             } else {
                                 alert(json.msg);
                             }
                         }
                     });
                 } else {
-                    updateContract(postdata)
+                    insertContract(postdata)
                 }
             }
         }]
     })
 
-    function updateContract(postdata) {
+    function insertContract(postdata) {
         $.post(commonURL + 'm/agreement/add.do', postdata, function (json) {
             if (json.success) {
                 $("input[name=title]").val('')
