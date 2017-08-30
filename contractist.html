@@ -283,9 +283,10 @@
 
     function deleterow() { //删除记录
         var rowIndex = getRowIndex($('#contractlist'))
+        var row = $('#goodslist').datagrid('getSelected')
         $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
             if (r) {
-                $.post(commonURL + 'm/agreement/del.do', {agrId: target.id}, function (json) {
+                $.post(commonURL + 'm/agreement/del.do', {agrId: row.id}, function (json) {
                     if (json.success) {
                         $('#contractlist').datagrid('deleteRow', rowIndex);
                     } else {
