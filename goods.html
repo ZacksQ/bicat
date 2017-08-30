@@ -135,8 +135,7 @@
                 field: 'mename', title: '物品图片', align: 'center', width: 100,
                 editor: {type: 'filebox', options: {buttonText: '选择文件'}},
                 formatter: function (value, row, index) {
-                return '<a href="' + commonURL + value + '" target="_blank"><img src="' + commonURL + value + '" width="80" />' +
-                    '</a>'
+                return '<a href="' + commonURL + value + '" target="_blank"><img src="' + commonURL + value + '" width="80" /></a>'
             }
             }
         ]],
@@ -144,14 +143,18 @@
             if (editRowIndex == null) return;
             $('#goodslist').datagrid('cancelEdit', editRowIndex);
         },
+        onBeforeEdit: function (index, row) {
+            row.menamecopy = row.mename
+//            console.log(row)
+        },
         onEndEdit: function (index, row, changes) {
             changes.giftId = row.id
-
+            row.mename = row.menamecopy
             if (changes.is_show != undefined) {
                 changes.isShow = changes.is_show
             }
 
-            if (changes.mename != "") {
+            if (changes.mename) {
                 var filebox = $('#goodslist').datagrid('getEditor', {index: index, field: 'mename'});
                 var files = $(filebox.target[0]).parent().find("input[type=file]").get(0).files[0] //先拿一个吧
                 var fd = new FormData()
@@ -168,7 +171,9 @@
                     success: function (json) {
                         if (json["success"]) {
                             changes.fileIds = json.data.list[0]['fileId']
-                            updateGoods(changes)
+                            row.mename =  json.data.list[0]['mename']
+                            row.menamecopy =  json.data.list[0]['mename']
+                            updateGoods(changes, index)
                         } else {
                             alert(json.msg);
                         }
@@ -178,12 +183,18 @@
             }
             updateGoods(changes)
         }
+        , onAfterEdit: function (index, row, changes) {
+            console.log(changes)
+        }
     });
 
-    function updateGoods(changes) {
+    function updateGoods(changes, index) {
         $.post(commonURL + 'm/gift/edit.do', changes, function (json) {
             if (json.success) {
                 $.messager.alert('提示', '修改成功！', 'info');
+                if(changes.fileIds){
+                    $('#goodslist').datagrid('refreshRow', index)
+                }
             } else {
                 alert(json.msg)
             }
