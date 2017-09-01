@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>北京经贸学院管理系统</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/icon.css">
+    <link rel="stylesheet" href="css/global.css">
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+<div class="easyui-dialog" id="filelist" title="文件列表" closed="true"
+     style="width:300px;height:auto;padding:10px"></div>
+<table class="easyui-datagrid" style="width:100%;height:550px"
+       title="服务列表" toolbar="#tb"
+       singleSelect="true" fitColumns="true" id="servicelist">
+</table>
+<div id="addialog" class="easyui-dialog" title="添加合同" style="width:400px;height:auto;padding:10px">
+    <table cellpadding="5">
+        <tr>
+            <td>申报类别/考核类别/进修类型:</td>
+            <td><input class="easyui-validatebox" type="text" name="genre"></input></td>
+        </tr>
+        <tr>
+            <td>申报年度/考核名称/进修单位:</td>
+            <td><input class="easyui-validatebox" type="text" name="name"></input></td>
+        </tr>
+        <tr>
+            <td>进修结果（进修培训类别填写项目）:</td>
+            <td><input class="easyui-validatebox" type="text" name="fruit"></input></td>
+        </tr>
+        <tr>
+            <td>培训学时（进修培训类别填写项目）:</td>
+            <td><input class="easyui-validatebox" type="text" name="period"></input></td>
+        </tr>
+        <tr>
+            <td>进修专业（进修培训类别填写项目）:</td>
+            <td><input class="easyui-validatebox" type="text" name="major"></input></td>
+        </tr>
+        <tr>
+            <td>进修内容（进修培训类别填写项目）:</td>
+            <td><input class="easyui-validatebox" type="text" name="content"></input></td>
+        </tr>
+        <tr>
+            <td>类型:</td>
+            <td><input class="easyui-combobox" name="type" data-options="required:true" data-options="editable:false">
+            </input>
+            </td>
+        </tr>
+
+        <tr>
+            <td>申报开始时间:</td>
+            <td><input class="easyui-datetimebox" name="start_timestr" style="width:100%" data-options="required:true"
+            ></input>
+            </td>
+        </tr>
+        <tr>
+            <td>申报结束时间:</td>
+            <td><input class="easyui-datetimebox" name="end_timestr" style="width:100%" data-options="required:true"
+            ></input>
+            </td>
+        </tr>
+        <tr>
+            <td>文件上传:</td>
+            <td><input class="easyui-filebox" name="uploadfiles" multiple="" buttonText="选择文件" style="width:100%"></input>
+            </td>
+        </tr>
+    </table>
+    <p class="error hide">您还有未填的项目，无法提交！</p>
+</div>
+<div id="tb" style="padding:5px;height:auto">
+    <div style="margin-bottom:5px">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addrow()"></a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()"></a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="saverow()"></a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()"></a>
+    </div>
+</div>
+<script src="js/common.js"></script>
+<script>
+    var servertype = [
+        {value: 1, text: '职称评审'},
+        {value: 2, text: '年度考核'},
+        {value: 3, text: '进修培训'},
+        {value: 4, text: '请假服务'},
+        {value: 5, text: '入职服务'},
+        {value: 6, text: '社保服务'},
+        {value: 7, text: '调动服务'}
+    ]
+    $("input[name=type]").combobox({
+        data: servertype,
+        valueField: 'value',
+        textField: 'text'
+    })
+    $('#servicelist').datagrid({
+        url: commonURL + 'm/tserver/list.do',
+        pagination: true,
+        pageSize: 10,
+        pageList: [10],
+        loadFilter: function (data) {
+            if (data.data) {
+                return data.data;
+            } else {
+                return data;
+            }
+        },
+        onBeforeLoad: function (param) {
+            var startNum = Number(param.rows) * Number(param.page) - 10
+            param["startNum"] = startNum
+            param["perNum"] = param.rows;
+        },
+        columns: [[
+            {field: 'id', title: '编号', width: 20},
+            {field: 'genre', title: '申报类别/考核类别/进修类型', width: 100},
+            {field: 'name', title: '申报年度/考核名称/进修单位', width: 100},
+            {field: 'fruit', title: '进修结果（进修培训）', width: 80},
+            {field: 'period', title: '培训学时（进修培训）', width: 80},
+            {field: 'major', title: '进修专业（进修培训）', width: 80},
+            {field: 'content', title: '进修内容（进修培训）', width: 80},
+            {field: 'start_timestr', title: '申报开始时间', width: 80},
+            {field: 'end_timestr', title: '申报结束时间', width: 80},
+            {field: 'type', title: '类型', width: 40,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    servertype.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                }
+            },
+            {
+                field: 'uploadfiles',
+                title: '查看文件',
+                editor: {type: 'filebox', options: {buttonText: '选择文件'}},
+                formatter: function (value, row, index) {
+                    return '<a href="javascript:;" onclick="showfiles(\'' + row.id + '\')">查看文件</a>'
+                }
+            }
+        ]]
+    });
+
+    function addrow() {
+        $("#addialog").dialog("open")
+    }
+
+    $("#addialog").dialog({
+        closed: true,
+        buttons: [{
+            text: '添加',
+            iconCls: 'icon-ok',
+            handler: function () {
+                var postdata = {
+                    genre: $("input[name=genre]").val(),
+                    name: $("input[name=name]").val(),
+                    type: $("input[name=type]").val(),
+                    start_time: $("input[name=start_timestr]").val(),
+                    end_time: $("input[name=end_timestr]").val(),
+                    fruit: $("input[name=fruit]").val(),
+                    period: $("input[name=period]").val(),
+                    major: $("input[name=major]").val(),
+                    content: $("input[name=content]").val(),
+                    fileIds: '' //file list set empty
+                }
+                if (postdata.type == "" || postdata.start_time == "" || postdata.end_time == "") {
+                    $("#addialog .error").removeClass("hide")
+                    return false
+                }
+                $("#addialog .error").addClass("hide")
+
+                var file = $("input[name=uploadfiles]").get(0).files
+                if (file.length > 0) {
+                    //首先上传文件，获取文件id
+                    //注：服务端现在只做了单文件上传
+                    var fd = new FormData()
+                    $.each(file, function(i, file) {
+                        fd.append('file', file);
+                    });
+                    fd.append('filetype', 5)
+
+                    $.ajax({
+                        url: commonURL + 'm/file/up.do',
+                        type: "post",
+                        dataType: "json",
+                        data: fd,
+                        processData: false,
+                        contentType: false,
+                        success: function (json) {
+                            if (json["success"]) {
+                                var fileid = []
+                                json.data.list.forEach(function (t, i) {
+                                    fileid.push(json.data.list[i]['fileId'])
+                                })
+                                postdata.fileIds = fileid.toString()
+                                insertRow(postdata)
+                            } else {
+                                alert(json.msg);
+                            }
+                        }
+                    });
+                } else {
+                    insertRow(postdata)
+                }
+            }
+        }]
+    })
+
+    function insertRow(postdata) {
+        $.post(commonURL + 'm/tserver/add.do', postdata, function (json) {
+            if (json.success) {
+                $("input[name=genre]").val('')
+                $("input[name=name]").val('')
+                $("input[name=type]").val('')
+                $("input[name=start_timestr]").val('')
+                $("input[name=end_timestr]").val('')
+                $("input[name=fruit]").val('')
+                $("input[name=period]").val('')
+                $("input[name=major]").val('')
+                $("input[name=content]").val('')
+                $("#addialog").dialog("close")
+                alert("添加成功")
+                $("#servicelist").datagrid('reload', {})
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function showfiles(rowid) { //显示文件列表
+        $.post(commonURL + 'm/tserver/getFilelist.do', {serverId: rowid}, function (json) {
+            if (json.success) {
+                var filelist = json.data.list
+                var filehtml = ''
+                if (filelist.length > 0) {
+                    filelist.forEach(function (t, i) {
+                        filehtml += '<div></div><a href="' + commonURL + t.mename + '" target="_blank">文件' +
+                                                        (i + 1) +
+                            '</a>' +
+                            '<a href="javascript:;" class="fr" onclick="delfile(\'' + t.id + '\', \'' + rowid + '\')">删除</a></div>'
+                    })
+                } else {
+                    filehtml = "暂无上传文件"
+                }
+
+                $("#filelist").dialog({
+                    content: filehtml
+                })
+                $("#filelist").dialog('open')
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function deleterow() { //删除记录
+        var rowIndex = getRowIndex($('#grlist'))
+        var row = $('#grlist').datagrid('getSelected')
+        $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/giftapply/del.do', {appId: row.id}, function (json) {
+                    if (json.success) {
+                        $('#grlist').datagrid('deleteRow', rowIndex);
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+    }
+
+    function editrow() {
+        var rowIndex = getRowIndex($('#servicelist'))
+        editRowIndex = rowIndex
+        $('#servicelist').datagrid('beginEdit', rowIndex);
+    }
+
+    function delfile(id, agrId) {
+        $.messager.confirm('提示', '你确定要删除这个文件吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/tserver/edit.do', {tserverId: agrId, delfileIds: id}, function (json) {
+                    if (json.success) {
+                        $.messager.alert('提示', '合同文件删除成功！', 'info');
+                        $("#contractfiles").dialog('close')
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+
+    }
+</script>
+</body>
+</html>
