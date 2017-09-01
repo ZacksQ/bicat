@@ -80,6 +80,7 @@
 </div>
 <script src="js/common.js"></script>
 <script>
+    var editRowIndex = null;
     var servertype = [
         {value: 1, text: '职称评审'},
         {value: 2, text: '年度考核'},
@@ -113,14 +114,14 @@
         },
         columns: [[
             {field: 'id', title: '编号', width: 20},
-            {field: 'genre', title: '申报类别/考核类别/进修类型', width: 100},
-            {field: 'name', title: '申报年度/考核名称/进修单位', width: 100},
-            {field: 'fruit', title: '进修结果（进修培训）', width: 80},
-            {field: 'period', title: '培训学时（进修培训）', width: 80},
-            {field: 'major', title: '进修专业（进修培训）', width: 80},
-            {field: 'content', title: '进修内容（进修培训）', width: 80},
-            {field: 'start_timestr', title: '申报开始时间', width: 80},
-            {field: 'end_timestr', title: '申报结束时间', width: 80},
+            {field: 'genre', title: '申报类别/考核类别/进修类型', editor: {type: 'validatebox'}, width: 100},
+            {field: 'name', title: '申报年度/考核名称/进修单位', editor: {type: 'validatebox'}, width: 100},
+            {field: 'fruit', title: '进修结果（进修培训）', editor: {type: 'validatebox'}, width: 80},
+            {field: 'period', title: '培训学时（进修培训）', editor: {type: 'validatebox'}, width: 80},
+            {field: 'major', title: '进修专业（进修培训）', editor: {type: 'validatebox'}, width: 80},
+            {field: 'content', title: '进修内容（进修培训）', editor: {type: 'validatebox'}, width: 80},
+            {field: 'start_timestr', title: '申报开始时间', editor: {type: 'datetimebox'}, width: 80},
+            {field: 'end_timestr', title: '申报结束时间', editor: {type: 'datetimebox'}, width: 80},
             {field: 'type', title: '类型', width: 40,
                 formatter: function (value, row, index) {
                     var returnText = null
@@ -130,6 +131,14 @@
                         }
                     })
                     return returnText
+                },
+                editor: {
+                    type: 'combobox',
+                    options: {
+                        valueField: 'value',
+                        textField: 'text',
+                        data: servertype
+                    }
                 }
             },
             {
@@ -140,8 +149,65 @@
                     return '<a href="javascript:;" onclick="showfiles(\'' + row.id + '\')">查看文件</a>'
                 }
             }
-        ]]
+        ]],
+        onSelect: function (index, row) {
+            if (editRowIndex == null) return;
+            $('#servicelist').datagrid('cancelEdit', editRowIndex);
+        },
+        onEndEdit: function (index, row, changes) {
+            changes.tserverId = row.id
+            if (changes.start_timestr != undefined) {
+                changes.start_time = changes.start_timestr
+            }
+            if (changes.end_timestr != undefined) {
+                changes.end_time = changes.end_timestr
+            }
+
+            if (changes.uploadfiles != "") {
+                var filebox = $('#servicelist').datagrid('getEditor', {index: index, field: 'uploadfiles'});
+                var fd = new FormData()
+                var files = $(filebox.target[0]).parent().find("input[type=file]").get(0).files
+                var fd = new FormData()
+                $.each(files, function(i, file) {
+                    fd.append('file', file);
+                });
+                fd.append('filetype', 5)
+
+                $.ajax({
+                    url: commonURL + 'm/file/up.do',
+                    type: "post",
+                    dataType: "json",
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    success: function (json) {
+                        if (json["success"]) {
+                            var fileid = []
+                            json.data.list.forEach(function (t, i) {
+                                fileid.push(json.data.list[i]['fileId'])
+                            })
+                            changes.fileIds = fileid.toString()
+                            updateRow(changes)
+                        } else {
+                            alert(json.msg);
+                        }
+                    }
+                });
+                return
+            }
+            updateRow(changes)
+        }
     });
+
+    function updateRow(changes) {
+        $.post(commonURL + 'm/tserver/edit.do', changes, function (json) {
+            if (json.success) {
+                $.messager.alert('提示', '修改成功！', 'info');
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
 
     function addrow() {
         $("#addialog").dialog("open")
@@ -174,7 +240,6 @@
                 var file = $("input[name=uploadfiles]").get(0).files
                 if (file.length > 0) {
                     //首先上传文件，获取文件id
-                    //注：服务端现在只做了单文件上传
                     var fd = new FormData()
                     $.each(file, function(i, file) {
                         fd.append('file', file);
@@ -256,13 +321,13 @@
     }
 
     function deleterow() { //删除记录
-        var rowIndex = getRowIndex($('#grlist'))
-        var row = $('#grlist').datagrid('getSelected')
+        var rowIndex = getRowIndex($('#servicelist'))
+        var row = $('#servicelist').datagrid('getSelected')
         $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
             if (r) {
-                $.post(commonURL + 'm/giftapply/del.do', {appId: row.id}, function (json) {
+                $.post(commonURL + 'm/tserver/del.do', {tserverId: row.id}, function (json) {
                     if (json.success) {
-                        $('#grlist').datagrid('deleteRow', rowIndex);
+                        $('#servicelist').datagrid('deleteRow', rowIndex);
                     } else {
                         alert(json.msg)
                     }
@@ -275,6 +340,11 @@
         var rowIndex = getRowIndex($('#servicelist'))
         editRowIndex = rowIndex
         $('#servicelist').datagrid('beginEdit', rowIndex);
+    }
+
+    function saverow() {
+        var rowIndex = editRowIndex
+        $("#servicelist").datagrid('endEdit', rowIndex)
     }
 
     function delfile(id, agrId) {
