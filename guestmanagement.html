@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>北京经贸学院管理系统</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/icon.css">
+    <link rel="stylesheet" href="css/global.css">
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+<table class="easyui-datagrid" style="width:100%;height:550px"
+       title="游客列表" toolbar="#tb"
+       singleSelect="true" fitColumns="true" id="userlist">
+</table>
+<div id="addialog" class="easyui-dialog" closed="true" style="width:auto;height:auto;padding:10px">
+    <form action="" id="formlist">
+        <table cellpadding="5">
+            <tr>
+                <td>账户登录名:</td>
+                <td><input class="easyui-validatebox" data-options="required:true" type="text" name="username"></input></td>
+
+                <td>姓名:</td>
+                <td><input class="easyui-validatebox" type="text" name="name"></input></td>
+
+                <td>性别:</td>
+                <td><input class="easyui-combobox" name="sex" data-options="editable:false">
+                    </input></td>
+            </tr>
+            <tr>
+                <td>联系方式:</td>
+                <td><input class="easyui-validatebox" type="text" name="phone"></input></td>
+
+                <td>联系地址:</td>
+                <td><input class="easyui-validatebox" type="text" name="addr"></input></td>
+
+                <td>身份证号:</td>
+                <td><input class="easyui-validatebox" type="text" name="id_card"></input></td>
+            </tr>
+            <tr>
+                <td>省份:</td>
+                <td><input class="easyui-validatebox" type="text" name="province"></input></td>
+                <td>城市:</td>
+                <td><input class="easyui-validatebox" type="text" name="city"></input></td>
+                <td>邮编:</td>
+                <td><input class="easyui-validatebox" type="text" name="zip_code"></input></td>
+            </tr>
+            <tr>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td>出生日期:</td>
+                <td><input class="easyui-datebox" style="width: 100%" type="text" name="birthday"></input></td>
+                <td>民族:</td>
+                <td><input class="easyui-validatebox" type="text" name="nation"></input></td>
+            </tr>
+            <tr>
+                <td>政治面貌:</td>
+                <td><input class="easyui-validatebox" type="text" name="political"></input></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+
+        </table>
+    </form>
+    <p class="error hide">您还有未填的项目，无法提交！</p>
+</div>
+<div id="tb" style="padding:5px;height:auto">
+    <div style="margin-bottom:5px">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addrow()"></a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()"></a>
+        <!--<a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="saverow()"></a>-->
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()"></a>
+    </div>
+</div>
+<script src="js/common.js"></script>
+<script>
+    var editRowIndex = null;
+    var sex = [
+        {value: 0, text: '未知'},
+        {value: 1, text: '男'},
+        {value: 2, text: '女'}
+    ]
+    var accountstatus = [
+        {value: 0, text: '删除'},
+        {value: 1, text: '正常'},
+        {value: 2, text: '封禁'},
+        {value: 3, text: '待审核'}
+    ]
+    var origin = [
+        {value: 1, text: '注册'},
+        {value: 2, text: '导入'}
+    ]
+    var census_type = [
+        {value: 1, text: '城镇'},
+        {value: 2, text: '农村'}
+    ]
+
+    $("input[name=sex]").combobox({
+        data: sex,
+        valueField: 'value',
+        textField: 'text'
+    })
+    $("input[name=type]").combobox({
+        data: accountstatus,
+        valueField: 'value',
+        textField: 'text'
+    })
+    $("input[name=census_type]").combobox({
+        data: census_type,
+        valueField: 'value',
+        textField: 'text'
+    })
+
+    $('#userlist').datagrid({
+        url: commonURL + 'm/user/alluserlist.do',
+        pagination: true,
+        pageSize: 10,
+        pageList: [10],
+        queryParams:{
+            usertype: 4
+        },
+        loadFilter: function (data) {
+            if (data.data) {
+                return data.data;
+            } else {
+                return data;
+            }
+        },
+        onBeforeLoad: function (param) {
+            var startNum = Number(param.rows) * Number(param.page) - 10
+            param["startNum"] = startNum
+            param["perNum"] = param.rows;
+        },
+        columns: [[
+            {field: 'id', title: '编号', width: 20},
+            {field: 'name', title: '姓名', width: 40},
+            {field: 'username', title: '学号', width: 40},
+            {field: 'sex', title: '性别', width: 40,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    sex.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                }
+            },
+            {field: 'create_timestr', title: '注册时间', editor: {type: 'validatebox'}, width: 80},
+            {field: 'status', title: '账户状态', width: 40,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    accountstatus.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                }
+            },
+            {field: 'origin', title: '来源', width: 40,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    origin.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                }
+            },
+            {field: 'detail', title: '详情', width: 40, formatter: function (value, row, index) {
+                return '<a href="userdetail.html?usertype=4&userid=' + row.id + '">查看详情</a>' //教师usertype = 2
+            }},
+            {field: 'operation', title: '操作', width: 40, formatter:function (value, row, index) {
+                if(row.status == 1){
+                    return '<a href="javascript:;" onclick="opaccount(\'' + row.id + '\', ' + index +', 0)">封禁</a>'
+                }else{
+                    return '<a href="javascript:;" onclick="opaccount(\'' + row.id + '\', ' + index +', 1)">解禁</a>'
+                }
+            }}
+        ]],
+        onSelect: function (index, row) {
+            if (editRowIndex == null) return;
+            $('#userlist').datagrid('cancelEdit', editRowIndex);
+        }
+    });
+
+    function updateRow(changes) {
+        $.post(commonURL + 'm/user/editUserinfo.do', changes, function (json) {
+            if (json.success) {
+                $.messager.alert('提示', '修改成功！', 'info');
+                $("#addialog").dialog("close")
+                $("#formlist").form('clear');
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function addrow() {
+        opdialog(1)
+        $("#addialog").dialog("open")
+    }
+
+    function opdialog(optype, userid) {
+        $("#addialog").dialog({
+            closed: true,
+            title: optype==1?'添加学生':'信息修改',
+            buttons: [{
+                text: '保存',
+                iconCls: 'icon-ok',
+                handler: function () {
+                    var formdata = $("#formlist").serializeArray()
+                    var postdata = {}
+                    $.each(formdata,
+                        function (i) {
+                            postdata[formdata[i]["name"]] = formdata[i]["value"]
+                        })
+                    if(postdata.username === ""){
+                        $("#addialog .error").removeClass("hide")
+                        return false
+                    }
+
+                    $("#addialog .error").addClass("hide")
+
+                    if(optype === 2){
+                        postdata.userId = userid
+                    }
+                    if(optype === 1){
+                        postdata.type = 4
+                    }
+                    optype==1?insertRow(postdata):updateRow(postdata)
+                }
+            }]
+        })
+    }
+
+    function insertRow(postdata) {
+        $.post(commonURL + 'm/user/add.do', postdata, function (json) {
+            if (json.success) {
+                $("#formlist").form('clear');
+                $("#addialog").dialog("close")
+                alert("添加成功")
+                $("#userlist").datagrid('reload', {
+                    usertype: 3
+                })
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function deleterow() { //删除记录
+        var rowIndex = getRowIndex($('#userlist'))
+        var row = $('#userlist').datagrid('getSelected')
+        $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/user/del.do', {userId: row.id}, function (json) {
+                    if (json.success) {
+                        $('#userlist').datagrid('deleteRow', rowIndex);
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+    }
+
+    function editrow() {
+//        var rowIndex = getRowIndex($('#userlist'))
+//        editRowIndex = rowIndex
+        var row = $('#userlist').datagrid('getSelected')
+        $.post(commonURL + 'm/user/userinfo.do', {userId: row.id}, function (json) {
+            if(json.success){
+                var data = json.data
+                data["birthday"] = data["birthdaystr"]
+                data["enter_time"] = data["enter_timestr"]
+                data["graduation_time"] = data["graduation_timestr"]
+                data["teach_time"] = data["teach_timestr"]
+                $('#formlist').form('load', data);
+                opdialog(2, row.id)
+                $("#addialog").dialog("open")
+            }else{
+                alert(json.msg)
+            }
+        })
+
+    }
+
+    function saverow() {
+        var rowIndex = editRowIndex
+        $("#userlist").datagrid('endEdit', rowIndex)
+    }
+
+    function opaccount(userid, index, status) {
+        $.messager.confirm('提示', '你确定要' + (status==1?'解禁':'封禁') + '这个账户吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/user/close.do', {userId: userid, type: status}, function (json) {
+                    if (json.success) {
+                        $('#userlist').datagrid('updateRow',{
+                            index: index,
+                            row: {
+                                status: 2 - status
+                            }
+                        });
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+    }
+</script>
+</body>
+</html>
