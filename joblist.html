@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>北京经贸学院管理系统</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/icon.css">
+    <link rel="stylesheet" href="css/global.css">
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
+    <script charset="utf-8" src="kindeditor/kindeditor-all.js"></script>
+    <script charset="utf-8" src="kindeditor/lang/zh-CN.js"></script>
+
+</head>
+<body>
+<table class="easyui-datagrid" style="width:100%;height:550px"
+       title="招聘列表" toolbar="#tb"
+       singleSelect="true" fitColumns="true" id="joblist">
+</table>
+<div id="addialog" class="easyui-dialog" title="添加招聘信息" closed="true" style="width:600px;height:480px;padding:10px">
+    <form action="" id="formlist">
+    <table cellpadding="5">
+        <tr>
+            <td>标题:</td>
+            <td><input class="easyui-validatebox" type="text" name="name"></input></td>
+        </tr>
+        <tr>
+            <td>求职种类:</td>
+            <td><input class="easyui-combobox" type="text" name="type"></input></td>
+        </tr>
+        <tr>
+            <td>是否显示:</td>
+            <td><input class="easyui-combobox" type="text" name="isShow"></input></td>
+        </tr>
+        <tr>
+            <td>描述:</td>
+            <!--<td><input class="easyui-validatebox" type="text" name="descs"></input></td>-->
+            <td>
+                <textarea id="editor_id" name="descs" style="width:90%;height:200px;">
+                </textarea>
+            </td>
+        </tr>
+    </table>
+    </form>
+    <p class="error hide">您还有未填的项目，无法提交！</p>
+</div>
+<div id="tb" style="padding:5px;height:auto">
+    <div style="margin-bottom:5px">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addrow()"></a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()"></a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()"></a>
+    </div>
+</div>
+<script src="js/common.js"></script>
+<script>
+    var editRowIndex = null;
+    var jobtype = [
+        {value: 1, text: '教职工'},
+        {value: 2, text: '后勤'},
+        {value: 3, text: '工人'}
+    ]
+    var is_show = [
+        {value: 0, text: '不显示'},
+        {value: 1, text: '显示'}
+    ]
+    $("input[name=type]").combobox({
+        data: jobtype,
+        valueField: 'value',
+        textField: 'text'
+    })
+    $("input[name=isShow]").combobox({
+        data: is_show,
+        valueField: 'value',
+        textField: 'text'
+    })
+    $('#joblist').datagrid({
+        url: commonURL + 'm/recruit/list.do',
+        pagination: true,
+        pageSize: 10,
+        pageList: [10],
+        loadFilter: function (data) {
+            if (data.data) {
+                return data.data;
+            } else {
+                return data;
+            }
+        },
+        onBeforeLoad: function (param) {
+            var startNum = Number(param.rows) * Number(param.page) - 10
+            param["startNum"] = startNum
+            param["perNum"] = param.rows;
+        },
+        columns: [[
+            {field: 'id', title: '编号', width: 20},
+            {field: 'name', title: '标题', width: 100},
+            {field: 'descs', title: '描述', width: 100},
+            {field: 'create_timestr', title: '创建时间', width: 80},
+            {field: 'type', title: '求职种类', width: 40,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    jobtype.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                }
+            },
+            {field: 'is_show', title: '是否显示', width: 40,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    is_show.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                }
+            }
+        ]],
+        onSelect: function (index, row) {
+            if (editRowIndex == null) return;
+            $('#joblist').datagrid('cancelEdit', editRowIndex);
+        }
+    });
+
+    function updateRow(changes) {
+        var rowIndex = getRowIndex($('#joblist'))
+        $.post(commonURL + 'm/recruit/edit.do', changes, function (json) {
+            if (json.success) {
+                $.messager.alert('提示', '修改成功！', 'info');
+                $("#addialog").dialog("close")
+                $("#formlist").form('clear');
+                window.editor.html('')
+                $('#joblist').datagrid('updateRow',{
+                    index: rowIndex,
+                    row: {
+                        descs: changes.descs
+                    }
+                });
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function addrow() {
+        opdialog(1)
+        $("#addialog").dialog("open")
+    }
+    KindEditor.ready(function(K) {
+        window.editor = K.create('#editor_id');
+    });
+
+    function opdialog(optype, recruitId) {
+        $("#addialog").dialog({
+            closed: true,
+            title: optype==1?'添加招聘信息':'信息修改',
+            buttons: [{
+                text: '保存',
+                iconCls: 'icon-ok',
+                handler: function () {
+                    var formdata = $("#formlist").serializeArray()
+                    var postdata = {}
+                    $.each(formdata,
+                        function (i) {
+                            postdata[formdata[i]["name"]] = formdata[i]["value"]
+                        })
+                    if(postdata.name === ""){
+                        $("#addialog .error").removeClass("hide")
+                        return false
+                    }
+
+                    $("#addialog .error").addClass("hide")
+
+                    if(optype === 2){
+                        postdata.recruitId = recruitId
+                    }
+                    if(postdata.isShow == ""){
+                        postdata.isShow = 0
+                    }
+                    postdata.descs = editor.html()
+                    optype==1?insertRow(postdata):updateRow(postdata)
+                }
+            }]
+        })
+    }
+
+    function insertRow(postdata) {
+        $.post(commonURL + 'm/recruit/add.do', postdata, function (json) {
+            if (json.success) {
+                $("#formlist").form('clear');
+                window.editor.html('')
+                $("#addialog").dialog("close");
+                alert("添加成功");
+                $("#joblist").datagrid('reload', {})
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function deleterow() { //删除记录
+        var rowIndex = getRowIndex($('#joblist'))
+        var row = $('#joblist').datagrid('getSelected')
+        $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/recruit/del.do', {recruitId: row.id}, function (json) {
+                    if (json.success) {
+                        $('#joblist').datagrid('deleteRow', rowIndex);
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+    }
+
+    function editrow() {
+        var row = $('#joblist').datagrid('getSelected')
+        $.post(commonURL + 'm/recruit/list.do', {id: row.id}, function (json) {
+            if(json.success){
+                var data = json.data.rows[0];
+                window.editor.html(data.descs)
+                data.isShow = data.is_show
+                $('#formlist').form('load', data);
+                opdialog(2, row.id);
+                $("#addialog").dialog("open")
+
+            }else{
+                alert(json.msg)
+            }
+        })
+    }
+</script>
+</body>
+</html>

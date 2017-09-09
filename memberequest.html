@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>北京经贸学院管理系统</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/icon.css">
+    <link rel="stylesheet" href="css/global.css">
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+<table class="easyui-datagrid" style="width:100%;height:550px"
+       title="申请列表" toolbar="#tb"
+       singleSelect="true" fitColumns="true" id="grlist">
+</table>
+
+<div id="tb" style="padding:5px;height:auto">
+    <div style="margin-bottom:5px">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()"></a>
+    </div>
+</div>
+<script src="js/common.js"></script>
+<script>
+    var rstatus = [
+        {value: 1, text: '申请中'},
+        {value: 2, text: '已处理'}
+    ]
+    $('#grlist').datagrid({
+        url: commonURL + 'm/giftapply/list.do',
+        pagination: true,
+        pageSize: 10,
+        pageList: [10],
+        loadFilter: function (data) {
+            if (data.data) {
+                return data.data;
+            } else {
+                return data;
+            }
+        },
+        onBeforeLoad: function (param) {
+            var startNum = Number(param.rows) * Number(param.page) - 10
+            param["startNum"] = startNum
+            param["perNum"] = param.rows;
+        },
+        columns: [[
+            {field: 'giftname', title: '用品名称', width: 100},
+            {field: 'username', title: '职工号', width: 100},
+            {field: 'name', title: '教师名称', width: 100},
+            {field: 'create_timestr', title: '申请时间', width: 100},
+            {
+                field: 'status', title: '申请状态', width: 100,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    rstatus.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                }
+            },
+            {field: 'descs', title: '物品描述', width: 100},
+            {field: 'num', title: '数量', width: 100},
+            {field: 'operation', title: '操作', width: 100, formatter:function (value, row, index) {
+                if(row.status == 1){
+                    return '<a href="javascript:;" onclick="passrequesition(\'' + row.id + '\', ' + index +')">通过</a>'
+                }else{
+                    return '已通过'
+                }
+            }}
+        ]]
+    });
+
+    function deleterow() { //删除记录
+        var rowIndex = getRowIndex($('#grlist'))
+        var row = $('#grlist').datagrid('getSelected')
+        $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/giftapply/del.do', {appId: row.id}, function (json) {
+                    if (json.success) {
+                        $('#grlist').datagrid('deleteRow', rowIndex);
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+    }
+
+    function passrequesition(appId, index) {
+        $.messager.confirm('提示', '你确定要通过这条申请吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/giftapply/update.do', {appId: appId}, function (json) {
+                    if (json.success) {
+                        $('#grlist').datagrid('updateRow',{
+                            index: index,
+                            row: {
+                                status: 2
+                            }
+                        });
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+    }
+
+</script>
+</body>
+</html>
