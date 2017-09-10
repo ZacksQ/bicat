@@ -12,33 +12,33 @@
 </head>
 <body>
 <table class="easyui-datagrid" style="width:100%;height:550px"
-       title="会员申请列表" toolbar="#tb"
-       singleSelect="true" fitColumns="true" id="mrlist">
+       title="职位申请列表" toolbar="#tb"
+       singleSelect="true" fitColumns="true" id="jrlist">
 </table>
 
 <div id="tb" style="padding:5px;height:auto">
     <div style="margin-bottom:5px">
-        <!--<a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()"></a>-->
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()"></a>
     </div>
 </div>
 <script src="js/common.js"></script>
 <script>
     var rstatus = [
-        {value: 1, text: '申请中'},
+        {value: 1, text: '审核中'},
         {value: 2, text: '已处理'}
-    ]
-    var usertype = [
-        {value: 2, text: '教师'},
-        {value: 3, text: '学生'},
-        {value: 4, text: '游客'}
     ]
     var sex = [
         {value: 0, text: '未知'},
         {value: 1, text: '男'},
         {value: 2, text: '女'}
     ]
-    $('#mrlist ').datagrid({
-        url: commonURL + 'm/user/pendingUserlist.do',
+    var jobtype = [
+        {value: 1, text: '教职工'},
+        {value: 2, text: '后勤'},
+        {value: 3, text: '工人'}
+    ]
+    $('#jrlist').datagrid({
+        url: commonURL + 'm/recruitapply/list.do',
         pagination: true,
         pageSize: 10,
         pageList: [10],
@@ -55,22 +55,23 @@
             param["perNum"] = param.rows;
         },
         columns: [[
-            {field: 'id', title: '账户编号', width: 100},
-            {field: 'username', title: '账户/职工号/学号', width: 100},
+            {field: 'id', title: '编号', width: 100},
+//            {field: 'recruitname', title: '招聘标题', width: 100},
             {field: 'name', title: '姓名', width: 100},
-            {field: 'phone', title: '联系方式', width: 100},
-            {field: 'province', title: '省份', width: 100},
-            {field: 'city', title: '城市', width: 100},
-            {field: 'type', title: '类型', width: 100,
+            {field: 'create_timestr', title: '申请时间', width: 100},
+            {
+                field: 'type', title: '应聘工种', width: 100,
                 formatter: function (value, row, index) {
                     var returnText = null
-                    usertype.forEach(function (t, i) {
+                    jobtype.forEach(function (t, i) {
                         if (t["value"] == value) {
                             returnText = t["text"]
                         }
                     })
                     return returnText
-                }},{field: 'sex', title: '性别', width: 100,
+                }
+            },{
+                field: 'sex', title: '性别', width: 100,
                 formatter: function (value, row, index) {
                     var returnText = null
                     sex.forEach(function (t, i) {
@@ -79,26 +80,44 @@
                         }
                     })
                     return returnText
-                }},
-            {field: 'id_card', title: '身份证', width: 100},
-            {field: 'create_timestr', title: '注册时间', width: 100},
-
+                }
+            },
+            {field: 'phone', title: '联系方式', width: 100},
+            {field: 'gangwei', title: '岗位', width: 100},
+            {field: 'school_background', title: '学历', width: 100},
+            {
+                field: 'status', title: '状态', width: 50,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    rstatus.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                }
+            },
             {field: 'operation', title: '操作', width: 100, formatter:function (value, row, index) {
-
-                    return '<a href="javascript:;" onclick="opaccount(\'' + row.id + '\', ' + index +', 1)">通过</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:;" onclick="opaccount(\'' + row.id + '\', ' + index +', 0)">不通过</a>'
-
+                if(row.status == 1){
+                    return '<a href="javascript:;" onclick="passrequesition(\'' + row.id + '\', ' + index +')">通过</a>'
+                }else{
+                    return '已通过'
+                }
+            }},
+            {field: 'detail', title: '详情', width: 40, formatter: function (value, row, index) {
+                return '<a href="jrdetail.html?appId=' + row.id + '">查看详情</a>'
             }}
         ]]
     });
 
     function deleterow() { //删除记录
-        var rowIndex = getRowIndex($('#grlist'))
-        var row = $('#grlist').datagrid('getSelected')
+        var rowIndex = getRowIndex($('#jrlist'))
+        var row = $('#jrlist').datagrid('getSelected')
         $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
             if (r) {
-                $.post(commonURL + 'm/giftapply/del.do', {appId: row.id}, function (json) {
+                $.post(commonURL + 'm/recruitapply/del.do', {appId: row.id}, function (json) {
                     if (json.success) {
-                        $('#mrlist').datagrid('deleteRow', rowIndex);
+                        $('#jrlist').datagrid('deleteRow', rowIndex);
                     } else {
                         alert(json.msg)
                     }
@@ -107,12 +126,17 @@
         });
     }
 
-    function opaccount(userIds, index, op) {
-        $.messager.confirm('提示', '你确定要' + (op==1?'通过':'不通过') + '这条申请吗？', function (r) {
+    function passrequesition(appId, index) {
+        $.messager.confirm('提示', '你确定要通过这条申请吗？', function (r) {
             if (r) {
-                $.post(commonURL + 'm/user/pendUser.do', {userIds: userIds, type: op}, function (json) {
+                $.post(commonURL + 'm/recruitapply/update.do', {appId: appId}, function (json) {
                     if (json.success) {
-                        $('#mrlist').datagrid('reload', {});
+                        $('#jrlist').datagrid('updateRow',{
+                            index: index,
+                            row: {
+                                status: 2
+                            }
+                        });
                     } else {
                         alert(json.msg)
                     }

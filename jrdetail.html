@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>北京经贸学院管理系统</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/icon.css">
+    <link rel="stylesheet" href="css/global.css">
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+<div class="easyui-panel" data-options="border:false" style="padding:5px;">
+    <a href="javascript:;" class="easyui-linkbutton" id="goback" data-options="plain:true,iconCls:'icon-back'">返回</a>
+    <table class="pa-main-table">
+        <tbody>
+
+        </tbody>
+    </table>
+</div>
+<script src="js/common.js"></script>
+<script>
+    $("#goback").click(function () {
+        window.location.href = window.history.back();
+    })
+    var request = getRequest()
+    var appId = request["appId"]
+
+    $.post(commonURL + 'm/recruitapply/info.do', {appId: appId}, function (json) {
+        if (json.success) {
+            var data = json.data;
+            var filelist = json.data.filelist
+            var filehtml = ''
+            if (filelist.length > 0) {
+                filelist.forEach(function (t, i) {
+                    filehtml += '<div><a href="' + commonURL + t.mename + '" target="_blank">文件' +
+                        (i + 1) +
+                        '</a>' +
+                        '</div>'
+                })
+            }
+            var tbody = ''
+                tbody += '<tr>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>编号&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["id"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>姓名&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["name"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>性别&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.sex[data["sex"]]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>联系方式&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["phone"]) + '</td>'+
+                '</tr>'+
+                '<tr>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>健康状况&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["health"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>身份证号&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["id_card"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>学位&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["degree"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>职称&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["technical"]) + '</td>'+
+                '</tr>'+
+                '<tr>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>毕业学校&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["graduate_school"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>学历&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["school_background"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>出生日期&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["birthday"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>民族&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["nation"]) + '</td>'+
+                '</tr>' +
+                '<tr>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>身份证&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["id_card"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>电子邮箱&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["email"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>婚育状况&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["marry"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>在京地址&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["addr"]) + '</td>'+
+                '</tr>'+
+                '<tr>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>户口所在地&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["census"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>户籍类型&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.census_type[data["census_type"]]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>籍贯&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["jiguan"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>社保缴纳情况&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["shebaojiaonaqingkuang"]) + '</td>'+
+                '</tr>'+
+                '<tr>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>应聘岗位&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["gangwei"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>是否服从岗位调配&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.bools[data["can_deploy"]]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>英语水平&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["english_level"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>计算机水平&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["computer_level"]) + '</td>'+
+                '</tr>'+
+                '<tr>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>有何资格证书&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["zigezhengshu"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>有何特长&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["techang"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>家庭主要成员情况&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["family"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>学习培训经历&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["study"]) + '</td>'+
+                '</tr>'+
+                '<tr>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>工作经历&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["work"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>选择到我单位工作的原因&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["xuanzeyuanyin"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>是否和其他单位签有工作合同&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.bools[data["gongzuohetong"]]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>是否有不良记录&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.bools[data["buliangxingwei"]]) + '</td>'+
+                '</tr>'+
+                '<tr>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>是否有病&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.bools[data["bing"]]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>单位内是否有亲属&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.bools[data["qingshu"]]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>学习工作期间获得的主要荣誉和业绩&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["rongyu"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>对工作岗位的思路和设想&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["gongzuosilushexiang"]) + '</td>'+
+                '</tr>'+
+                '<tr>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>自我评价&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["ziwopingjia"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>有何要求&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["youheyaoqiu"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>生日&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["birthday"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>入党\\团时间&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["party_time"]) + '</td>'+
+                '</tr>'+
+                '<tr>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>参加工作时间&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["work_time"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>到岗时间&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["daogang_time"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>创建时间&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["create_timestr"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>应聘工种类型&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.jobtype[data["type"]]) + '</td>'+
+                '</tr>'+
+                '<tr>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>附件&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" colspan="7" class="portlet-table-even">' + filehtml + '</td>'+
+                '</tr>'
+
+            $(".pa-main-table tbody").html(tbody)
+        } else {
+            alert(json.msg)
+        }
+    }, 'json')
+</script>
+</body>
+</html>
