@@ -11,61 +11,15 @@
     <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
 </head>
 <body>
-<div class="easyui-dialog" id="filelist" title="文件列表" closed="true"
-     style="width:300px;height:auto;padding:10px"></div>
 <table class="easyui-datagrid" style="width:100%;height:550px"
-       title="服务列表" toolbar="#tb"
-       singleSelect="true" fitColumns="true" id="servicelist">
+       title="角色列表" toolbar="#tb"
+       singleSelect="true" fitColumns="true" id="rolelist">
 </table>
-<div id="addialog" class="easyui-dialog" title="添加合同" style="width:400px;height:auto;padding:10px">
+<div id="addialog" class="easyui-dialog" closed="true" title="添加角色" style="width:400px;height:auto;padding:10px">
     <table cellpadding="5">
         <tr>
-            <td>申报类别/考核类别/进修类型:</td>
-            <td><input class="easyui-validatebox" type="text" name="genre"></input></td>
-        </tr>
-        <tr>
-            <td>申报年度/考核名称/进修单位:</td>
+            <td>角色名:</td>
             <td><input class="easyui-validatebox" type="text" name="name"></input></td>
-        </tr>
-        <tr>
-            <td>进修结果（进修培训类别填写项目）:</td>
-            <td><input class="easyui-validatebox" type="text" name="fruit"></input></td>
-        </tr>
-        <tr>
-            <td>培训学时（进修培训类别填写项目）:</td>
-            <td><input class="easyui-validatebox" type="text" name="period"></input></td>
-        </tr>
-        <tr>
-            <td>进修专业（进修培训类别填写项目）:</td>
-            <td><input class="easyui-validatebox" type="text" name="major"></input></td>
-        </tr>
-        <tr>
-            <td>进修内容（进修培训类别填写项目）:</td>
-            <td><input class="easyui-validatebox" type="text" name="content"></input></td>
-        </tr>
-        <tr>
-            <td>类型:</td>
-            <td><input class="easyui-combobox" name="type" data-options="required:true" data-options="editable:false">
-            </input>
-            </td>
-        </tr>
-
-        <tr>
-            <td>申报开始时间:</td>
-            <td><input class="easyui-datetimebox" name="start_timestr" style="width:100%" data-options="required:true"
-            ></input>
-            </td>
-        </tr>
-        <tr>
-            <td>申报结束时间:</td>
-            <td><input class="easyui-datetimebox" name="end_timestr" style="width:100%" data-options="required:true"
-            ></input>
-            </td>
-        </tr>
-        <tr>
-            <td>文件上传:</td>
-            <td><input class="easyui-filebox" name="uploadfiles" multiple="" buttonText="选择文件" style="width:100%"></input>
-            </td>
         </tr>
     </table>
     <p class="error hide">您还有未填的项目，无法提交！</p>
@@ -81,22 +35,26 @@
 <script src="js/common.js"></script>
 <script>
     var editRowIndex = null;
-    var servertype = [
-        {value: 1, text: '职称评审'},
-        {value: 2, text: '年度考核'},
-        {value: 3, text: '进修培训'},
-        {value: 4, text: '请假服务'},
-        {value: 5, text: '入职服务'},
-        {value: 6, text: '社保服务'},
-        {value: 7, text: '调动服务'}
+    var roletype = [
+        {value: 1, text: '不可编辑管理员'},
+        {value: 2, text: '自定义管理员'}
+    ]
+    var autho_type = [
+        {value: 0, text: '不可分配'},
+        {value: 1, text: '可分配'}
     ]
     $("input[name=type]").combobox({
-        data: servertype,
+        data: roletype,
         valueField: 'value',
         textField: 'text'
     })
-    $('#servicelist').datagrid({
-        url: commonURL + 'm/tserver/list.do',
+    $("input[name=autho_type]").combobox({
+        data: autho_type,
+        valueField: 'value',
+        textField: 'text'
+    })
+    $('#rolelist').datagrid({
+        url: commonURL + 'm/role/list.do',
         pagination: true,
         pageSize: 10,
         pageList: [10],
@@ -114,93 +72,42 @@
         },
         columns: [[
             {field: 'id', title: '编号', width: 20},
-            {field: 'genre', title: '申报类别/考核类别/进修类型', editor: {type: 'validatebox'}, width: 100},
-            {field: 'name', title: '申报年度/考核名称/进修单位', editor: {type: 'validatebox'}, width: 100},
-            {field: 'fruit', title: '进修结果（进修培训）', editor: {type: 'validatebox'}, width: 80},
-            {field: 'period', title: '培训学时（进修培训）', editor: {type: 'validatebox'}, width: 80},
-            {field: 'major', title: '进修专业（进修培训）', editor: {type: 'validatebox'}, width: 80},
-            {field: 'content', title: '进修内容（进修培训）', editor: {type: 'validatebox'}, width: 80},
-            {field: 'start_timestr', title: '申报开始时间', editor: {type: 'datetimebox'}, width: 80},
-            {field: 'end_timestr', title: '申报结束时间', editor: {type: 'datetimebox'}, width: 80},
+            {field: 'name', title: '角色名', editor: {type: 'validatebox'}, width: 100},
             {field: 'type', title: '类型', width: 40,
                 formatter: function (value, row, index) {
                     var returnText = null
-                    servertype.forEach(function (t, i) {
+                    roletype.forEach(function (t, i) {
                         if (t["value"] == value) {
                             returnText = t["text"]
                         }
                     })
                     return returnText
-                },
-                editor: {
-                    type: 'combobox',
-                    options: {
-                        valueField: 'value',
-                        textField: 'text',
-                        data: servertype
-                    }
                 }
-            },
-            {
-                field: 'uploadfiles',
-                title: '查看文件',
-                editor: {type: 'filebox', options: {buttonText: '选择文件'}},
+            },{field: 'autho_type', title: '是否可授权', width: 40,
                 formatter: function (value, row, index) {
-                    return '<a href="javascript:;" onclick="showfiles(\'' + row.id + '\')">查看文件</a>'
+                    var returnText = null
+                    autho_type.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
                 }
             }
+
         ]],
         onSelect: function (index, row) {
             if (editRowIndex == null) return;
-            $('#servicelist').datagrid('cancelEdit', editRowIndex);
+            $('#rolelist').datagrid('cancelEdit', editRowIndex);
         },
         onEndEdit: function (index, row, changes) {
-            changes.tserverId = row.id
-            if (changes.start_timestr != undefined) {
-                changes.start_time = changes.start_timestr
-            }
-            if (changes.end_timestr != undefined) {
-                changes.end_time = changes.end_timestr
-            }
-
-            if (changes.uploadfiles != "") {
-                var filebox = $('#servicelist').datagrid('getEditor', {index: index, field: 'uploadfiles'});
-                var fd = new FormData()
-                var files = $(filebox.target[0]).parent().find("input[type=file]").get(0).files
-                var fd = new FormData()
-                $.each(files, function(i, file) {
-                    fd.append('file', file);
-                });
-                fd.append('filetype', 5)
-
-                $.ajax({
-                    url: commonURL + 'm/file/up.do',
-                    type: "post",
-                    dataType: "json",
-                    data: fd,
-                    processData: false,
-                    contentType: false,
-                    success: function (json) {
-                        if (json["success"]) {
-                            var fileid = []
-                            json.data.list.forEach(function (t, i) {
-                                fileid.push(json.data.list[i]['fileId'])
-                            })
-                            changes.fileIds = fileid.toString()
-                            updateRow(changes)
-                        } else {
-                            alert(json.msg);
-                        }
-                    }
-                });
-                return
-            }
+            changes.roleId = row.id
             updateRow(changes)
         }
     });
 
     function updateRow(changes) {
-        $.post(commonURL + 'm/tserver/edit.do', changes, function (json) {
+        $.post(commonURL + 'm/role/update.do', changes, function (json) {
             if (json.success) {
                 $.messager.alert('提示', '修改成功！', 'info');
             } else {
@@ -220,74 +127,26 @@
             iconCls: 'icon-ok',
             handler: function () {
                 var postdata = {
-                    genre: $("input[name=genre]").val(),
-                    name: $("input[name=name]").val(),
-                    type: $("input[name=type]").val(),
-                    start_time: $("input[name=start_timestr]").val(),
-                    end_time: $("input[name=end_timestr]").val(),
-                    fruit: $("input[name=fruit]").val(),
-                    period: $("input[name=period]").val(),
-                    major: $("input[name=major]").val(),
-                    content: $("input[name=content]").val(),
-                    fileIds: '' //file list set empty
+                    name: $("input[name=name]").val()
                 }
-                if (postdata.type == "" || postdata.start_time == "" || postdata.end_time == "") {
+                if (postdata.name == "") {
                     $("#addialog .error").removeClass("hide")
                     return false
                 }
                 $("#addialog .error").addClass("hide")
 
-                var file = $("input[name=uploadfiles]").get(0).files
-                if (file.length > 0) {
-                    //首先上传文件，获取文件id
-                    var fd = new FormData()
-                    $.each(file, function(i, file) {
-                        fd.append('file', file);
-                    });
-                    fd.append('filetype', 5)
-
-                    $.ajax({
-                        url: commonURL + 'm/file/up.do',
-                        type: "post",
-                        dataType: "json",
-                        data: fd,
-                        processData: false,
-                        contentType: false,
-                        success: function (json) {
-                            if (json["success"]) {
-                                var fileid = []
-                                json.data.list.forEach(function (t, i) {
-                                    fileid.push(json.data.list[i]['fileId'])
-                                })
-                                postdata.fileIds = fileid.toString()
-                                insertRow(postdata)
-                            } else {
-                                alert(json.msg);
-                            }
-                        }
-                    });
-                } else {
                     insertRow(postdata)
-                }
             }
         }]
     })
 
     function insertRow(postdata) {
-        $.post(commonURL + 'm/tserver/add.do', postdata, function (json) {
+        $.post(commonURL + 'm/role/add.do', postdata, function (json) {
             if (json.success) {
-                $("input[name=genre]").val('')
                 $("input[name=name]").val('')
-                $("input[name=type]").val('')
-                $("input[name=start_timestr]").val('')
-                $("input[name=end_timestr]").val('')
-                $("input[name=fruit]").val('')
-                $("input[name=period]").val('')
-                $("input[name=major]").val('')
-                $("input[name=content]").val('')
                 $("#addialog").dialog("close")
                 alert("添加成功")
-                $("#servicelist").datagrid('reload', {})
+                $("#rolelist").datagrid('reload', {})
             } else {
                 alert(json.msg)
             }
@@ -321,13 +180,13 @@
     }
 
     function deleterow() { //删除记录
-        var rowIndex = getRowIndex($('#servicelist'))
-        var row = $('#servicelist').datagrid('getSelected')
+        var rowIndex = getRowIndex($('#rolelist'))
+        var row = $('#rolelist').datagrid('getSelected')
         $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
             if (r) {
-                $.post(commonURL + 'm/tserver/del.do', {tserverId: row.id}, function (json) {
+                $.post(commonURL + 'm/role/del.do', {roleId: row.id}, function (json) {
                     if (json.success) {
-                        $('#servicelist').datagrid('deleteRow', rowIndex);
+                        $('#rolelist').datagrid('deleteRow', rowIndex);
                     } else {
                         alert(json.msg)
                     }
@@ -337,14 +196,14 @@
     }
 
     function editrow() {
-        var rowIndex = getRowIndex($('#servicelist'))
+        var rowIndex = getRowIndex($('#rolelist'))
         editRowIndex = rowIndex
-        $('#servicelist').datagrid('beginEdit', rowIndex);
+        $('#rolelist').datagrid('beginEdit', rowIndex);
     }
 
     function saverow() {
         var rowIndex = editRowIndex
-        $("#servicelist").datagrid('endEdit', rowIndex)
+        $("#rolelist").datagrid('endEdit', rowIndex)
     }
 
     function delfile(id, agrId) {
