@@ -14,10 +14,10 @@
 <div class="easyui-dialog" id="filelist" title="文件列表" closed="true"
      style="width:300px;height:auto;padding:10px"></div>
 <table class="easyui-datagrid" style="width:100%;height:550px"
-       title="学历列表" toolbar="#tb"
-       singleSelect="true" fitColumns="true" id="eblist">
+       title="证书列表" toolbar="#tb"
+       singleSelect="true" fitColumns="true" id="cflist">
 </table>
-<div id="addialog" class="easyui-dialog" title="添加学历" style="width:500px;height:auto;padding:10px">
+<div id="addialog" class="easyui-dialog" title="添加证书" style="width:500px;height:auto;padding:10px">
     <form action="" id="formlist">
         <table cellpadding="5">
             <tr>
@@ -84,13 +84,13 @@
         valueField: 'value',
         textField: 'text'
     })
-    $('#eblist').datagrid({
+    $('#cflist').datagrid({
         url: commonURL + 'm/diploma/list.do',
         pagination: true,
         pageSize: 10,
         pageList: [10],
         queryParams:{
-            usertype: 1
+            usertype: 2
         },
         loadFilter: function (data) {
             if (data.data) {
@@ -144,7 +144,7 @@
         ]],
         onSelect: function (index, row) {
             if (editRowIndex == null) return;
-            $('#eblist').datagrid('cancelEdit', editRowIndex);
+            $('#cflist').datagrid('cancelEdit', editRowIndex);
         },
         onEndEdit: function (index, row, changes) {
             changes.diplomaId = row.id
@@ -160,7 +160,7 @@
             }
 
             if (changes.uploadfiles != "") {
-                var filebox = $('#eblist').datagrid('getEditor', {index: index, field: 'uploadfiles'});
+                var filebox = $('#cflist').datagrid('getEditor', {index: index, field: 'uploadfiles'});
                 var fd = new FormData()
                 var files = $(filebox.target[0]).parent().find("input[type=file]").get(0).files
                 var fd = new FormData()
@@ -216,7 +216,7 @@
             iconCls: 'icon-ok',
             handler: function () {
                 var formdata = $("#formlist").serializeArray()
-                var postdata = {type: 1}
+                var postdata = {type: 2}
                 $.each(formdata,
                     function (i) {
                         postdata[formdata[i]["name"]] = formdata[i]["value"]
@@ -271,7 +271,7 @@
             if (json.success) {
                 $("#addialog").dialog("close")
                 alert("添加成功")
-                $("#eblist").datagrid('reload', {})
+                $("#cflist").datagrid('reload', {})
             } else {
                 alert(json.msg)
             }
@@ -305,13 +305,13 @@
     }
 
     function deleterow() { //删除记录
-        var rowIndex = getRowIndex($('#eblist'))
-        var row = $('#eblist').datagrid('getSelected')
+        var rowIndex = getRowIndex($('#cflist'))
+        var row = $('#cflist').datagrid('getSelected')
         $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
             if (r) {
                 $.post(commonURL + 'm/diploma/del.do', {diplomaId: row.id}, function (json) {
                     if (json.success) {
-                        $('#eblist').datagrid('deleteRow', rowIndex);
+                        $('#cflist').datagrid('deleteRow', rowIndex);
                     } else {
                         alert(json.msg)
                     }
@@ -321,14 +321,14 @@
     }
 
     function editrow() {
-        var rowIndex = getRowIndex($('#eblist'))
+        var rowIndex = getRowIndex($('#cflist'))
         editRowIndex = rowIndex
-        $('#eblist').datagrid('beginEdit', rowIndex);
+        $('#cflist').datagrid('beginEdit', rowIndex);
     }
 
     function saverow() {
         var rowIndex = editRowIndex
-        $("#eblist").datagrid('endEdit', rowIndex)
+        $("#cflist").datagrid('endEdit', rowIndex)
     }
 
     function delfile(id, diplomaId) {
