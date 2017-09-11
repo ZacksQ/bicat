@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>北京经贸学院管理系统</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/icon.css">
+    <link rel="stylesheet" href="css/global.css">
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+<div class="easyui-dialog" id="filelist" title="文件列表" closed="true"
+     style="width:300px;height:auto;padding:10px"></div>
+<div class="easyui-dialog" id="salaryuploaddialog" title="工资导入" closed="true"
+     style="width:400px;height:auto;padding:10px">
+    <table cellpadding="5">
+        <tr><td>
+    <input class="easyui-datebox" id="upym" name="yyyymm">
+        </td></tr>
+        <tr><td>
+    <input class="easyui-filebox" type="text" style="width:300px;" id="salaryupload" buttonText="选择文件" name="salaryupload">
+    <a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitSalary()">上传</a>
+        </td></tr>
+    </table>
+</div>
+<table class="easyui-datagrid" style="width:100%;height:550px"
+       title="工资列表" toolbar="#tb"
+       singleSelect="true" fitColumns="true" id="salarylist">
+</table>
+<div id="addialog" class="easyui-dialog" closed="true" style="width:auto;height:auto;padding:10px">
+    <form action="" id="formlist">
+        <table cellpadding="5">
+            <tr>
+                <td>职工号:</td>
+                <td><input class="easyui-validatebox" data-options="required:true" type="text" name="username"></input></td>
+
+                <td>姓名:</td>
+                <td><input class="easyui-validatebox" type="text" name="name"></input></td>
+
+                <td>月份:</td>
+                <td><input class="easyui-datebox" id="ym" name="yyyymm">
+                    </input></td>
+            </tr>
+            <tr>
+                <td>基本工资:</td>
+                <td><input class="easyui-validatebox" type="text" name="jibengongzi"></input></td>
+
+                <td>岗位工资:</td>
+                <td><input class="easyui-validatebox" type="text" name="gangweigongzi"></input></td>
+
+                <td>绩效工资:</td>
+                <td><input class="easyui-validatebox" type="text" name="jixiaogongzi"></input></td>
+            </tr>
+            <tr>
+                <td>校龄补贴:</td>
+                <td><input class="easyui-validatebox" type="text" name="xiaolingjingtie"></input></td>
+                <td>生活补贴:</td>
+                <td><input class="easyui-validatebox" type="text" name="shenghuobutie"></input></td>
+                <td>党务补贴:</td>
+                <td><input class="easyui-validatebox" type="text" name="dangwubutie"></input></td>
+            </tr>
+            <tr>
+                <td>值班补贴:</td>
+                <td><input class="easyui-validatebox" type="text" name="zhibanbutie"></td>
+                <td>授课酬金:</td>
+                <td><input class="easyui-validatebox" type="text" name="shoukechoujin"></input></td>
+                <td>暂时保留补贴:</td>
+                <td><input class="easyui-validatebox" type="text" name="zhanshibaoliubutie"></input></td>
+            </tr>
+            <tr>
+                <td>补发金额:</td>
+                <td><input class="easyui-validatebox" type="text" name="bufajine"></input></td>
+                <td>扣发金额:</td>
+                <td><input class="easyui-validatebox" type="text" name="koufajine">
+                    </input></td>
+                <td>应发金额(元):</td>
+                <td><input class="easyui-validatebox" type="text" name="yingfajine"></input></td>
+            </tr>
+            <tr>
+                <td>代扣社会保险:</td>
+                <td><input class="easyui-validatebox" type="text" name="daikoushehuibaoxian"></input></td>
+                <td>代扣公积金:</td>
+                <td><input class="easyui-validatebox" style="width: 100%" type="text" name="daikougongjijin"></input></td>
+                <td>代扣会费:</td>
+                <td><input class="easyui-validatebox" type="text" name="daikouhuifei"></input></td>
+            </tr>
+            <tr>
+                <td>代扣税金:</td>
+                <td><input class="easyui-validatebox" style="width: 100%" type="text" name="daikoushuijin"></input></td>
+                <td>实发金额(元):</td>
+                <td><input class="easyui-validatebox" name="shifajine" ></input>
+                </td>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
+    </form>
+    <p class="error hide">您还有未填的项目，无法提交！</p>
+</div>
+<div id="tb" style="padding:5px;height:auto">
+    <div style="margin-bottom:5px">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addrow()"></a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()"></a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()"></a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-large-chart" plain="true" onclick="uploadsalary()"></a>
+        <a href="files/salarytemplate.xlsx" class="easyui-linkbutton fr" target="_blank">下载工资模板</a>
+    </div>
+</div>
+<script src="js/common.js"></script>
+<script>
+    var editRowIndex = null;
+//    $.fn.datebox.defaults.formatter = function(date){
+//        console.log(date)
+//        var y = date.getFullYear();
+//        var m = date.getMonth()+1;
+////        var d = date.getDate();
+//        return y+'-'+m;
+//    }
+    var currTime=new Date();
+    var strDate=currTime.getFullYear()+"-"+(currTime.getMonth()+1)+"-01";
+    $('#ym').datebox({formatter:function(date){
+        var y = date.getFullYear();
+        var m = date.getMonth() + 1;
+        m = m < 10 ? '0' + m : m;
+        return y.toString() + '-' + m.toString();
+    },parser:function(date){
+        console.log(date);
+        if (date) {
+            return new Date(String(date).substring(0, 4) + '-'
+                + String(date).substring(5,7));
+        } else {
+            return new Date();
+        }
+    }});
+
+    $('#upym').datebox({formatter:function(date){
+        var y = date.getFullYear();
+        var m = date.getMonth() + 1;
+        m = m < 10 ? '0' + m : m;
+        return y.toString() + '-' + m.toString();
+    },parser:function(date){
+        console.log(date);
+        if (date) {
+            return new Date(String(date).substring(0, 4) + '-'
+                + String(date).substring(5,7));
+        } else {
+            return new Date();
+        }
+    }});
+
+    $('#dateid').datebox('setValue',strDate);//默认加载当前月份
+    $('#salarylist').datagrid({
+        url: commonURL + 'm/wages/list.do',
+        pagination: true,
+        pageSize: 10,
+        pageList: [10],
+        loadFilter: function (data) {
+            if (data.data) {
+                return data.data;
+            } else {
+                return data;
+            }
+        },
+        onBeforeLoad: function (param) {
+            var startNum = Number(param.rows) * Number(param.page) - 10
+            param["startNum"] = startNum;
+            param["perNum"] = param.rows;
+        },
+        columns: [[
+            {field: 'id', title: '编号', width: 20},
+            {field: 'name', title: '姓名', width: 40},
+            {field: 'username', title: '职工号', width: 40},
+            {field: 'yyyymm', title: '时间', width: 80},
+            {field: 'shifajine', title: '实发金额(元)', width: 80}
+        ]],
+        onSelect: function (index, row) {
+            if (editRowIndex == null) return;
+            $('#salarylist').datagrid('cancelEdit', editRowIndex);
+        }
+    });
+
+    function updateRow(changes) {
+        $.post(commonURL + 'm/wages/update.do', changes, function (json) {
+            if (json.success) {
+                $.messager.alert('提示', '修改成功！', 'info');
+                $("#addialog").dialog("close")
+                $("#formlist").form('clear');
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function addrow() {
+        opdialog(1)
+        $("#addialog").dialog("open")
+    }
+
+    function opdialog(optype, userid) {
+        $("#addialog").dialog({
+            closed: true,
+            title: optype==1?'添加工资信息':'工资信息修改',
+            buttons: [{
+                text: '保存',
+                iconCls: 'icon-ok',
+                handler: function () {
+                    var formdata = $("#formlist").serializeArray()
+                    var postdata = {}
+                    $.each(formdata,
+                        function (i) {
+                            postdata[formdata[i]["name"]] = formdata[i]["value"]
+                        })
+                    if(postdata.username === ""){
+                        $("#addialog .error").removeClass("hide")
+                        return false
+                    }
+
+                    $("#addialog .error").addClass("hide")
+
+                    if(optype === 2){
+                        postdata.wagesId = userid
+                    }
+
+                    optype==1?insertRow(postdata):updateRow(postdata)
+                }
+            }]
+        })
+    }
+
+    function insertRow(postdata) {
+        $.post(commonURL + 'm/wages/add.do', postdata, function (json) {
+            if (json.success) {
+                $("#formlist").form('clear');
+                $("#addialog").dialog("close")
+                alert("添加成功")
+                $("#salarylist").datagrid('reload', {})
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function deleterow() { //删除记录
+        var rowIndex = getRowIndex($('#salarylist'))
+        var row = $('#salarylist').datagrid('getSelected')
+        $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/wages/del.do', {wagesId: row.id}, function (json) {
+                    if (json.success) {
+                        $('#salarylist').datagrid('deleteRow', rowIndex);
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+    }
+
+    function editrow() {
+        var row = $('#salarylist').datagrid('getSelected')
+        $.post(commonURL + 'm/wages/list.do', {id: row.id}, function (json) {
+            if(json.success){
+                var data = json.data.rows[0]
+                $('#formlist').form('load', data);
+                opdialog(2, row.id)
+                $("#addialog").dialog("open")
+            }else{
+                alert(json.msg)
+            }
+        })
+
+    }
+
+    function saverow() {
+        var rowIndex = editRowIndex
+        $("#salarylist").datagrid('endEdit', rowIndex)
+    }
+
+    function delfile(id, agrId) {
+        $.messager.confirm('提示', '你确定要删除这个文件吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/tserver/edit.do', {tserverId: agrId, delfileIds: id}, function (json) {
+                    if (json.success) {
+                        $.messager.alert('提示', '合同文件删除成功！', 'info');
+                        $("#contractfiles").dialog('close')
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+
+    }
+
+    function uploadsalary(userid, index, status) {
+        $("#salaryuploaddialog").dialog("open")
+    }
+
+    function submitSalary() {
+        var file = $("#salaryuploaddialog input[name=salaryupload]").get(0).files[0]
+        if (file != undefined) {
+            var fd = new FormData()
+            fd.append('file', file)
+//            fd.append('filetype', 3)
+            fd.append('yyyymm', $("#upym").val())
+            $.ajax({
+                url: commonURL + 'm/wages/leadingWages.do',
+                type: "post",
+                dataType: "json",
+                data: fd,
+                processData: false,
+                contentType: false,
+                success: function (json) {
+                    if (json["success"]) {
+                        postdata.fileIds = json.data.list[0]['fileId']
+                        insertContract(postdata)
+                    } else {
+                        alert(json.msg);
+                    }
+                }
+            });
+        }else{
+            alert("请上传工资文件")
+        }
+    }
+</script>
+</body>
+</html>
