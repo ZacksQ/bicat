@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>北京经贸学院管理系统</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/icon.css">
+    <link rel="stylesheet" href="css/global.css">
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+<div class="easyui-dialog" id="filelist" title="文件列表" closed="true"
+     style="width:300px;height:auto;padding:10px"></div>
+<table class="easyui-datagrid" style="width:100%;height:550px"
+       title="学历列表" toolbar="#tb"
+       singleSelect="true" fitColumns="true" id="eblist">
+</table>
+<div id="addialog" class="easyui-dialog" title="添加学历" style="width:500px;height:auto;padding:10px">
+    <form action="" id="formlist">
+        <table cellpadding="5">
+            <tr>
+                <td>账户:</td>
+                <td><input class="easyui-validatebox" type="text" name="username" data-options="required:true"></input></td>
+                <td>姓名:</td>
+                <td><input class="easyui-validatebox" type="text" name="name" data-options="required:true"></input></td>
+            </tr>
+            <tr>
+                <td>性别:</td>
+                <td><input class="easyui-combobox" type="text" name="sex"></input></td>
+                <td>专业:</td>
+                <td><input class="easyui-validatebox" type="text" name="major"></input></td>
+            </tr>
+            <tr>
+                <td>证书编号:</td>
+                <td><input class="easyui-validatebox" type="text" name="diploma_num" data-options="required:true"></input></td>
+                <td>证书名:</td>
+                <td><input class="easyui-validatebox" type="text" name="title" data-options="required:true"></input></td>
+            </tr><tr>
+                <td>描述:</td>
+                <td><input class="easyui-validatebox" type="text" name="descs"></input></td>
+                <td>身份证:</td>
+                <td><input class="easyui-validatebox" type="text" name="idcard"></input></td>
+            </tr><tr>
+                <td>出生日期:</td>
+                <td><input class="easyui-datebox" type="text" style="width:100%" name="birthday"></input></td>
+                <td>入学时间:</td>
+                <td><input class="easyui-datebox" name="start_school_time" style="width:100%" data-options="required:true"
+                ></input>
+                </td>
+            </tr>
+            <tr>
+                <td>毕业时间:</td>
+                <td><input class="easyui-datebox" name="end_school_time" style="width:100%" data-options="required:true"
+                ></input>
+                </td>
+                <td>文件上传:</td>
+                <td><input class="easyui-filebox" name="uploadfiles" multiple="true" buttonText="选择文件" style="width:100%"></input>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <p class="error hide">您还有未填的项目，无法提交！</p>
+</div>
+<div id="tb" style="padding:5px;height:auto">
+    <div style="margin-bottom:5px">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addrow()"></a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()"></a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="saverow()"></a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()"></a>
+    </div>
+</div>
+<script src="js/common.js"></script>
+<script>
+    var editRowIndex = null;
+    var sex = [
+        {value: 0, text: '未知'},
+        {value: 1, text: '男'},
+        {value: 2, text: '女'}
+    ]
+    $("input[name=sex]").combobox({
+        data: sex,
+        valueField: 'value',
+        textField: 'text'
+    })
+    $('#eblist').datagrid({
+        url: commonURL + 'm/diploma/list.do',
+        pagination: true,
+        pageSize: 10,
+        pageList: [10],
+        loadFilter: function (data) {
+            if (data.data) {
+                return data.data;
+            } else {
+                return data;
+            }
+        },
+        onBeforeLoad: function (param) {
+            var startNum = Number(param.rows) * Number(param.page) - 10
+            param["startNum"] = startNum
+            param["perNum"] = param.rows;
+        },
+        columns: [[
+            {field: 'id', title: '编号', width: 20},
+            {field: 'name', title: '姓名', editor: {type: 'validatebox'}, width: 100},
+            {field: 'sex', title: '性别', editor: {type: 'validatebox'},
+                editor: {
+                    type: 'combobox',
+                    options: {
+                        valueField: 'value',
+                        textField: 'text',
+                        data: sex
+                    }
+                }, width: 80,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    sex.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                }},
+            {field: 'diploma_num', title: '证书编号', editor: {type: 'validatebox', options: {required: true}}, width: 80},
+            {field: 'major', title: '专业', editor: {type: 'validatebox', options: {required: true}}, width: 80},
+            {field: 'title', title: '证书名', editor: {type: 'validatebox', options: {required: true}}, width: 80},
+            {field: 'descs', title: '描述', editor: {type: 'validatebox', options: {required: true}}, width: 80},
+            {field: 'idcard', title: '身份证', editor: {type: 'validatebox', options: {required: true}}, width: 80},
+            {field: 'start_school_timestr', title: '入学时间', editor: {type: 'datebox', options: {required: true}}, width: 80},
+            {field: 'end_school_timestr', title: '毕业时间', editor: {type: 'datebox', options: {required: true}}, width: 80},
+            {field: 'birthdaystr', title: '毕业时间', editor: {type: 'datebox', options: {required: true}}, width: 80},
+            {
+                field: 'uploadfiles',
+                title: '查看文件',
+                editor: {type: 'filebox', options: {buttonText: '选择文件'}},
+                formatter: function (value, row, index) {
+                    return '<a href="javascript:;" onclick="showfiles(\'' + row.id + '\')">查看文件</a>'
+                }
+            }
+        ]],
+        onSelect: function (index, row) {
+            if (editRowIndex == null) return;
+            $('#eblist').datagrid('cancelEdit', editRowIndex);
+        },
+        onEndEdit: function (index, row, changes) {
+            changes.diplomaId = row.id
+
+            if (changes.start_school_timestr != undefined) {
+                changes.start_school_time = changes.start_school_timestr
+            }
+            if (changes.end_school_timestr != undefined) {
+                changes.end_school_time = changes.end_school_timestr
+            }
+            if (changes.birthdaystr != undefined) {
+                changes.birthday = changes.birthdaystr
+            }
+
+            if (changes.uploadfiles != "") {
+                var filebox = $('#eblist').datagrid('getEditor', {index: index, field: 'uploadfiles'});
+                var fd = new FormData()
+                var files = $(filebox.target[0]).parent().find("input[type=file]").get(0).files
+                var fd = new FormData()
+                $.each(files, function(i, file) {
+                    fd.append('file', file);
+                });
+                fd.append('filetype', 7)
+
+                $.ajax({
+                    url: commonURL + 'm/file/up.do',
+                    type: "post",
+                    dataType: "json",
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    success: function (json) {
+                        if (json["success"]) {
+                            var fileid = []
+                            json.data.list.forEach(function (t, i) {
+                                fileid.push(json.data.list[i]['fileId'])
+                            })
+                            changes.fileIds = fileid.toString()
+                            updateRow(changes)
+                        } else {
+                            alert(json.msg);
+                        }
+                    }
+                });
+                return
+            }
+            updateRow(changes)
+        }
+    });
+
+    function updateRow(changes) {
+        $.post(commonURL + 'm/diploma/edit.do', changes, function (json) {
+            if (json.success) {
+                $.messager.alert('提示', '修改成功！', 'info');
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function addrow() {
+        $("#addialog").dialog("open")
+    }
+
+    $("#addialog").dialog({
+        closed: true,
+        buttons: [{
+            text: '添加',
+            iconCls: 'icon-ok',
+            handler: function () {
+                var formdata = $("#formlist").serializeArray()
+                var postdata = {type: 1}
+                $.each(formdata,
+                    function (i) {
+                        postdata[formdata[i]["name"]] = formdata[i]["value"]
+                    })
+//                if(postdata.username === ""){
+//                    $("#addialog .error").removeClass("hide")
+//                    return false
+//                }
+                if(postdata["sex"] == ""){
+                    postdata["sex"] = 0
+                }
+                $("#addialog .error").addClass("hide")
+
+                var file = $("input[name=uploadfiles]").get(0).files
+                if (file.length > 0) {
+                    //首先上传文件，获取文件id
+                    var fd = new FormData()
+                    $.each(file, function(i, file) {
+                        fd.append('file', file);
+                    });
+                    fd.append('filetype', 7)
+
+                    $.ajax({
+                        url: commonURL + 'm/file/up.do',
+                        type: "post",
+                        dataType: "json",
+                        data: fd,
+                        processData: false,
+                        contentType: false,
+                        success: function (json) {
+                            if (json["success"]) {
+                                var fileid = []
+                                json.data.list.forEach(function (t, i) {
+                                    fileid.push(json.data.list[i]['fileId'])
+                                })
+                                postdata.fileIds = fileid.toString()
+                                insertRow(postdata)
+                            } else {
+                                alert(json.msg);
+                            }
+                        }
+                    });
+                } else {
+                    insertRow(postdata)
+                }
+            }
+        }]
+    })
+
+    function insertRow(postdata) {
+        $.post(commonURL + 'm/diploma/add.do', postdata, function (json) {
+            if (json.success) {
+                $("#addialog").dialog("close")
+                alert("添加成功")
+                $("#eblist").datagrid('reload', {})
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function showfiles(rowid) { //显示文件列表
+        $.post(commonURL + 'm/diploma/getFilelist.do', {id: rowid}, function (json) {
+            if (json.success) {
+                var filelist = json.data.list
+                var filehtml = ''
+                if (filelist.length > 0) {
+                    filelist.forEach(function (t, i) {
+                        filehtml += '<div></div><a href="' + commonURL + t.mename + '" target="_blank">文件' +
+                                                        (i + 1) +
+                            '</a>' +
+                            '<a href="javascript:;" class="fr" onclick="delfile(\'' + t.id + '\', \'' + rowid + '\')">删除</a></div>'
+                    })
+                } else {
+                    filehtml = "暂无上传文件"
+                }
+
+                $("#filelist").dialog({
+                    content: filehtml
+                })
+                $("#filelist").dialog('open')
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function deleterow() { //删除记录
+        var rowIndex = getRowIndex($('#eblist'))
+        var row = $('#eblist').datagrid('getSelected')
+        $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/diploma/del.do', {diplomaId: row.id}, function (json) {
+                    if (json.success) {
+                        $('#eblist').datagrid('deleteRow', rowIndex);
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+    }
+
+    function editrow() {
+        var rowIndex = getRowIndex($('#eblist'))
+        editRowIndex = rowIndex
+        $('#eblist').datagrid('beginEdit', rowIndex);
+    }
+
+    function saverow() {
+        var rowIndex = editRowIndex
+        $("#eblist").datagrid('endEdit', rowIndex)
+    }
+
+    function delfile(id, diplomaId) {
+        $.messager.confirm('提示', '你确定要删除这个文件吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/diploma/edit.do', {diplomaId: diplomaId, delfileIds: id}, function (json) {
+                    if (json.success) {
+                        $.messager.alert('提示', '合同文件删除成功！', 'info');
+                        $("#filelist").dialog('close')
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+
+    }
+</script>
+</body>
+</html>
