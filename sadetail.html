@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>北京经贸学院管理系统</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/icon.css">
+    <link rel="stylesheet" href="css/global.css">
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+<div class="easyui-panel" data-options="border:false" style="padding:5px;">
+    <a href="javascript:;" class="easyui-linkbutton" id="goback" data-options="plain:true,iconCls:'icon-back'">返回</a>
+    <table class="pa-main-table">
+        <tbody>
+
+        </tbody>
+    </table>
+</div>
+<script src="js/common.js"></script>
+<script>
+    $("#goback").click(function () {
+        window.location.href = window.history.back();
+    })
+    var request = getRequest()
+    var appId = request["id"]
+
+    $.post(commonURL + 'm/baoming/info.do', {appId: appId}, function (json) {
+        if (json.success) {
+            var data = json.data;
+            var tbody = ''
+            tbody += '<tr>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>编号&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["id"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>姓名&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["name"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>性别&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.sex[data["sex"]]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>联系方式&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["phone"]) + '</td>'+
+                '</tr>'+
+                '<tr>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>考生号&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["ksh"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>省&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["province"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>市&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["city"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>住址&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["addr"]) + '</td>'+
+                '</tr>'+
+                '<tr>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>学历&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["xueli"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>身份证号&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["idcard"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>毕业学校&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["school"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>特长&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["speciality"]) + '</td>'+
+                '</tr>' +
+                '<tr>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>民族&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["nation"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>政治面貌&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["political"]) + '</td>'+
+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>志愿1&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["zy1"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>志愿2&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["zy2"]) + '</td>'+
+                '</tr>'+
+                '<tr>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>志愿3&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["zy3"]) +   '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>出生日期&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["birthdaystr"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>报考时间&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["create_timestr"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>消息来源&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["mtly"]) + '</td>'+
+                '</tr>'+
+                '<tr>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>班级任职&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["class_work"]) +   '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>班主任&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["teacher"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>电子邮箱&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["email"]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>高考分数&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["gkzf"]) + '</td>'+
+                '</tr>'+
+                '<tr>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>宿舍意向&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["zsbz"]) +   '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>是否推荐&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.bools[data["tj"]]) + '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>账户类型&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.satype[data["type"]]) +   '</td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>班主任联系方式&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["teacher_phone"]) + '</td>'+
+                '</tr>'+
+                '<tr>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>邮编&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" colspan="7" class="portlet-table-even">&nbsp;' + filterNull(data["zip_code"]) +   '</td>'+
+                '</tr>'
+
+            $(".pa-main-table tbody").html(tbody)
+        } else {
+            alert(json.msg)
+        }
+    }, 'json')
+</script>
+</body>
+</html>

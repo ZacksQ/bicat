@@ -13,87 +13,52 @@
 <body>
 <div class="easyui-dialog" id="filelist" title="文件列表" closed="true"
      style="width:300px;height:auto;padding:10px"></div>
-<div class="easyui-dialog" id="salaryuploaddialog" title="工资导入" closed="true"
-     style="width:400px;height:auto;padding:10px">
+<div class="easyui-dialog" id="enrolluploaddialog" title="录取信息导入" closed="true" style="width:400px;height:auto;padding:10px">
     <table cellpadding="5">
         <tr><td>
-    <input class="easyui-datebox" id="upym" name="yyyymm">
+    <input class="easyui-combobox" id="uptype" name="uptype" data-options="editable:false" >
         </td></tr>
         <tr><td>
-    <input class="easyui-filebox" type="text" style="width:300px;" id="salaryupload" buttonText="选择文件" name="salaryupload">
+    <input class="easyui-filebox" type="text" style="width:300px;" id="enrollupload" buttonText="选择文件" name="enrollupload">
     <a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitSalary()">上传</a>
         </td></tr>
     </table>
 </div>
 <table class="easyui-datagrid" style="width:100%;height:550px"
-       title="工资列表" toolbar="#tb"
-       singleSelect="true" fitColumns="true" id="salarylist">
+       title="录取信息列表" toolbar="#tb"
+       singleSelect="true" fitColumns="true" id="enrollist">
 </table>
 <div id="addialog" class="easyui-dialog" closed="true" style="width:auto;height:auto;padding:10px">
     <form action="" id="formlist">
         <table cellpadding="5">
             <tr>
-                <td>职工号:</td>
-                <td><input class="easyui-validatebox" data-options="required:true" type="text" name="username"></input></td>
+                <td>类型:</td>
+                <td><input class="easyui-combobox" id="ftype" name="type" data-options="editable:false"></td>
 
                 <td>姓名:</td>
                 <td><input class="easyui-validatebox" type="text" name="name"></input></td>
 
-                <td>月份:</td>
-                <td><input class="easyui-datebox" id="ym" name="yyyymm">
+                <td>考生号:</td>
+                <td><input class="easyui-validatebox" id="ym" name="ks_id">
                     </input></td>
             </tr>
             <tr>
-                <td>基本工资:</td>
-                <td><input class="easyui-validatebox" type="text" name="jibengongzi"></input></td>
+                <td>通知书号:</td>
+                <td><input class="easyui-validatebox" type="text" name="note_id"></input></td>
 
-                <td>岗位工资:</td>
-                <td><input class="easyui-validatebox" type="text" name="gangweigongzi"></input></td>
+                <td>性别:</td>
+                <td><input class="easyui-combobox" name="sex" data-options="editable:false"></td>
 
-                <td>绩效工资:</td>
-                <td><input class="easyui-validatebox" type="text" name="jixiaogongzi"></input></td>
+                <td>录取专业:</td>
+                <td><input class="easyui-validatebox" type="text" name="major"></input></td>
             </tr>
             <tr>
-                <td>校龄补贴:</td>
-                <td><input class="easyui-validatebox" type="text" name="xiaolingjingtie"></input></td>
-                <td>生活补贴:</td>
-                <td><input class="easyui-validatebox" type="text" name="shenghuobutie"></input></td>
-                <td>党务补贴:</td>
-                <td><input class="easyui-validatebox" type="text" name="dangwubutie"></input></td>
-            </tr>
-            <tr>
-                <td>值班补贴:</td>
-                <td><input class="easyui-validatebox" type="text" name="zhibanbutie"></td>
-                <td>授课酬金:</td>
-                <td><input class="easyui-validatebox" type="text" name="shoukechoujin"></input></td>
-                <td>暂时保留补贴:</td>
-                <td><input class="easyui-validatebox" type="text" name="zhanshibaoliubutie"></input></td>
-            </tr>
-            <tr>
-                <td>补发金额:</td>
-                <td><input class="easyui-validatebox" type="text" name="bufajine"></input></td>
-                <td>扣发金额:</td>
-                <td><input class="easyui-validatebox" type="text" name="koufajine">
-                    </input></td>
-                <td>应发金额(元):</td>
-                <td><input class="easyui-validatebox" type="text" name="yingfajine"></input></td>
-            </tr>
-            <tr>
-                <td>代扣社会保险:</td>
-                <td><input class="easyui-validatebox" type="text" name="daikoushehuibaoxian"></input></td>
-                <td>代扣公积金:</td>
-                <td><input class="easyui-validatebox" style="width: 100%" type="text" name="daikougongjijin"></input></td>
-                <td>代扣会费:</td>
-                <td><input class="easyui-validatebox" type="text" name="daikouhuifei"></input></td>
-            </tr>
-            <tr>
-                <td>代扣税金:</td>
-                <td><input class="easyui-validatebox" style="width: 100%" type="text" name="daikoushuijin"></input></td>
-                <td>实发金额(元):</td>
-                <td><input class="easyui-validatebox" name="shifajine" ></input>
-                </td>
-                <td></td>
-                <td></td>
+                <td>身份证:</td>
+                <td><input class="easyui-validatebox" type="text" name="idcard"></input></td>
+                <td>家庭住址:</td>
+                <td><input class="easyui-validatebox" type="text" name="addr"></input></td>
+                <td>联系方式:</td>
+                <td><input class="easyui-validatebox" type="text" name="phone"></input></td>
             </tr>
         </table>
     </form>
@@ -105,57 +70,45 @@
         <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()"></a>
         <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()"></a>
         <a href="#" class="easyui-linkbutton" iconCls="icon-large-chart" plain="true" onclick="uploadsalary()"></a>
-        <a href="files/salarytemplate.xlsx" class="easyui-linkbutton fr" target="_blank">下载工资模板</a>
+        <a href="files/enrolltemplate.xlsx" class="easyui-linkbutton fr" target="_blank">下载学生信息录取模板</a>
     </div>
 </div>
 <script src="js/common.js"></script>
 <script>
     var editRowIndex = null;
-//    $.fn.datebox.defaults.formatter = function(date){
-//        console.log(date)
-//        var y = date.getFullYear();
-//        var m = date.getMonth()+1;
-////        var d = date.getDate();
-//        return y+'-'+m;
-//    }
-    var currTime=new Date();
-    var strDate=currTime.getFullYear()+"-"+(currTime.getMonth()+1)+"-01";
-    $('#ym').datebox({formatter:function(date){
-        var y = date.getFullYear();
-        var m = date.getMonth() + 1;
-        m = m < 10 ? '0' + m : m;
-        return y.toString() + '-' + m.toString();
-    },parser:function(date){
-        console.log(date);
-        if (date) {
-            return new Date(String(date).substring(0, 4) + '-'
-                + String(date).substring(5,7));
-        } else {
-            return new Date();
-        }
-    }});
+    var entype = [
+        {value: 1, text: '统招'},
+        {value: 2, text: '计划外'}
+    ]
+    var sex = [
+        {value: 0, text: '未知'},
+        {value: 1, text: '男'},
+        {value: 2, text: '女'}
+    ]
+    $("input[name=type]").combobox({
+        data: entype,
+        valueField: 'value',
+        textField: 'text'
+    })
+    $("input[name=uptype]").combobox({
+        data: entype,
+        valueField: 'value',
+        textField: 'text'
+    })
+    $("input[name=sex]").combobox({
+        data: sex,
+        valueField: 'value',
+        textField: 'text'
+    })
 
-    $('#upym').datebox({formatter:function(date){
-        var y = date.getFullYear();
-        var m = date.getMonth() + 1;
-        m = m < 10 ? '0' + m : m;
-        return y.toString() + '-' + m.toString();
-    },parser:function(date){
-        console.log(date);
-        if (date) {
-            return new Date(String(date).substring(0, 4) + '-'
-                + String(date).substring(5,7));
-        } else {
-            return new Date();
-        }
-    }});
-
-    $('#dateid').datebox('setValue',strDate);//默认加载当前月份
-    $('#salarylist').datagrid({
-        url: commonURL + 'm/wages/list.do',
+    $('#enrollist').datagrid({
+        url: commonURL + 'm/luqu/list.do',
         pagination: true,
         pageSize: 10,
         pageList: [10],
+        queryParams:{
+            type: ''
+        },
         loadFilter: function (data) {
             if (data.data) {
                 return data.data;
@@ -171,18 +124,40 @@
         columns: [[
             {field: 'id', title: '编号', width: 20},
             {field: 'name', title: '姓名', width: 40},
-            {field: 'username', title: '职工号', width: 40},
-            {field: 'yyyymm', title: '时间', width: 80},
-            {field: 'shifajine', title: '实发金额(元)', width: 80}
+            {field: 'ks_id', title: '考生号', width: 40},
+            {field: 'sex', title: '性别', width: 40, formatter: function (value, row, index) {
+                var returnText = null
+                sex.forEach(function (t, i) {
+                    if (t["value"] == value) {
+                        returnText = t["text"]
+                    }
+                })
+                return returnText
+            }},
+            {field: 'note_id', title: '通知书号', width: 80},
+            {field: 'idcard', title: '身份证', width: 80},
+            {field: 'major', title: '专业', width: 80},
+            {field: 'addr', title: '家庭住址', width: 80},
+            {field: 'type', title: '类型', width: 100,
+                formatter: function (value, row, index) {
+                var returnText = null
+                    entype.forEach(function (t, i) {
+                    if (t["value"] == value) {
+                        returnText = t["text"]
+                    }
+                })
+                return returnText
+            }
+            }
         ]],
         onSelect: function (index, row) {
             if (editRowIndex == null) return;
-            $('#salarylist').datagrid('cancelEdit', editRowIndex);
+            $('#enrollist').datagrid('cancelEdit', editRowIndex);
         }
     });
 
     function updateRow(changes) {
-        $.post(commonURL + 'm/wages/update.do', changes, function (json) {
+        $.post(commonURL + 'm/luqu/update.do', changes, function (json) {
             if (json.success) {
                 $.messager.alert('提示', '修改成功！', 'info');
                 $("#addialog").dialog("close")
@@ -199,9 +174,14 @@
     }
 
     function opdialog(optype, userid) {
+        if(optype == 2){
+            $('#ftype').textbox('readonly',true);
+        }else{
+            $('#ftype').textbox('readonly',;
+        }
         $("#addialog").dialog({
             closed: true,
-            title: optype==1?'添加工资信息':'工资信息修改',
+            title: optype==1?'添加录取信息':'录取信息修改',
             buttons: [{
                 text: '保存',
                 iconCls: 'icon-ok',
@@ -220,7 +200,8 @@
                     $("#addialog .error").addClass("hide")
 
                     if(optype === 2){
-                        postdata.wagesId = userid
+
+                        postdata.luquId = userid
                     }
 
                     optype==1?insertRow(postdata):updateRow(postdata)
@@ -230,12 +211,12 @@
     }
 
     function insertRow(postdata) {
-        $.post(commonURL + 'm/wages/add.do', postdata, function (json) {
+        $.post(commonURL + 'm/luqu/add.do', postdata, function (json) {
             if (json.success) {
                 $("#formlist").form('clear');
                 $("#addialog").dialog("close")
                 alert("添加成功")
-                $("#salarylist").datagrid('reload', {})
+                $("#enrollist").datagrid('reload', {})
             } else {
                 alert(json.msg)
             }
@@ -243,13 +224,13 @@
     }
 
     function deleterow() { //删除记录
-        var rowIndex = getRowIndex($('#salarylist'))
-        var row = $('#salarylist').datagrid('getSelected')
+        var rowIndex = getRowIndex($('#enrollist'))
+        var row = $('#enrollist').datagrid('getSelected')
         $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
             if (r) {
-                $.post(commonURL + 'm/wages/del.do', {wagesId: row.id}, function (json) {
+                $.post(commonURL + 'm/luqu/del.do', {wagesId: row.id}, function (json) {
                     if (json.success) {
-                        $('#salarylist').datagrid('deleteRow', rowIndex);
+                        $('#enrollist').datagrid('deleteRow', rowIndex);
                     } else {
                         alert(json.msg)
                     }
@@ -259,8 +240,8 @@
     }
 
     function editrow() {
-        var row = $('#salarylist').datagrid('getSelected')
-        $.post(commonURL + 'm/wages/list.do', {id: row.id}, function (json) {
+        var row = $('#enrollist').datagrid('getSelected')
+        $.post(commonURL + 'm/luqu/list.do', {id: row.id}, function (json) {
             if(json.success){
                 var data = json.data.rows[0]
                 $('#formlist').form('load', data);
@@ -275,7 +256,7 @@
 
     function saverow() {
         var rowIndex = editRowIndex
-        $("#salarylist").datagrid('endEdit', rowIndex)
+        $("#enrollist").datagrid('endEdit', rowIndex)
     }
 
     function delfile(id, agrId) {
@@ -295,18 +276,18 @@
     }
 
     function uploadsalary(userid, index, status) {
-        $("#salaryuploaddialog").dialog("open")
+        $("#enrolluploaddialog").dialog("open")
     }
 
     function submitSalary() {
-        var file = $("#salaryuploaddialog input[name=salaryupload]").get(0).files[0]
+        var file = $("#enrolluploaddialog input[name=enrollupload]").get(0).files[0]
         if (file != undefined) {
             var fd = new FormData()
             fd.append('file', file)
 //            fd.append('filetype', 3)
-            fd.append('yyyymm', $("#upym").val())
+            fd.append('type', $("#uptype").val())
             $.ajax({
-                url: commonURL + 'm/wages/leadingWages.do',
+                url: commonURL + 'm/luqu/leadingLuqu.do',
                 type: "post",
                 dataType: "json",
                 data: fd,
@@ -314,16 +295,16 @@
                 contentType: false,
                 success: function (json) {
                     if (json["success"]) {
-                        $("#salaryuploaddialog").dialog("close")
+                        $("#enrolluploaddialog").dialog("close")
                         $.messager.alert('提示', '导入成功！', 'info');
-                        $("#salarylist").datagrid('reload', {})
+                        $("#enrollist").datagrid('reload', {})
                     } else {
                         alert(json.msg);
                     }
                 }
             });
         }else{
-            alert("请上传工资文件")
+            alert("请上传录取信息模板文件")
         }
     }
 </script>

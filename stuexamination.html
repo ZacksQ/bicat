@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>北京经贸学院管理系统</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/icon.css">
+    <link rel="stylesheet" href="css/global.css">
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+<table class="easyui-datagrid" style="width:100%;height:550px"
+       title="学生报考列表" toolbar="#tb"
+       singleSelect="true" fitColumns="true" id="salist">
+</table>
+
+<div id="tb" style="padding:5px;height:auto">
+    <div style="margin-bottom:5px">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()"></a>
+    </div>
+</div>
+<script src="js/common.js"></script>
+<script>
+    var rstatus = [
+        {value: 1, text: '未处理'},
+        {value: 2, text: '已处理'}
+    ]
+    var sex = [
+        {value: 0, text: '未知'},
+        {value: 1, text: '男'},
+        {value: 2, text: '女'}
+    ]
+    var type = [
+        {value: 1, text: '统招'},
+        {value: 2, text: '计划外'}
+    ]
+    $('#salist').datagrid({
+        url: commonURL + 'm/baoming/list.do',
+        pagination: true,
+        pageSize: 10,
+        pageList: [10],
+        queryParams:{
+            type: ''
+        },
+        loadFilter: function (data) {
+            if (data.data) {
+                return data.data;
+            } else {
+                return data;
+            }
+        },
+        onBeforeLoad: function (param) {
+            var startNum = Number(param.rows) * Number(param.page) - 10
+            param["startNum"] = startNum
+            param["perNum"] = param.rows;
+        },
+        columns: [[
+            {field: 'id', title: '编号', width: 100},
+            {field: 'ksh', title: '考生号', width: 100},
+            {field: 'name', title: '姓名', width: 100},
+            {field: 'create_timestr', title: '申请时间', width: 100},
+            {
+                field: 'type', title: '类型', width: 100,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    type.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                }
+            },{
+                field: 'sex', title: '性别', width: 100,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    sex.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                }
+            },
+            {field: 'phone', title: '联系方式', width: 100},
+            {field: 'idcard', title: '身份证号', width: 100},
+            {
+                field: 'status', title: '状态', width: 50,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    rstatus.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                }
+            },
+            {field: 'operation', title: '操作', width: 50, formatter:function (value, row, index) {
+                if(row.status == 1){
+                    return '<a href="javascript:;" onclick="passrequesition(\'' + row.id + '\', ' + index +')">通过</a>'
+                }else{
+                    return '已通过'
+                }
+            }},
+            {field: 'detail', title: '详情', width: 40, formatter: function (value, row, index) {
+                return '<a href="sadetail.html?id=' + row.id + '">查看详情</a>'
+            }}
+        ]]
+    });
+
+    function deleterow() { //删除记录
+        var rowIndex = getRowIndex($('#salist'))
+        var row = $('#salist').datagrid('getSelected')
+        $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/baoming/del.do', {appId: row.id}, function (json) {
+                    if (json.success) {
+                        $('#salist').datagrid('deleteRow', rowIndex);
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+    }
+
+    function passrequesition(appId, index) {
+        $.messager.confirm('提示', '你确定要通过这条申请吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/baoming/update.do', {appId: appId}, function (json) {
+                    if (json.success) {
+                        $('#salist').datagrid('updateRow',{
+                            index: index,
+                            row: {
+                                status: 2
+                            }
+                        });
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+    }
+
+</script>
+</body>
+</html>

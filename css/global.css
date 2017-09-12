@@ -3,7 +3,7 @@
 .fr{
     float: right;}
 a{ text-decoration: none; color:#000;}
-.header{ background-color: #0052A3;
+.header{ background: #0052A3 url(../images/topbg.jpg) no-repeat right top;
     color: #fff;
     line-height:26px;
     padding:5px;}
