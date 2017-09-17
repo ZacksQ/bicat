@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>北京经贸学院管理系统</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/icon.css">
+    <link rel="stylesheet" href="css/global.css">
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+<table class="easyui-datagrid" style="width:100%;height:550px"
+       title="反馈列表" toolbar="#tb"
+       singleSelect="true" fitColumns="true" id="fblist">
+</table>
+<div id="addialog" class="easyui-dialog" closed="true" style="width:auto;height:auto;padding:10px">
+    <form action="" id="formlist">
+        <table cellpadding="5">
+            <tr>
+                <td>表单名:</td>
+                <td><input class="easyui-validatebox" type="text" name="title"></input></td>
+
+                <td>内容描述:</td>
+                <td><input class="easyui-validatebox" type="text" name="desc"></input></td>
+            </tr>
+            <tr>
+                <td>用户类型:</td>
+                <td><input class="easyui-combobox" data-options="editable:false" type="text" name="user_type"></input></td>
+
+                <td>排序:</td>
+                <td><input class="easyui-validatebox" type="text" name="order_num"></input></td>
+
+            </tr>
+            <tr>
+                <td>开始时间:</td>
+                <td><input class="easyui-datetimebox" type="text" name="start_time"></input></td>
+                <td>结束时间:</td>
+                <td><input class="easyui-datetimebox" type="text" name="end_time"></input></td>
+            </tr>
+        </table>
+    </form>
+    <p class="error hide">您还有未填的项目，无法提交！</p>
+</div>
+<div id="tb" style="padding:5px;height:auto">
+    <div style="margin-bottom:5px">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addrow()"></a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()"></a>
+        <!--<a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="saverow()"></a>-->
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()"></a>
+    </div>
+</div>
+<script src="js/common.js"></script>
+<script>
+    var editRowIndex = null;
+    var usertype = [
+        {value: '000', text: '未知'},
+        {value: '100', text: '游客'},
+        {value: '010', text: '学生'},
+        {value: '001', text: '老师'},
+        {value: '110', text: '游客/学生'},
+        {value: '101', text: '游客/老师'},
+        {value: '011', text: '学生/老师'},
+        {value: '111', text: '游客/学生/老师'}
+    ]
+
+    $("input[name=user_type]").combobox({
+        data: usertype,
+        valueField: 'value',
+        textField: 'text'
+    })
+
+    $('#fblist').datagrid({
+        url: commonURL + 'm/form/list.do',
+        pagination: true,
+        pageSize: 10,
+        pageList: [10],
+        queryParams:{
+            type: 1
+        },
+        loadFilter: function (data) {
+            if (data.data) {
+                return data.data;
+            } else {
+                return data;
+            }
+        },
+        onBeforeLoad: function (param) {
+            var startNum = Number(param.rows) * Number(param.page) - 10
+            param["startNum"] = startNum
+            param["perNum"] = param.rows;
+        },
+        columns: [[
+            {field: 'id', title: '编号', width: 20},
+            {field: 'title', title: '标题', width: 40},
+            {field: 'descs', title: '描述', width: 40},
+            {field: 'user_type', title: '对象', width: 40,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    usertype
+                        .forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                }
+            },
+            {field: 'order_num', title: '排序', width: 40},
+            {field: 'start_timetr', title: '开始时间', width: 80},
+            {field: 'end_timestr', title: '结束时间', width: 80},
+//
+//            {field: 'detail', title: '详情', width: 40, formatter: function (value, row, index) {
+//                return '<a href="userdetail.html?usertype=2&userid=' + row.id + '">查看详情</a>' //教师usertype = 2
+//            }},
+//            {field: 'operation', title: '操作', width: 40, formatter:function (value, row, index) {
+//                if(row.status == 1){
+//                    return '<a href="javascript:;" onclick="opaccount(\'' + row.id + '\', ' + index +', 0)">封禁</a>'
+//                }else{
+//                    return '<a href="javascript:;" onclick="opaccount(\'' + row.id + '\', ' + index +', 1)">解禁</a>'
+//                }
+//            }}
+        ]],
+        onSelect: function (index, row) {
+            if (editRowIndex == null) return;
+            $('#fblist').datagrid('cancelEdit', editRowIndex);
+        }
+    });
+
+    function updateRow(changes) {
+        $.post(commonURL + 'm/form/update.do', changes, function (json) {
+            if (json.success) {
+                $.messager.alert('提示', '修改成功！', 'info');
+                $("#addialog").dialog("close")
+                $("#formlist").form('clear');
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function addrow() {
+        opdialog(1)
+        $("#addialog").dialog("open")
+    }
+
+    function opdialog(optype, formId) {
+        $("#addialog").dialog({
+            closed: true,
+            title: optype==1?'添加调查问卷表单':'信息修改',
+            buttons: [{
+                text: '保存',
+                iconCls: 'icon-ok',
+                handler: function () {
+                    var formdata = $("#formlist").serializeArray()
+                    var postdata = {}
+                    $.each(formdata,
+                        function (i) {
+                            postdata[formdata[i]["name"]] = formdata[i]["value"]
+                        })
+                    if(postdata.username === ""){
+                        $("#addialog .error").removeClass("hide")
+                        return false
+                    }
+
+                    $("#addialog .error").addClass("hide")
+
+                    if(optype === 2){
+                        postdata.formId = formId
+                    }
+                    if(optype === 1){
+                        postdata.type = 1
+                    }
+                    optype==1?insertRow(postdata):updateRow(postdata)
+                }
+            }]
+        })
+    }
+
+    function insertRow(postdata) {
+        $.post(commonURL + 'm/form/add.do', postdata, function (json) {
+            if (json.success) {
+                $("#formlist").form('clear');
+                $("#addialog").dialog("close")
+                alert("添加成功")
+                $("#fblist").datagrid('reload', {type: 1
+                })
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function deleterow() { //删除记录
+        var rowIndex = getRowIndex($('#fblist'))
+        var row = $('#fblist').datagrid('getSelected')
+        $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/form/del.do', {formId: row.id}, function (json) {
+                    if (json.success) {
+                        $('#fblist').datagrid('deleteRow', rowIndex);
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+    }
+
+    function editrow() {
+//        var rowIndex = getRowIndex($('#fblist'))
+//        editRowIndex = rowIndex
+        var row = $('#fblist').datagrid('getSelected')
+        $.post(commonURL + 'm/form/list.do', {id: row.id}, function (json) {
+            if(json.success){
+                var data = json.data.rows[0];
+                data["start_time"] = data["start_timetr"]
+                data["end_time"] = data["end_timestr"]
+                data["desc"] = data["descs"]
+                $('#formlist').form('load', data);
+                opdialog(2, row.id)
+                $("#addialog").dialog("open")
+            }else{
+                alert(json.msg)
+            }
+        })
+
+    }
+
+    function saverow() {
+        var rowIndex = editRowIndex
+        $("#fblist").datagrid('endEdit', rowIndex)
+    }
+
+</script>
+</body>
+</html>
