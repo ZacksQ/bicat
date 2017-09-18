@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>北京经贸学院管理系统</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/icon.css">
+    <link rel="stylesheet" href="css/global.css">
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+<div class="easyui-dialog" id="filelist" title="文件列表" closed="true"
+     style="width:300px;height:auto;padding:10px"></div>
+<table class="easyui-datagrid" style="width:100%;height:550px"
+       title="国际经济贸易系菜单列表" toolbar="#tb"
+       singleSelect="true" fitColumns="true" id="classlist">
+</table>
+<div id="addialog" class="easyui-dialog" closed="true" style="width:auto;height:auto;padding:10px">
+    <form action="" id="formlist">
+        <table cellpadding="5">
+            <tr>
+                <td>职工号:</td>
+                <td><input class="easyui-validatebox" data-options="required:true" type="text" name="username"></input></td>
+
+                <td>姓名:</td>
+                <td><input class="easyui-validatebox" type="text" name="name"></input></td>
+
+                <td>性别:</td>
+                <td><input class="easyui-combobox" name="sex" data-options="editable:false">
+                    </input></td>
+            </tr>
+            <tr>
+                <td>联系方式:</td>
+                <td><input class="easyui-validatebox" type="text" name="phone"></input></td>
+
+                <td>联系地址:</td>
+                <td><input class="easyui-validatebox" type="text" name="addr"></input></td>
+
+                <td>身份证号:</td>
+                <td><input class="easyui-validatebox" type="text" name="id_card"></input></td>
+            </tr>
+            <tr>
+                <td>省份:</td>
+                <td><input class="easyui-validatebox" type="text" name="province"></input></td>
+                <td>城市:</td>
+                <td><input class="easyui-validatebox" type="text" name="city"></input></td>
+                <td>邮编:</td>
+                <td><input class="easyui-validatebox" type="text" name="zip_code"></input></td>
+            </tr>
+            <tr>
+                <td>
+                    <!--账户状态:-->
+                </td>
+                <td>
+                    <!--<input class="easyui-combobox" name="type" data-options="editable:false">-->
+                </td>
+                <td>出生日期:</td>
+                <td><input class="easyui-datebox" style="width: 100%" type="text" name="birthday"></input></td>
+                <td>民族:</td>
+                <td><input class="easyui-validatebox" type="text" name="nation"></input></td>
+            </tr>
+            <tr>
+                <td>政治面貌:</td>
+                <td><input class="easyui-validatebox" type="text" name="political"></input></td>
+                <td>户籍类型:</td>
+                <td><input class="easyui-combobox" name="census_type" data-options="editable:false">
+                    </input></td>
+                <td>户口所在地:</td>
+                <td><input class="easyui-validatebox" type="text" name="census"></input></td>
+            </tr>
+            <tr>
+                <td>出生地:</td>
+                <td><input class="easyui-validatebox" type="text" name="homeplace"></input></td>
+                <td>学习经历:</td>
+                <td><input class="easyui-textbox" data-options="multiline:true" style="width: 100%" type="text" name="study"></input></td>
+                <td>档案存放部门:</td>
+                <td><input class="easyui-validatebox" type="text" name="record"></input></td>
+            </tr>
+        </table>
+    </form>
+    <p class="error hide">您还有未填的项目，无法提交！</p>
+</div>
+<div id="tb" style="padding:5px;height:auto">
+    <div style="margin-bottom:5px">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addrow()"></a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()"></a>
+        <!--<a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="saverow()"></a>-->
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()"></a>
+    </div>
+</div>
+<script src="js/common.js"></script>
+<script>
+    var editRowIndex = null;
+    var content_type = [
+        {value: 1, text: '菜单'},
+        {value: 2, text: '文档'},
+        {value: 3, text: '页面跳转'}
+    ]
+    var show_type = [
+        {value: 1, text: '显示第一篇内容'},
+        {value: 2, text: '标题'},
+        {value: 3, text: '封面标题可点击'},
+        {value: 4, text: '封面标题不可点击 '},
+        {value: 5, text: '封面标题摘要可点击 '}
+    ]
+    var college_type = [
+        {value: 1, text: '左边菜单'},
+        {value: 2, text: '右边菜单'}
+    ]
+    var is_show = [
+        {value: 0, text: '否'},
+        {value: 1, text: '是'}
+    ]
+
+//    $("input[name=sex]").combobox({
+//        data: sex,
+//        valueField: 'value',
+//        textField: 'text'
+//    })
+//    $("input[name=type]").combobox({
+//        data: accountstatus,
+//        valueField: 'value',
+//        textField: 'text'
+//    })
+//    $("input[name=census_type]").combobox({
+//        data: census_type,
+//        valueField: 'value',
+//        textField: 'text'
+//    })
+//    $("input[name=teacher_type]").combobox({
+//        data: teachtype,
+//        valueField: 'value',
+//        textField: 'text'
+//    })
+//    $("input[name=contract_type]").combobox({
+//        data: contract_type,
+//        valueField: 'value',
+//        textField: 'text'
+//    })
+//    $("input[name=work_status]").combobox({
+//        data: work_status,
+//        valueField: 'value',
+//        textField: 'text'
+//    })
+
+    $('#classlist').datagrid({
+        url: commonURL + 'm/webmenu/listCollegemenu.do',
+        pagination: true,
+        pageSize: 10,
+        pageList: [10],
+        queryParams:{
+            collegeId: 1
+        },
+        loadFilter: function (data) {
+            if (data.data) {
+                return data.data;
+            } else {
+                return data;
+            }
+        },
+        onBeforeLoad: function (param) {
+            var startNum = Number(param.rows) * Number(param.page) - 10
+            param["startNum"] = startNum
+            param["perNum"] = param.rows;
+        },
+        columns: [[
+//            {field: 'id', title: '编号', width: 20},
+            {field: 'name', title: '菜单名', width: 40},
+            {field: 'username', title: '职工号', width: 40},
+            {field: 'content_type', title: '菜单下的内容类型', width: 40,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    content_type.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                }
+            },
+            {field: 'detail', title: '详情', width: 40, formatter: function (value, row, index) {
+                return '<a href="userdetail.html?usertype=2&userid=' + row.id + '">查看详情</a>' //教师usertype = 2
+            }}
+        ]],
+        onSelect: function (index, row) {
+            if (editRowIndex == null) return;
+            $('#classlist').datagrid('cancelEdit', editRowIndex);
+        }
+    });
+
+    function updateRow(changes) {
+        $.post(commonURL + 'm/user/editUserinfo.do', changes, function (json) {
+            if (json.success) {
+                $.messager.alert('提示', '修改成功！', 'info');
+                $("#addialog").dialog("close")
+                $("#formlist").form('clear');
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function addrow() {
+        opdialog(1)
+        $("#addialog").dialog("open")
+    }
+
+    function opdialog(optype, userid) {
+        $("#addialog").dialog({
+            closed: true,
+            title: optype==1?'添加教职工':'信息修改',
+            buttons: [{
+                text: '保存',
+                iconCls: 'icon-ok',
+                handler: function () {
+                    var formdata = $("#formlist").serializeArray()
+                    var postdata = {}
+                    $.each(formdata,
+                        function (i) {
+                            postdata[formdata[i]["name"]] = formdata[i]["value"]
+                        })
+                    if(postdata.username === ""){
+                        $("#addialog .error").removeClass("hide")
+                        return false
+                    }
+
+                    $("#addialog .error").addClass("hide")
+
+                    if(optype === 2){
+                        postdata.userId = userid
+                    }
+                    if(optype === 1){
+                        postdata.type = 2
+                    }
+                    optype==1?insertRow(postdata):updateRow(postdata)
+                }
+            }]
+        })
+    }
+//    $("#addialog").dialog({
+//        closed: true,
+//        buttons: [{
+//            text: '保存',
+//            iconCls: 'icon-ok',
+//            handler: function () {
+//                var formdata = $("#formlist").serializeArray()
+//                var postdata = {}
+//                $.each(formdata,
+//                    function (i) {
+//                    postdata[formdata[i]["name"]] = formdata[i]["value"]
+//                })
+//                if(postdata.username === ""){
+//                    $("#addialog .error").removeClass("hide")
+//                    return false
+//                }
+//
+//                $("#addialog .error").addClass("hide")
+//                postdata.type = 2
+//                insertRow(postdata)
+//            }
+//        }]
+//    })
+
+    function insertRow(postdata) {
+        $.post(commonURL + 'm/user/add.do', postdata, function (json) {
+            if (json.success) {
+                $("#formlist").form('clear');
+                $("#addialog").dialog("close")
+                alert("添加成功")
+                $("#classlist").datagrid('reload', {})
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function deleterow() { //删除记录
+        var rowIndex = getRowIndex($('#classlist'))
+        var row = $('#classlist').datagrid('getSelected')
+        $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/user/del.do', {userId: row.id}, function (json) {
+                    if (json.success) {
+                        $('#classlist').datagrid('deleteRow', rowIndex);
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+    }
+
+    function editrow() {
+//        var rowIndex = getRowIndex($('#classlist'))
+//        editRowIndex = rowIndex
+        var row = $('#classlist').datagrid('getSelected')
+        $.post(commonURL + 'm/user/userinfo.do', {userId: row.id}, function (json) {
+            if(json.success){
+                var data = json.data
+                data["birthday"] = data["birthdaystr"]
+                data["teach_time"] = data["teach_timestr"]
+                $('#formlist').form('load', data);
+                opdialog(2, row.id)
+                $("#addialog").dialog("open")
+            }else{
+                alert(json.msg)
+            }
+        })
+
+    }
+
+    function saverow() {
+        var rowIndex = editRowIndex
+        $("#classlist").datagrid('endEdit', rowIndex)
+    }
+
+    function delfile(id, agrId) {
+        $.messager.confirm('提示', '你确定要删除这个文件吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/tserver/edit.do', {tserverId: agrId, delfileIds: id}, function (json) {
+                    if (json.success) {
+                        $.messager.alert('提示', '合同文件删除成功！', 'info');
+                        $("#contractfiles").dialog('close')
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+
+    }
+
+    function opaccount(userid, index, status) {
+        $.messager.confirm('提示', '你确定要' + (status==1?'解禁':'封禁') + '这个账户吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/user/close.do', {userId: userid, type: status}, function (json) {
+                    if (json.success) {
+                        $('#classlist').datagrid('updateRow',{
+                            index: index,
+                            row: {
+                                status: 2 - status
+                            }
+                        });
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+    }
+</script>
+</body>
+</html>
