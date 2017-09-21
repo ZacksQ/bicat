@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>北京经贸学院管理系统</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/icon.css">
+    <link rel="stylesheet" href="css/global.css">
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
+    <script charset="utf-8" src="kindeditor/kindeditor-all.js"></script>
+    <script charset="utf-8" src="kindeditor/lang/zh-CN.js"></script>
+</head>
+<body>
+<div class="easyui-panel" data-options="border:false" style="padding:5px;">
+    <a href="javascript:;" class="easyui-linkbutton" id="goback" data-options="plain:true,iconCls:'icon-back'">返回</a>
+    <table class="pa-main-table">
+        <tbody>
+
+        </tbody>
+    </table>
+</div>
+<table class="easyui-datagrid" style="width:100%;height:550px"
+       title="文章列表" toolbar="#tb"
+       singleSelect="true" fitColumns="true" id="articlelist">
+</table>
+<div id="addialog" class="easyui-dialog" closed="true" style="width:600px;height:480px;padding:10px">
+    <form action="" id="formlist">
+        <table cellpadding="5">
+            <tr>
+                <td>摘要:</td>
+                <td><input class="easyui-validatebox" data-options="required:true" type="text" name="summary"></input></td>
+
+                <td>标题:</td>
+                <td><input class="easyui-validatebox" type="text" name="title"></input></td>
+            </tr>
+            <tr>
+                <td>排序值:</td>
+                <td><input class="easyui-validatebox" type="text" name="order_num"></input></td>
+                <td>作者/来源:</td>
+                <td><input class="easyui-validatebox" type="text" name="auther"></input></td>
+            </tr>
+            <tr>
+                <td>封面</td>
+                <td colspan="3"><input class="easyui-filebox" id="uploadcover" style="width: 90%" buttonText='封面上传' type="text" name="cover_img"><a href="javascript:void(0)" class="easyui-linkbutton fr" onclick="submitCover()">上传</a><input type="hidden" name="coverImg"></td>
+            </tr>
+            <tr>
+                <td>
+                    内容
+                </td>
+               <td colspan="3">
+                   <textarea id="editor" name="content" style="width:90%;height:200px;">
+                </textarea>
+               </td>
+            </tr>
+        </table>
+    </form>
+    <p class="error hide">您还有未填的项目，无法提交！</p>
+</div>
+<div id="tb" style="padding:5px;height:auto">
+    <div style="margin-bottom:5px">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addrow()"></a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()"></a>
+        <!--<a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="saverow()"></a>-->
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()"></a>
+    </div>
+</div>
+<script src="js/common.js"></script>
+<script>
+    KindEditor.ready(function(K) {
+        window.editor = K.create('#editor', {
+            uploadJson : commonURL + 'ditor/jsp/upload_json.jsp',
+            fileManagerJson : commonURL + 'editor/jsp/file_manager_json.jsp',
+            allowFileManager : true
+        });
+    });
+    function submitCover() {
+        var file = $("#formlist input[name=cover_img]").get(0).files[0]
+        if (file != undefined) {
+            var fd = new FormData()
+            fd.append('file', file)
+            fd.append('filetype', 10)
+            $.ajax({
+                url: commonURL + 'm/file/up.do',
+                type: "post",
+                dataType: "json",
+                data: fd,
+                processData: false,
+                contentType: false,
+                success: function (json) {
+                    if (json["success"]) {
+                        $("#formlist input[name=coverImg]").val(json.data.list[0]["mename"])
+                        $.messager.alert('提示', '上传成功！', 'info');
+
+                    } else {
+                        alert(json.msg);
+                    }
+                }
+            });
+        }else{
+            alert("未操作")
+        }
+    }
+    $("#goback").click(function () {
+        window.location.href = window.history.back();
+    })
+    var request = getRequest()
+    var classid = request["classid"]
+    var editRowIndex = null;
+
+    $('#articlelist').datagrid({
+        url: commonURL + 'm/news/list.do',
+        pagination: true,
+        pageSize: 10,
+        pageList: [10],
+        queryParams:{
+            menuId: classid
+        },
+        loadFilter: function (data) {
+            if (data.data) {
+                return data.data;
+            } else {
+                return data;
+            }
+        },
+        onBeforeLoad: function (param) {
+            var startNum = Number(param.rows) * Number(param.page) - 10
+            param["startNum"] = startNum
+            param["perNum"] = param.rows;
+        },
+        columns: [[
+            {field: 'id', title: '编号', width: 20},
+            {field: 'title', title: '标题', width: 40},
+            {field: 'auther', title: '作者', width: 40},
+            {field: 'order_num', title: '排序值', width: 40}
+        ]],
+        onSelect: function (index, row) {
+            if (editRowIndex == null) return;
+            $('#articlelist').datagrid('cancelEdit', editRowIndex);
+        }
+    });
+
+    function updateRow(changes) {
+        $.post(commonURL + 'm/user/editUserinfo.do', changes, function (json) {
+            if (json.success) {
+                $.messager.alert('提示', '修改成功！', 'info');
+                $("#addialog").dialog("close")
+                window.editor.html('')
+                $("#formlist").form('clear');
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function addrow() {
+        opdialog(1)
+        $("#addialog").dialog("open")
+    }
+
+    function opdialog(optype, newsId) {
+        $("#addialog").dialog({
+            closed: true,
+            title: optype==1?'添加文章':'信息修改',
+            buttons: [{
+                text: '保存',
+                iconCls: 'icon-ok',
+                handler: function () {
+                    var formdata = $("#formlist").serializeArray()
+                    var postdata = {}
+                    $.each(formdata,
+                        function (i) {
+                            postdata[formdata[i]["name"]] = formdata[i]["value"]
+                        })
+                    if(postdata.username === ""){
+                        $("#addialog .error").removeClass("hide")
+                        return false
+                    }
+
+                    $("#addialog .error").addClass("hide")
+
+                    if(optype === 2){
+                        postdata.newsId = newsId
+                    }
+                    if(optype === 1){
+                        postdata.menuId = classid
+                    }
+                    postdata.content = editor.html()
+                    optype==1?insertRow(postdata):updateRow(postdata)
+                }
+            }]
+        })
+    }
+
+    function insertRow(postdata) {
+        $.post(commonURL + 'm/news/add.do', postdata, function (json) {
+            if (json.success) {
+                window.editor.html('')
+                $("#formlist").form('clear');
+                $("#addialog").dialog("close")
+                alert("添加成功")
+                $("#articlelist").datagrid('reload', {
+                    menuId: classid
+                })
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function deleterow() { //删除记录
+        var rowIndex = getRowIndex($('#articlelist'))
+        var row = $('#articlelist').datagrid('getSelected')
+        $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/news/del.do', {newsId: row.id}, function (json) {
+                    if (json.success) {
+                        $('#articlelist').datagrid('deleteRow', rowIndex);
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+    }
+
+    function editrow() {
+//        var rowIndex = getRowIndex($('#articlelist'))
+//        editRowIndex = rowIndex
+        var row = $('#articlelist').datagrid('getSelected')
+        $.post(commonURL + 'm/news/info.do', {newsId: row.id}, function (json) {
+            if(json.success){
+                var data = json.data
+                $("#uploadcover").filebox("setText", data.cover_img)
+                window.editor.html(data.content)
+                $('#formlist').form('load', data);
+                opdialog(2, row.id)
+                $("#addialog").dialog("open")
+            }else{
+                alert(json.msg)
+            }
+        })
+
+    }
+
+</script>
+</body>
+</html>
