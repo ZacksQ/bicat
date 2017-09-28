@@ -27,6 +27,13 @@ function filterNull(value) {
     }
     return value
 }
+function unique(array){
+    var n = [];//临时数组
+    for(var i = 0;i < array.length; i++){
+        if(n.indexOf(array[i]) == -1) n.push(array[i]);
+    }
+    return n;
+}
 var useraccount = {
     sex: {
         0: '未知',

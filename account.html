@@ -15,25 +15,16 @@
        title="角色列表" toolbar="#tb"
        singleSelect="true" fitColumns="true" id="rolelist">
 </table>
-<div id="addialog" class="easyui-dialog" closed="true" title="添加角色" style="width:400px;height:auto;padding:10px">
-    <table cellpadding="5">
+<div id="jurisdictionchoose" class="easyui-dialog" closed="true" title="角色选择" style="width: 300px; height: 150px;">
+    <table cellpadding="5" style="width:100%">
         <tr>
             <td>角色名:</td>
-            <td><input class="easyui-validatebox" type="text" name="name"></input></td>
+            <td><input class="easyui-combobox" data-options="required:true,editable:false" type="text" id="rolename" name="name" style="width:100%"></input></td>
         </tr>
     </table>
-    <p class="error hide">您还有未填的项目，无法提交！</p>
-</div>
-<div id="jurisdictionchoose" class="easyui-dialog" closed="true" title="权限选择" style="width: 300px; height: 500px;">
-    <ul id="jurisdictionlist" data-options="animate:true,checkbox:true" class="easyui-tree">
-    </ul>
 </div>
 <div id="tb" style="padding:5px;height:auto">
     <div style="margin-bottom:5px">
-        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addrow()"></a>
-        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()"></a>
-        <a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="saverow()"></a>
-        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()"></a>
         <a href="#" class="easyui-linkbutton" iconCls="icon-large-clipart" plain="true" onclick="showjurisdiction()"></a>
     </div>
 </div>
@@ -60,7 +51,7 @@
         textField: 'text'
     })
     $('#rolelist').datagrid({
-        url: commonURL + 'm/role/list.do',
+        url: commonURL + 'm/user/userlist.do',
         pagination: true,
         pageSize: 10,
         pageList: [10],
@@ -78,29 +69,20 @@
         },
         columns: [[
             {field: 'id', title: '编号', width: 20},
-            {field: 'name', title: '角色名', editor: {type: 'validatebox'}, width: 100},
-            {field: 'type', title: '类型', width: 40,
-                formatter: function (value, row, index) {
-                    var returnText = null
-                    roletype.forEach(function (t, i) {
-                        if (t["value"] == value) {
-                            returnText = t["text"]
-                        }
-                    })
-                    return returnText
-                }
-            },{field: 'autho_type', title: '是否可授权', width: 40,
-                formatter: function (value, row, index) {
-                    var returnText = null
-                    autho_type.forEach(function (t, i) {
-                        if (t["value"] == value) {
-                            returnText = t["text"]
-                        }
-                    })
-                    return returnText
-                }
-            }
-
+            {field: 'name', title: '姓名',width: 100},
+            {field: 'username', title: '账号(职工号/学号)',width: 100},
+            // {field: 'type', title: '类型', width: 40,
+            //     formatter: function (value, row, index) {
+            //         var returnText = null
+            //         roletype.forEach(function (t, i) {
+            //             if (t["value"] == value) {
+            //                 returnText = t["text"]
+            //             }
+            //         })
+            //         return returnText
+            //     }
+            // }
+            {field: 'role_name', title: '角色名',width: 100},
         ]],
         onSelect: function (index, row) {
             editRowId = row.id
@@ -232,19 +214,22 @@
     $("#jurisdictionchoose").dialog({
         closed: true,
         buttons: [{
-            text: '权限赋予',
+            text: '角色赋予',
             iconCls: 'icon-ok',
             handler: function () {
+                var roleid = $("#rolename").combobox("getValue")
+                if(roleid == ""){
+                    roleid = 0
+                }
                 var postdata = {
-                    rolemenus: getChecked(),
-                    roleId: editRowId
+                    roleId: roleid,
+                    userId: editRowId
                 }
                  $.ajax({
-                    url: commonURL + 'm/rolemenu/refresh.do', 
-                    data: JSON.stringify(postdata), 
+                    url: commonURL + 'm/user/updateRole.do', 
+                    data: postdata, 
                     dataType: 'json',
                     type: 'post',
-                    contentType: "application/json",
                     success: function (json) {
                     if (json.success) {
                         $("#jurisdictionchoose").dialog("close")
@@ -256,65 +241,22 @@
             }
         }]
     })
-
-    function getChecked(){
-            var nodes = $('#jurisdictionlist').tree('getChecked');
-            var s = [];
-            for(var i=0; i<nodes.length; i++){
-                // if (s != '') s += ',';
-                // s.push({'menuId': nodes[i].text});
-                s.push(nodes[i].id)
-                // if(nodes[i].parent_id != null)
-                //     s.push(nodes[i].parent_id)
-            }
-            var uns = unique(s)
-            var rolemenus = []
-            uns.forEach(function (i, index) {
-                rolemenus.push({'menuId': i})
-            })
-            // console.log(rolemenus);
-            return rolemenus
-        }
     
     function showjurisdiction() {
 //        console.log(editRowId)
         if(editRowId == null){
-            $.messager.alert('提示', '未选择角色', 'error');
+            $.messager.alert('提示', '未选择账户', 'error');
             return false;
         }
-        $.post(commonURL + 'm/menu/get.do', {
-            roleId: editRowId
+        $.post(commonURL + 'm/role/rolelist.do', {
+            name: ''
         }, function(json){
             if(json.success){
                 $("#jurisdictionchoose").dialog("open")
-                $("#jurisdictionlist").tree({
-                    data: json.data.menulist,
-                    loadFilter: function (data) {
-                        var datastring = JSON.stringify(data)
-                        var datastring = datastring.replace(/ischeck/g, 'checked')
-                        var data = JSON.parse(datastring)
-                        // console.log(data)
-                        return data
-                        // if (data.data) {
-                        //     return data.data;
-                        // } else {
-                        //     return data;
-                        // }
-                    },
-                    // onCheck: function(node){
-                    //     if(node.special_type != null){
-                    //          $.post(commonURL + 'm/menu/getSpecialLists.do', {roleId: editRowId, menuId: node.id}, function (json) {
-                    //             var datastring = JSON.stringify(json.data.specialList)
-                    //             var datastring = datastring.replace(/ischeck/g, 'checked')
-                    //                 datastring = datastring.replace(/name/g, 'text')
-                    //             var data = JSON.parse(datastring)
-                    //              $('#jurisdictionlist').tree('append', {
-                    //                 parent: node.target,
-                    //                 data: data
-                    //             });
-                    //          }, 'json')
-                    //     }
-                    // }
+                $("#rolename").combobox({
+                    data: json.data.list,
+                    valueField: 'id',
+                    textField: 'name'
                 })
             }else{
                 alert(json.msg)

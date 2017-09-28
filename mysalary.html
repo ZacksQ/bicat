@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>北京经贸学院管理系统</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/icon.css">
+    <link rel="stylesheet" href="css/global.css">
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+<table class="easyui-datagrid" style="width:100%;height:550px"
+       title="工资列表" 
+       singleSelect="true" fitColumns="true" id="salarylist">
+</table>
+<script src="js/common.js"></script>
+<script>
+    $('#salarylist').datagrid({
+        url: commonURL + 'm/wages/listmy.do',
+        pagination: true,
+        pageSize: 10,
+        pageList: [10],
+        loadFilter: function (data) {
+            if (data.data) {
+                return data.data;
+            } else {
+                return data;
+            }
+        },
+        onBeforeLoad: function (param) {
+            var startNum = Number(param.rows) * Number(param.page) - 10
+            param["startNum"] = startNum;
+            param["perNum"] = param.rows;
+        },
+        columns: [[
+            {field: 'yyyymm', title: '时间', width: 80},
+            {field: 'jibengongzi', title: '基本工资', width: 80},
+            {field: 'gangweigongzi', title: '岗位工资', width: 80},
+            {field: 'jixiaogongzi', title: '绩效工资', width: 80},
+            {field: 'xiaolingjingtie', title: '校龄补贴', width: 80},
+            {field: 'shenghuobutie', title: '生活补贴', width: 80},
+            {field: 'dangwubutie', title: '党务补贴', width: 80},
+            {field: 'zhibanbutie', title: '值班补贴', width: 80},
+            {field: 'shoukechoujin', title: '授课酬金', width: 80},
+            {field: 'zhanshibaoliubutie', title: '暂时保留补贴', width: 80},
+            {field: 'bufajine', title: '补发金额', width: 80},
+            {field: 'koufajine', title: '扣发金额', width: 80},
+            {field: 'yingfajine', title: '应发金额', width: 80},
+            {field: 'daikoushehuibaoxian', title: '代扣社会保险', width: 80},
+            {field: 'daikougongjijin', title: '代扣公积金', width: 80},
+            {field: 'daikouhuifei', title: '代扣会费', width: 80},
+            {field: 'daikoushuijin', title: '代扣税金', width: 80},
+            {field: 'shifajine', title: '实发金额', width: 80}
+        ]]
+    });
+
+</script>
+</body>
+</html>

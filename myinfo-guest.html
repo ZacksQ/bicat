@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>北京经贸学院管理系统</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/icon.css">
+    <link rel="stylesheet" href="css/global.css">
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+<!-- <div class="easyui-panel" data-options="border:false" style="padding:5px;">
+    <table class="pa-main-table">
+        <tbody>
+
+        </tbody>
+    </table>
+</div> -->
+
+<div id="addialog" class="easyui-dialog" title='我的档案' style="width:auto;height:auto;padding:10px">
+    <form action="" id="formlist">
+        <table cellpadding="5">
+            <tr>
+                <td>学号:</td>
+                <td><input class="easyui-validatebox" data-options="required:true, editable:false" type="text" name="username"></input></td>
+
+                <td>姓名:</td>
+                <td><input class="easyui-validatebox" type="text" name="name"data-options="editable:false"></input></td>
+
+                <td>性别:</td>
+                <td><input class="easyui-combobox" name="sex" data-options="editable:false">
+                    </input></td>
+            </tr>
+            <tr>
+                <td>联系方式:</td>
+                <td><input class="easyui-validatebox" type="text" name="phone"></input></td>
+
+                <td>联系地址:</td>
+                <td><input class="easyui-validatebox" type="text" name="addr"></input></td>
+
+                <td>身份证号:</td>
+                <td><input class="easyui-validatebox" type="text" name="id_card"data-options="editable:false"></input></td>
+            </tr>
+            <tr>
+                <td>省份:</td>
+                <td><input class="easyui-validatebox" type="text" name="province"></input></td>
+                <td>城市:</td>
+                <td><input class="easyui-validatebox" type="text" name="city"></input></td>
+                <td>邮编:</td>
+                <td><input class="easyui-validatebox" type="text" name="zip_code"></input></td>
+            </tr>
+            <tr>
+                <td>
+                    <!--账户状态:-->
+                </td>
+                <td>
+                    <!--<input class="easyui-combobox" name="type" data-options="editable:false">-->
+                </td>
+                <td>出生日期:</td>
+                <td><input class="easyui-datebox" style="width: 100%" type="text" name="birthday"></input></td>
+                <td>民族:</td>
+                <td><input class="easyui-validatebox" type="text" name="nation"data-options="editable:false"></input></td>
+            </tr>
+            <tr>
+                <td>政治面貌:</td>
+                <td><input class="easyui-validatebox" type="text" name="political"data-options="editable:false"></input></td>
+                <td>户籍类型:</td>
+                <td><input class="easyui-combobox" name="census_type" data-options="editable:false">
+                    </input></td>
+                <td>户口所在地:</td>
+                <td><input class="easyui-validatebox" type="text" name="census"data-options="editable:false"></input></td>
+            </tr>
+            <tr>
+                <td>出生地:</td>
+                <td><input class="easyui-validatebox" type="text" name="homeplace"data-options="editable:false"></input></td>
+                <td>学习经历:</td>
+                <td><input class="easyui-textbox" data-options="multiline:true, editable:false" style="width: 100%" type="text" name="study"></input></td>
+                <td></td>
+                <td></td>
+            </tr>
+            
+        </table>
+    </form>
+    <p class="error hide">您还有未填的项目，无法提交！</p>
+</div>
+<script src="js/common.js"></script>
+<script>
+    var sex = [
+        {value: 0, text: '未知'},
+        {value: 1, text: '男'},
+        {value: 2, text: '女'}
+    ]
+    var accountstatus = [
+        {value: 0, text: '删除'},
+        {value: 1, text: '正常'},
+        {value: 2, text: '封禁'},
+        {value: 3, text: '待审核'}
+    ]
+    var origin = [
+        {value: 1, text: '注册'},
+        {value: 2, text: '导入'}
+    ]
+    var census_type = [
+        {value: 1, text: '城镇'},
+        {value: 2, text: '农村'}
+    ]
+    var enter_type = [
+        {value: 1, text: '统招'},
+        {value: 2, text: '计划外'}
+    ]
+    var study_status = [
+        {value: 0, text: '毕业'},
+        {value: 1, text: '在读'},
+        {value: 2, text: '休学'},
+        {value: 3, text: '退学'}
+    ]
+    $("input[name=sex]").combobox({
+        data: sex,
+        valueField: 'value',
+        textField: 'text'
+    })
+    $("input[name=type]").combobox({
+        data: accountstatus,
+        valueField: 'value',
+        textField: 'text'
+    })
+    $("input[name=census_type]").combobox({
+        data: census_type,
+        valueField: 'value',
+        textField: 'text'
+    })
+    $("input[name=enter_type]").combobox({
+        data: enter_type,
+        valueField: 'value',
+        textField: 'text'
+    })
+    $("input[name=study_status]").combobox({
+        data: study_status,
+        valueField: 'value',
+        textField: 'text'
+    })
+
+        $.post(commonURL + 'm/user/myinfo.do', {}, function (json) {
+            if(json.success){
+                var data = json.data
+                data["birthday"] = data["birthdaystr"]
+                data["teach_time"] = data["teach_timestr"]
+                $('#formlist').form('load', data);
+            }else{
+                alert(json.msg)
+            }
+        })
+
+        $("#addialog").dialog({
+            buttons: [{
+                text: '保存',
+                iconCls: 'icon-ok',
+                handler: function () {
+                    var formdata = $("#formlist").serializeArray()
+                    var postdata = {}
+                    $.each(formdata,
+                        function (i) {
+                            postdata[formdata[i]["name"]] = formdata[i]["value"]
+                        })
+                    if(postdata.username === ""){
+                        $("#addialog .error").removeClass("hide")
+                        return false
+                    }
+
+                    $("#addialog .error").addClass("hide")
+                   
+                   updateRow(postdata)
+                }
+            }]
+        })
+
+        function updateRow(changes) {
+        $.post(commonURL + 'm/user/editmyinfo.do', changes, function (json) {
+            if (json.success) {
+                $.messager.alert('提示', '修改成功！', 'info');
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+    // var usertype = 2
+
+    // $.post(commonURL + 'm/user/myinfo.do', {}, function (json) {
+    //     if (json.success) {
+    //         var data = json.data;
+    //         var tbody = ''
+
+    //             tbody += '<tr>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-odd"><b>' + (usertype==2?'职工号':(usertype==3?'学号':'登录账号')) + '&nbsp;</b></td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["username"]) + '</td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-odd"><b>姓名&nbsp;</b></td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["name"]) + '</td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-odd"><b>性别&nbsp;</b></td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.sex[data["sex"]]) + '</td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-odd"><b>联系方式&nbsp;</b></td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["phone"]) + '</td>'+
+    //             '</tr>'+
+    //             '<tr>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-odd"><b>联系地址&nbsp;</b></td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["addr"]) + '</td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-odd"><b>身份证号&nbsp;</b></td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["id_card"]) + '</td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-odd"><b>省份&nbsp;</b></td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["province"]) + '</td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-odd"><b>城市&nbsp;</b></td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["city"]) + '</td>'+
+    //             '</tr>'+
+    //             '<tr>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-odd"><b>邮编&nbsp;</b></td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["zip_code"]) + '</td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-odd"><b>账户类型&nbsp;</b></td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.usertype[data["type"]]) + '</td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-odd"><b>出生日期&nbsp;</b></td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["birthday"]) + '</td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-odd"><b>民族&nbsp;</b></td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["nation"]) + '</td>'+
+    //             '</tr>'
+
+    //             if(usertype != 4){
+    //         tbody += '<tr>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-odd"><b>政治面貌&nbsp;</b></td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["political"]) + '</td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-odd"><b>户籍类型&nbsp;</b></td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.census_type[data["census_type"]]) + '</td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-odd"><b>户口所在地&nbsp;</b></td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["census"]) + '</td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-odd"><b>出生地&nbsp;</b></td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["homeplace"]) + '</td>'+
+    //             '</tr>'+
+    //             '<tr>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-odd"><b>学习经历&nbsp;</b></td>'+
+    //             '<td style="align:left;valign:middle" colspan="5" class="portlet-table-even">&nbsp;' + filterNull(data["study"]) + '</td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-odd"><b>档案存放部门&nbsp;</b></td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["record"]) + '</td>'+
+    //             '</tr>'
+    //             }else{
+    //                 tbody += '<tr>'+
+    //                     '<td style="align:left;valign:middle" class="portlet-table-odd"><b>政治面貌&nbsp;</b></td>'+
+    //                     '<td style="align:left;valign:middle" colspan="7" class="portlet-table-even">&nbsp;' + filterNull(data["political"]) + '</td>'+
+    //                         '</tr>'
+    //             }
+    //         if(usertype == 2){
+    //             tbody += '<tr>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-odd"><b>参加工作时间&nbsp;</b></td>'+
+    //                 '<td style="align:left;valign:middle" colspan="2" class="portlet-table-even">&nbsp;' + filterNull(data["teach_timestr"]) + '</td>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-odd"><b>教师类型&nbsp;</b></td>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.teachtype[data["teacher_type"]]) + '</td>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-odd"><b>签订合同类型&nbsp;</b></td>'+
+    //                 '<td style="align:left;valign:middle" colspan="2" class="portlet-table-even">&nbsp;' + filterNull(useraccount.contractype[data["contract_type"]]) + '</td>'+
+    //                 '</tr>'+
+    //                 '<tr>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-odd"><b>工作经历&nbsp;</b></td>'+
+    //                 '<td style="align:left;valign:middle" colspan="3" class="portlet-table-even">&nbsp;' + filterNull(data["work"]) + '</td>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-odd"><b>岗位变动&nbsp;</b></td>'+
+    //                 '<td style="align:left;valign:middle" colspan="3" class="portlet-table-even">&nbsp;' + filterNull(data["job_change"]) + '</td>'+
+    //                 '</tr>'+
+    //                 '<tr>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-odd"><b>专业技术职务聘任&nbsp;</b></td>'+
+    //                 '<td style="align:left;valign:middle" colspan="3" class="portlet-table-even">&nbsp;' + filterNull(data["expertise"]) + '</td>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-odd"><b>教师资格证书&nbsp;</b></td>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["qts"]) + '</td>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-odd"><b>工作状态&nbsp;</b></td>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.workstatus[data["work_status"]]) + '</td>'+
+    //                 '</tr>'
+    //         }else if(usertype == 3){
+    //             tbody += '<tr>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-odd"><b>学生证号&nbsp;</b></td>'+
+    //                 '<td style="align:left;valign:middle" colspan="2" class="portlet-table-even">&nbsp;' + filterNull(data["student_id"]) + '</td>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-odd"><b>专业&nbsp;</b></td>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["major"]) + '</td>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-odd"><b>班级&nbsp;</b></td>'+
+    //                 '<td style="align:left;valign:middle" colspan="2" class="portlet-table-even">&nbsp;' + filterNull(data["class_name"]) + '</td>'+
+    //                 '</tr>'+
+    //                 '<tr>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-odd"><b>分院&nbsp;</b></td>'+
+    //                 '<td style="align:left;valign:middle" colspan="3" class="portlet-table-even">&nbsp;' + filterNull(data["branch"]) + '</td>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-odd"><b>学习状态&nbsp;</b></td>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.study_status[data["study_status"]]) + '</td>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-odd"><b>毕业时间&nbsp;</b></td>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["graduation_time"]) + '</td>'+
+    //                 '</tr>'+
+    //                 '<tr>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-odd"><b>入学方式&nbsp;</b></td>'+
+    //                 '<td style="align:left;valign:middle" colspan="3" class="portlet-table-even">&nbsp;' + filterNull(useraccount.enter_type[data["enter_type"]]) + '</td>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-odd"><b>&nbsp;</b></td>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;</td>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-odd"><b>进本校时间&nbsp;</b></td>'+
+    //                 '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["enter_timestr"]) + '</td>'+
+    //                 '</tr>'
+    //             '<tr>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-odd"><b>参加工作时间&nbsp;</b></td>'+
+    //             '<td style="align:left;valign:middle" colspan="3" class="portlet-table-even">&nbsp;' + filterNull(data["teach_timestr"]) + '</td>'+
+    //             '<td style="align:left;valign:middle" class="portlet-table-odd"><b>毕业时间&nbsp;</b></td>'+
+    //             '<td style="align:left;valign:middle" colspan="3" class="portlet-table-even">&nbsp;' + filterNull(data["graduation_timestr"]) + '</td>'+
+    //             '</tr>'
+    //         }
+    //         $(".pa-main-table tbody").html(tbody)
+    //     } else {
+    //         alert(json.msg)
+    //     }
+    // }, 'json')
+</script>
+</body>
+</html>

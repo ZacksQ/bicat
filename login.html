@@ -6,25 +6,31 @@
 </head>
 <body>
 <form action="">
-<input type="text" name="username" value="admin">
-<input type="text" name="pwd" value="1">
-<input type="submit" value="login" id="login">
+    <input type="text" name="username" value="teacher">
+    <input type="text" name="pwd" value="1">
+    <input type="text" name="checkCode">
+    <img src="/bjcat/home/checkCode.do" alt="">
+    <input type="submit" value="login" id="login">
 </form>
-    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
+<script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
+<script src="js/common.js"></script>
 <script>
-    $("#login").bind("click", function(){
+    $("#login").bind("click", function (e) {
+        e.preventDefault()
         var username = $("input[name=username]").val()
-        var pwd = $("inpit[name=pwd]").val()
+        var pwd = $("input[name=pwd]").val()
+        var checkCode = $("input[name=checkCode]").val()
         $.ajax({
             url: commonURL + "t/user/login.do",
             data: {
                 username: username,
-                pwd: pwd
+                pwd: pwd,
+                checkCode: checkCode
             },
             dataType: 'json',
             type: 'post',
             success: function (data) {
-                if(data.success){
+                if (data.success) {
                     window.location.href = "index.html";
                 }
             }

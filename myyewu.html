@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>北京经贸学院管理系统</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/icon.css">
+    <link rel="stylesheet" href="css/global.css">
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+<table class="easyui-datagrid" style="width:100%;height:550px"
+       title="我的业务申请" toolbar="#tb"
+       singleSelect="true" fitColumns="true" id="requestlist">
+</table>
+<div id="addialog" class="easyui-dialog" closed="true" title="提交申请" style="width:400px;height:auto;padding:10px">
+    <form action="" id="formlist">
+    <table cellpadding="5">
+        <tr>
+            <td>申办事项:</td>
+            <td><input class="easyui-validatebox" type="text" name="title"></input></td>
+        </tr><tr>
+            <td>具体说明:</td>
+            <td><input class="easyui-validatebox" type="text" name="descs"></input></td>
+        </tr><tr>
+            <td>工作单位:</td>
+            <td><input class="easyui-validatebox" type="text" name="workaddr"></input></td>
+        </tr><tr>
+            <td>证明人:</td>
+            <td><input class="easyui-validatebox" type="text" name="reterence"></input></td>
+        </tr>
+    </table>
+</form>
+    <p class="error hide">您还有未填的项目，无法提交！</p>
+</div>
+<div id="tb" style="padding:5px;height:auto">
+    <div style="margin-bottom:5px">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addrow()"></a>
+    </div>
+</div>
+<script src="js/common.js"></script>
+<script>
+    var rstatus = [
+        {value: 1, text: '申请中'},
+        {value: 2, text: '已处理'}
+    ]
+    $('#requestlist').datagrid({
+        url: commonURL + 'm/yewu/mylist.do',
+        pagination: true,
+        pageSize: 10,
+        pageList: [10],
+        loadFilter: function (data) {
+            if (data.data) {
+                return data.data;
+            } else {
+                return data;
+            }
+        },
+        onBeforeLoad: function (param) {
+            var startNum = Number(param.rows) * Number(param.page) - 10
+            param["startNum"] = startNum;
+            param["perNum"] = param.rows;
+        },
+        columns: [[
+            {field: 'id', title: '编号', width: 80},
+            {field: 'title', title: '申请事项', width: 80},
+            {field: 'descs', title: '申请说明', width: 80},
+            {field: 'workaddr', title: '工作单位', width: 80},
+            {field: 'reterence', title: '推荐人', width: 80},
+            {field: 'status', title: '状态', width: 80,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    rstatus.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                }},
+            {field: 'hand_timestr', title: '处理时间', width: 80},
+            {field: 'create_timestr', title: '申请时间', width: 80}
+        ]]
+    });
+    $("#addialog").dialog({
+        closed: true,
+        buttons: [{
+            text: '提交申请',
+            iconCls: 'icon-ok',
+            handler: function () {
+                var formdata = $("#formlist").serializeArray()
+                var postdata = {}
+                $.each(formdata,
+                    function (i) {
+                        postdata[formdata[i]["name"]] = formdata[i]["value"]
+                    })
+                $("#addialog .error").addClass("hide")
+
+                insertRow(postdata)
+            }
+        }]
+    })
+
+    function addrow() {
+        $("#addialog").dialog("open")
+    }
+
+    function insertRow(postdata) {
+        $.post(commonURL + 'm/yewu/add.do', postdata, function (json) {
+            if (json.success) {
+                $("#formlist").form('clear');
+                $("#addialog").dialog("close")
+                alert("添加成功")
+                $("#requestlist").datagrid('reload', {})
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+</script>
+</body>
+</html>

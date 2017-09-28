@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>北京经贸学院管理系统</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/icon.css">
+    <link rel="stylesheet" href="css/global.css">
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+<table class="easyui-datagrid" style="width:100%;height:550px"
+       title="用品列表"
+       singleSelect="true" fitColumns="true" id="goodslist">
+</table>
+<div id="addialog" class="easyui-dialog" closed="true" title="申请填写" style="width:400px;height:auto;padding:10px">
+    <form action="" id="formlist">
+        <table cellpadding="5">
+            <tr>
+                <td>数量:</td>
+                <td><input class="easyui-validatebox" type="text" name="num" data-options="required:true"></input></td>
+            </tr>
+           
+            <tr>
+                <td>描述:</td>
+                <td><input class="easyui-validatebox" type="text" name="descs" data-options="required:true"></input></td>
+            </tr>
+            
+        </table>
+    </form>
+    <p class="error hide">您还有未填的项目，无法提交！</p>
+</div>
+<script src="js/common.js"></script>
+<script>
+    var editRowIndex = null;
+    var type = [
+        {value: 1, text: '礼品'},
+        {value: 2, text: '办公用品'}
+    ]
+    var isShow = [
+        {value: 0, text: '不显示'},
+        {value: 1, text: '显示'}
+    ]
+    $('#goodslist').datagrid({
+        url: commonURL + 'm/gift/list.do',
+        pagination: true,
+        pageSize: 10,
+        pageList: [10],
+        loadFilter: function (data) {
+            if (data.data) {
+                return data.data;
+            } else {
+                return data;
+            }
+        },
+        onBeforeLoad: function (param) {
+            var startNum = Number(param.rows) * Number(param.page) - 10
+            param["startNum"] = startNum
+            param["perNum"] = param.rows;
+        },
+        columns: [[
+            {field: 'id', title: '用品编号', width: 100},
+            {field: 'name', title: '用品名称', width: 100},
+            {
+                field: 'type', title: '用品类型', width: 100,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    type.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                }
+            },
+            {
+                field: 'is_show', title: '是否显示', width: 100,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    isShow.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                }
+            },
+            {field: 'descs', title: '物品描述', width: 100},
+            {
+                field: 'mename', title: '物品图片', align: 'center', width: 100,
+                formatter: function (value, row, index) {
+                return '<a href="' + commonURL + value + '" target="_blank"><img src="' + commonURL + value + '" width="80" /></a>'
+            }
+            },{
+                field: 'operation', title: '操作', width: 100, formatter: function(value, row, index){
+                    return '<a href="javascript:;" onclick="addrow(' + row.id + ')" target="_blank">申请</a>'
+                }}
+        ]],
+        onSelect: function (index, row) {
+            if (editRowIndex == null) return;
+            $('#goodslist').datagrid('cancelEdit', editRowIndex);
+        },
+        onBeforeEdit: function (index, row) {
+            row.menamecopy = row.mename
+//            console.log(row)
+        },
+        onEndEdit: function (index, row, changes) {
+            changes.giftId = row.id
+            row.mename = row.menamecopy
+            if (changes.is_show != undefined) {
+                changes.isShow = changes.is_show
+            }
+
+            if (changes.mename) {
+                var filebox = $('#goodslist').datagrid('getEditor', {index: index, field: 'mename'});
+                var files = $(filebox.target[0]).parent().find("input[type=file]").get(0).files[0] //先拿一个吧
+                var fd = new FormData()
+                fd.append('file', files)
+                fd.append('filetype', 4)
+
+                $.ajax({
+                    url: commonURL + 'm/file/up.do',
+                    type: "post",
+                    dataType: "json",
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    success: function (json) {
+                        if (json["success"]) {
+                            changes.fileIds = json.data.list[0]['fileId']
+                            row.mename =  json.data.list[0]['mename']
+                            row.menamecopy =  json.data.list[0]['mename']
+                            updateGoods(changes, index)
+                        } else {
+                            alert(json.msg);
+                        }
+                    }
+                });
+                return
+            }
+            updateGoods(changes)
+        }
+        , onAfterEdit: function (index, row, changes) {
+            console.log(changes)
+        }
+    });
+
+    function addrow(id) {
+        opdialog(1, id)
+        $("#addialog").dialog("open")
+    }
+
+    function opdialog(optype, goodsId) {
+        $("#addialog").dialog({
+            buttons: [{
+                text: '提交申请',
+                iconCls: 'icon-ok',
+                handler: function () {
+                    var formdata = $("#formlist").serializeArray()
+                    var postdata = {}
+                    $.each(formdata,
+                        function (i) {
+                            postdata[formdata[i]["name"]] = formdata[i]["value"]
+                        })
+                
+
+                    $("#addialog .error").addClass("hide")
+
+                 
+                    if(optype === 1){
+                        postdata.giftId = goodsId
+                    }
+            
+                    insertRow(postdata)
+                }
+            }]
+        })
+    }
+
+    function insertRow(postdata) {
+        $.post(commonURL + 'm/giftapply/add.do', postdata, function (json) {
+            if (json.success) {
+                $("#addialog").dialog("close")
+                alert("申请成功")
+                //$("#goodslist").datagrid('reload', {})
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+</script>
+</body>
+</html>
