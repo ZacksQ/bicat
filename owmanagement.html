@@ -31,7 +31,8 @@
         <table cellpadding="5" width="100%">
             <tr>
                 <td>摘要:</td>
-                <td><input class="easyui-validatebox" data-options="required:true" type="text" name="summary"></input></td>
+                <td><input class="easyui-validatebox" data-options="required:true,validType:{
+		length:[0,60]}" type="text" name="summary"></input></td>
 
                 <td>标题:</td>
                 <td><input class="easyui-validatebox" type="text" name="title"></input></td>
@@ -59,18 +60,65 @@
     </form>
     <p class="error hide">您还有未填的项目，无法提交！</p>
 </div>
+<div id="modifymenu" class="easyui-dialog" closed="true" style="width:400px;height:300px;padding:10px">
+    <form action="" id="menuformlist">
+        <table cellpadding="5">
+            <!--<tr>-->
+                <!--<td>菜单名:</td>-->
+                <!--<td><input class="easyui-validatebox" data-options="required:true" type="text" name="name"></input></td>-->
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>菜单下的内容类型:</td>-->
+                <!--<td><input class="easyui-combobox" data-options="editable:false"type="text" name="contentType"></input></td>-->
+
+            <!--</tr>-->
+            <!--<tr>-->
+                <!--<td>页面跳转时存储跳转的url(内容类型为页面跳转时填写):</td>-->
+                <!--<td><input class="easyui-validatebox" type="text" name="expand"></input></td>-->
+
+            <!--</tr>-->
+            <tr>
+                <td>文档列表展示类型:</td>
+                <td><input class="easyui-combobox" data-options="editable:false"type="text" name="showType"></input></td>
+            </tr>
+            <!--<tr>-->
+                <!--<td>是否在官网首页显示:</td>-->
+                <!--<td><input class="easyui-combobox" data-options="editable:false"type="text" name="isShow"></input></td>-->
+            <!--</tr>-->
+            <tr>
+                <td>排序:</td>
+                <td><input class="easyui-validatebox" type="text" name="orderNum"></input></td>
+            </tr>
+        </table>
+    </form>
+    <p class="error hide">您还有未填的项目，无法提交！</p>
+</div>
 <div id="tb" style="padding:5px;height:auto">
     <div style="margin-bottom:5px">
         <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addrow()"></a>
         <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()"></a>
         <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()"></a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="modifymenu()">修改菜单属性</a>
     </div>
 </div>
 <script src="js/common.js"></script>
 <script>
+    var menuId = null
+    var show_type = [
+        {value: 1, text: '显示第一篇内容'},
+        {value: 2, text: '标题'},
+        {value: 3, text: '封面标题可点击'},
+        {value: 4, text: '封面标题不可点击 '},
+        {value: 5, text: '封面标题摘要可点击 '}
+    ]
+    $("input[name=showType]").combobox({
+        data: show_type,
+        valueField: 'value',
+        textField: 'text'
+    })
     KindEditor.ready(function(K) {
         window.editor = K.create('#editor', {
-            uploadJson : commonURL + 'ditor/jsp/upload_json.jsp',
+            uploadJson : commonURL + 'editor/jsp/upload_json.jsp',
             fileManagerJson : commonURL + 'editor/jsp/file_manager_json.jsp',
             allowFileManager : true
         });
@@ -110,9 +158,34 @@
                 onClick: function(node){
                     if(node.parent_id != null){
                         var classid = node.id
+                        menuId = classid
 //                        console.log(classid)
                         $("#articlelist").datagrid('reload', {
                             menuId: classid
+                        })
+
+                        $("#modifymenu").dialog({
+                            closed: true,
+                            title: '菜单修改',
+                            buttons: [{
+                                text: '保存',
+                                iconCls: 'icon-ok',
+                                handler: function () {
+                                    var formdata = $("#menuformlist").serializeArray()
+                                    var postdata = {}
+                                    $.each(formdata,
+                                        function (i) {
+                                            postdata[formdata[i]["name"]] = formdata[i]["value"]
+                                        })
+                                    if(postdata.showType == ""){
+                                        alert("摘要长度过长")
+                                        return false
+                                    }
+
+                                    postdata.menuId = menuId
+                                    updateMenu(postdata)
+                                }
+                            }]
                         })
                     }
                 }
@@ -169,6 +242,19 @@
             $('#articlelist').datagrid('cancelEdit', editRowIndex);
         }
     });
+    updateMenu
+    function updateMenu(changes) {
+        $.post(commonURL + 'm/webmenu/editWebmenu.do', changes, function (json) {
+            if (json.success) {
+                $.messager.alert('提示', '修改成功！', 'info');
+                $("#modifymenu").dialog("close")
+                window.editor.html('')
+                $("#menuformlist").form('clear');
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
 
     function updateRow(changes) {
         $.post(commonURL + 'm/news/edit.do', changes, function (json) {
@@ -206,8 +292,8 @@
                         function (i) {
                             postdata[formdata[i]["name"]] = formdata[i]["value"]
                         })
-                    if(postdata.username === ""){
-                        $("#addialog .error").removeClass("hide")
+                    if(postdata.summary.length > 60){
+                        alert("摘要长度过长")
                         return false
                     }
 
@@ -281,6 +367,13 @@
 
     }
 
+    function modifymenu(){
+        if(menuId == null){
+            alert("菜单未选择")
+            return false
+        }
+        $("#modifymenu").dialog("open")
+    }
 </script>
 </body>
 </html>

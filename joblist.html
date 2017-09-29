@@ -149,10 +149,14 @@
         opdialog(1)
         $("#addialog").dialog("open")
     }
-    KindEditor.ready(function(K) {
-        window.editor = K.create('#editor_id');
-    });
 
+    KindEditor.ready(function(K) {
+        window.editor = K.create('#editor_id', {
+            uploadJson : commonURL + 'editor/jsp/upload_json.jsp',
+            fileManagerJson : commonURL + 'editor/jsp/file_manager_json.jsp',
+            allowFileManager : true
+        });
+    });
     function opdialog(optype, recruitId) {
         $("#addialog").dialog({
             closed: true,
