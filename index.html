@@ -14,7 +14,8 @@
     <div data-options="region:'center'">
         <div class="easyui-layout" data-options="fit:true">
 			<div data-options="region:'north'" class="header" style="height:110px">
-				<a href="#" class="easyui-linkbutton fr" data-options="plain:true,iconCls:'icon-back'">退出登录</a>
+				<a href="#" onclick="loginOut()" class="easyui-linkbutton fr" data-options="plain:true,iconCls:'icon-back'">退出登录</a>
+				<a href="../home/index.html" class="toplink fr" target="_blank">网站首页 | </a>
 				<span class="welcometip fr">登录用户：<span class="username">刘昴星</span>，北京经贸学院校园信息门户系统欢迎您！</span>
 			</div>
             <div data-options="region:'west'" title="功能导航" style="width:220px">
@@ -72,7 +73,16 @@
                     alert(json.msg)
                 }
             }, 'json')
-
+	
+		function loginOut() {
+            $.post(commonURL + 'm/user/loginout.do', {}, function(json){
+                if(json.success){
+                    window.location.href = 'login.html'
+                }else{
+                    alert(json.msg)
+                }
+            }, 'json')
+        }
     </script>	
 </body>
 </html>
