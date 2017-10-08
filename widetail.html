@@ -22,7 +22,7 @@
 <script src="js/common.js"></script>
 <script>
     $("#goback").click(function () {
-        window.location.href = window.history.back();
+        window.history.back();
     })
     var request = getRequest()
     var yewuId = request["yewuId"]
@@ -46,9 +46,9 @@
                 '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["title"]) + '</td>'+
                 '<td style="align:left;valign:middle" class="portlet-table-odd"><b>业务申请说明&nbsp;</b></td>'+
                 '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["descs"]) + '</td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>工作单位&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>所属部门&nbsp;</b></td>'+
                 '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["workaddr"]) + '</td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>推荐人&nbsp;</b></td>'+
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>申请人&nbsp;</b></td>'+
                 '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["reterence"]) + '</td>'+
                 '</tr>'+
                 '<tr>'+

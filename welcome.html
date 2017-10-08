@@ -18,11 +18,11 @@
 						<!--<img src="images/WX20170827-002735@2x.png" alt="">-->
 					<!--</div>-->
 					<div class="userintro">
-						<div>刘昴星</div>
-						<div>工号：12241242</div>
-						<div>人员身份：超级管理员</div>
-						<div>上次登录时间：2019-10-09</div>
-						<div>欢迎使用校园信息门户！</div>
+						<!--<div>刘昴星</div>-->
+						<!--<div>工号：12241242</div>-->
+						<!--<div>人员身份：超级管理员</div>-->
+						<!--<div>上次登录时间：2019-10-09</div>-->
+						<!--<div>欢迎使用校园信息门户！</div>-->
 					</div>
 				</div>
 			</div>
@@ -119,6 +119,15 @@
             alert(json.msg)
         }
     }, 'json')
+
+    $.post(commonURL + 'm/user/loginInfo.do', {}, function(json){
+        if(json.success){
+            $(".userintro").html("<div>姓名：" + json.data.name + "</div><div>用户名：" + json.data.username + "</div><div>用户角色：" + json.data.rolename + "</div><div>最后登录时间：" + json.data.last_login_timestr + "</div><div>欢迎登录本网站管理系统！</div>")
+        }else{
+            alert(json.msg)
+        }
+    }, 'json')
+
 
 </script>
 </body>

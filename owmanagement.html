@@ -97,7 +97,7 @@
         <a href="javascript:void(0)" class="easyui-linkbutton" onclick="addrow()">起草</a>
         <a href="javascript:void(0)" class="easyui-linkbutton" onclick="editrow()">编辑</a>
         <a href="javascript:void(0)" class="easyui-linkbutton" onclick="deleterow()">删除</a>
-        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="modifymenu()">修改菜单属性</a>
+        <!--<a href="javascript:void(0)" class="easyui-linkbutton" onclick="modifymenu()">修改菜单属性</a>-->
     </div>
 </div>
 <script src="js/common.js"></script>
@@ -151,12 +151,12 @@
         }
     }
 
-    $.post(commonURL + 'm/webmenu/allWebmenu.do', {}, function(json){
+    $.post(commonURL + 'm/role/cannewsMenuList.do', {menuId: 43}, function(json){
         if(json.success){
             $("#offmenu").tree({
-                data: json.data.list,
+                data: json.data.rows,
                 onClick: function(node){
-                    if(node.parent_id != null){
+//                    if(node.parent_id != null){
                         var classid = node.id
                         menuId = classid
 //                        console.log(classid)
@@ -177,19 +177,19 @@
                                         function (i) {
                                             postdata[formdata[i]["name"]] = formdata[i]["value"]
                                         })
-                                    if(postdata.showType == ""){
-                                        alert("摘要长度过长")
-                                        return false
-                                    }
+//                                    if(postdata.showType == ""){
+//                                        alert("摘要长度过长")
+//                                        return false
+//                                    }
 
                                     postdata.menuId = menuId
                                     updateMenu(postdata)
                                 }
                             }]
                         })
-                    }else{
-                        menuId = null
-                    }
+//                    }else{
+//                        menuId = null
+//                    }
                 }
             })
         }else{

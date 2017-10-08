@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>北京经贸学院管理系统</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/icon.css">
+    <link rel="stylesheet" href="css/global.css">
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+<div class="easyui-dialog" id="filelist" title="文件列表" closed="true"
+     style="width:300px;height:auto;padding:10px"></div>
+<table class="easyui-datagrid" style="width:100%;height:550px"
+       title="栏目列表" toolbar="#tb"
+       singleSelect="true" fitColumns="true" id="classlist">
+</table>
+<div id="addialog" class="easyui-dialog" closed="true" style="width:auto;height:auto;padding:10px">
+    <form action="" id="formlist">
+        <table cellpadding="5">
+            <tr>
+                <td>菜单名:</td>
+                <td><input class="easyui-validatebox" data-options="required:true" type="text" name="name"></input></td>
+            </tr>
+            <tr>
+                <td>菜单下的内容类型:</td>
+                <td><input class="easyui-combobox" data-options="editable:false"type="text" name="contentType"></input></td>
+
+            </tr>
+            <tr>
+                <td>页面跳转时存储跳转的url(内容类型为页面跳转时填写):</td>
+                <td><input class="easyui-validatebox" type="text" name="expand"></input></td>
+
+            </tr>
+            <tr>
+                <td>文档列表展示类型:</td>
+                <td><input class="easyui-combobox" data-options="editable:false"type="text" name="showType"></input></td>
+            </tr>
+            <tr>
+                <td>是否在官网首页显示:</td>
+                <td><input class="easyui-combobox" data-options="editable:false"type="text" name="isShow"></input></td>
+            </tr>
+            <tr>
+                <td>排序:</td>
+                <td><input class="easyui-validatebox" type="text" name="orderNum"></input></td>
+            </tr>
+        </table>
+    </form>
+    <p class="error hide">您还有未填的项目，无法提交！</p>
+</div>
+<div id="tb" style="padding:5px;height:auto">
+    <div style="margin-bottom:5px">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addrow()"></a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()"></a>
+        <!--<a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="saverow()"></a>-->
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()"></a>
+    </div>
+</div>
+<script src="js/common.js"></script>
+<script>
+
+    var editRowIndex = null;
+    var content_type = [
+//        {value: 1, text: '菜单'},
+        {value: 2, text: '文档'},
+        {value: 3, text: '页面跳转'}
+    ]
+    var show_type = [
+        {value: 1, text: '显示第一篇内容'},
+        {value: 2, text: '标题'},
+        {value: 3, text: '封面标题可点击'},
+        {value: 4, text: '封面标题不可点击 '},
+        {value: 5, text: '封面标题摘要可点击 '}
+    ]
+    var college_type = [
+        {value: 1, text: '左边菜单'},
+        {value: 2, text: '右边菜单'}
+    ]
+    var menu_type = [
+        {value: 1, text: '官网菜单'},
+        {value: 2, text: '分院菜单'}
+    ]
+    var is_show = [
+        {value: 0, text: '否'},
+        {value: 1, text: '是'}
+    ]
+
+    $("input[name=contentType]").combobox({
+        data: content_type,
+        valueField: 'value',
+        textField: 'text'
+    })
+    $("input[name=showType]").combobox({
+        data: show_type,
+        valueField: 'value',
+        textField: 'text'
+    })
+    $("input[name=isShow]").combobox({
+        data: is_show,
+        valueField: 'value',
+        textField: 'text'
+    })
+
+    $('#classlist').datagrid({
+        url: commonURL + 'm/webmenu/allWebmenu.do',
+        pagination: true,
+        pageSize: 10,
+        pageList: [10],
+        queryParams:{
+            collegeId: 3
+        },
+        loadFilter: function (data) {
+            if (data.data) {
+                return data.data;
+            } else {
+                return data;
+            }
+        },
+        onBeforeLoad: function (param) {
+            var startNum = Number(param.rows) * Number(param.page) - 10
+            param["startNum"] = startNum
+            param["perNum"] = param.rows;
+        },
+        columns: [[
+            {field: 'id', title: '编号', width: 20},
+            {field: 'name', title: '菜单名', width: 40},
+//            {field: 'username', title: '职工号', width: 40},
+            {field: 'content_type', title: '菜单下的内容类型', width: 40,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    content_type.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                }
+            },
+            {field: 'show_type', title: '文档列表展示类型', width: 40,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    show_type.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                }
+            },
+            {field: 'menu_type', title: '文档列表展示类型', width: 40,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    menu_type.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                }
+            },
+//            {field: 'college_type', title: '分院官网菜单类型', width: 40,
+//                formatter: function (value, row, index) {
+//                    var returnText = null
+//                    college_type.forEach(function (t, i) {
+//                        if (t["value"] == value) {
+//                            returnText = t["text"]
+//                        }
+//                    })
+//                    return returnText
+//                }
+//            },
+            {field: 'is_show', title: '是否显示', width: 40,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    is_show.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                }
+            },
+            {field: 'order_num', title: '排序', width: 40}
+//            {field: 'detail', title: '详情', width: 40, formatter: function (value, row, index) {
+//                return '<a href="infolist.html?classid=' + row.id + '">查看信息列表</a>'
+//            }}
+        ]],
+        onSelect: function (index, row) {
+            if (editRowIndex == null) return;
+            $('#classlist').datagrid('cancelEdit', editRowIndex);
+        }
+    });
+
+    function updateRow(changes) {
+        $.post(commonURL + 'm/webmenu/editCollegemenu.do', changes, function (json) {
+            if (json.success) {
+                $.messager.alert('提示', '修改成功！', 'info');
+                $("#addialog").dialog("close")
+                $("#formlist").form('clear');
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function addrow() {
+        opdialog(1)
+        $("#addialog").dialog("open")
+    }
+
+    function opdialog(optype, menuId) {
+        $("#addialog").dialog({
+            closed: true,
+            title: optype==1?'添加教职工':'信息修改',
+            buttons: [{
+                text: '保存',
+                iconCls: 'icon-ok',
+                handler: function () {
+                    var formdata = $("#formlist").serializeArray()
+                    var postdata = {}
+                    $.each(formdata,
+                        function (i) {
+                            postdata[formdata[i]["name"]] = formdata[i]["value"]
+                        })
+                    if(postdata.username === ""){
+                        $("#addialog .error").removeClass("hide")
+                        return false
+                    }
+
+                    $("#addialog .error").addClass("hide")
+
+                    if(optype === 2){
+                        postdata.menuId = menuId
+                    }
+                    if(optype === 1){
+                        postdata.collegeId = 3
+
+                    }
+                    optype==1?insertRow(postdata):updateRow(postdata)
+                }
+            }]
+        })
+    }
+
+    function insertRow(postdata) {
+        $.post(commonURL + 'm/webmenu/addCollegemenu.do', postdata, function (json) {
+            if (json.success) {
+                $("#formlist").form('clear');
+                $("#addialog").dialog("close")
+                alert("添加成功")
+                $("#classlist").datagrid('reload', {
+                    collegeId: 3
+                })
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function deleterow() { //删除记录
+        var rowIndex = getRowIndex($('#classlist'))
+        var row = $('#classlist').datagrid('getSelected')
+        $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/webmenu/delCollegemenu.do', {menuId: row.id}, function (json) {
+                    if (json.success) {
+                        $('#classlist').datagrid('deleteRow', rowIndex);
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+    }
+
+    function editrow() {
+        var row = $('#classlist').datagrid('getSelected')
+        $.post(commonURL + 'm/webmenu/listCollegemenus.do', {id: row.id, collegeId: 3}, function (json) {
+            if(json.success){
+                var data = json.data.rows[0]
+                data["contentType"] = data["content_type"]
+                data["showType"] = data["show_type"]
+                data["isShow"] = data["is_show"]
+                data["orderNum"] = data["order_num"]
+                $('#formlist').form('load', data);
+                opdialog(2, row.id)
+                $("#addialog").dialog("open")
+            }else{
+                alert(json.msg)
+            }
+        })
+
+    }
+
+</script>
+</body>
+</html>
