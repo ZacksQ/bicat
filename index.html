@@ -54,7 +54,7 @@
                     $("#nav").tree({
                         data: json.data.menulist,
 						onClick: function(node){
-                            if(node.parent_id != null){
+                            if(node.url != null){
                                 var openlink = node
                                 openiniframe(openlink)
 							}

@@ -33,8 +33,7 @@
                 <td>标题:</td>
                 <td><input class="easyui-validatebox" type="text" name="title"></input></td>
                 <td>摘要:</td>
-                <td><input class="easyui-validatebox" data-options="required:true,validType:{
-		length:[0,60]}" type="text" name="summary"></input></td>
+                <td><input class="easyui-validatebox" data-options="required:true" type="text" name="summary"></input></td>
             </tr>
             <tr>
                 <td>排序值:</td>
@@ -300,10 +299,10 @@
                         function (i) {
                             postdata[formdata[i]["name"]] = formdata[i]["value"]
                         })
-                    if(postdata.summary.length > 60){
-                        alert("摘要长度过长")
-                        return false
-                    }
+//                    if(postdata.summary.length > 60){
+//                        alert("摘要长度过长")
+//                        return false
+//                    }
 
                     $("#addialog .error").addClass("hide")
 

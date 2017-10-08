@@ -193,7 +193,7 @@
     });
 
     function updateRow(changes) {
-        $.post(commonURL + 'm/webmenu/editCollegemenu.do', changes, function (json) {
+        $.post(commonURL + 'm/webmenu/editWebmenu.do', changes, function (json) {
             if (json.success) {
                 $.messager.alert('提示', '修改成功！', 'info');
                 $("#addialog").dialog("close")
@@ -212,7 +212,7 @@
     function opdialog(optype, menuId) {
         $("#addialog").dialog({
             closed: true,
-            title: optype==1?'添加教职工':'信息修改',
+            title: optype==1?'添加栏目':'信息修改',
             buttons: [{
                 text: '保存',
                 iconCls: 'icon-ok',
@@ -244,7 +244,7 @@
     }
 
     function insertRow(postdata) {
-        $.post(commonURL + 'm/webmenu/addCollegemenu.do', postdata, function (json) {
+        $.post(commonURL + 'm/webmenu/addWebmenu.do', postdata, function (json) {
             if (json.success) {
                 $("#formlist").form('clear');
                 $("#addialog").dialog("close")
@@ -276,7 +276,7 @@
 
     function editrow() {
         var row = $('#classlist').datagrid('getSelected')
-        $.post(commonURL + 'm/webmenu/listCollegemenus.do', {id: row.id, collegeId: 3}, function (json) {
+        $.post(commonURL + 'm/webmenu/infoMenu.do', {id: row.id}, function (json) {
             if(json.success){
                 var data = json.data.rows[0]
                 data["contentType"] = data["content_type"]
