@@ -183,12 +183,12 @@
             },
             {field: 'order_num', title: '排序', width: 40},
             {field: 'detail', title: '详情', width: 40, formatter: function (value, row, index) {
-                return '<a href="infolist.html?classid=' + row.id + '">查看信息列表</a>'
+                return '<a href="infolist.html?classid=' + row.id + '">内容管理</a>'
             }}
         ]],
         onSelect: function (index, row) {
-            if (editRowIndex == null) return;
-            $('#classlist').datagrid('cancelEdit', editRowIndex);
+            editRowIndex = index
+//            if (editRowIndex == null) return;
         }
     });
 
@@ -198,6 +198,10 @@
                 $.messager.alert('提示', '修改成功！', 'info');
                 $("#addialog").dialog("close")
                 $("#formlist").form('clear');
+                $('#classlist').datagrid('updateRow',{
+                    index: editRowIndex,
+                    row: changes
+                });
             } else {
                 alert(json.msg)
             }

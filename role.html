@@ -291,7 +291,7 @@
             var ownodes = $('#owlist').tree('getChecked');
             var ows = [];
             for(var i = 0; i < ownodes.length; i++){
-                ows.push(nodes[i].id)
+                ows.push(ownodes[i].id)
             }
             var owuns = unique(ows)
             owuns.forEach(function (i, index) {

@@ -187,8 +187,8 @@
 //            }}
         ]],
         onSelect: function (index, row) {
-            if (editRowIndex == null) return;
-            $('#classlist').datagrid('cancelEdit', editRowIndex);
+            editRowIndex = index
+//            if (editRowIndex == null) return;
         }
     });
 
@@ -198,6 +198,10 @@
                 $.messager.alert('提示', '修改成功！', 'info');
                 $("#addialog").dialog("close")
                 $("#formlist").form('clear');
+                $('#classlist').datagrid('updateRow',{
+                    index: editRowIndex,
+                    row: changes
+                });
             } else {
                 alert(json.msg)
             }
@@ -263,7 +267,7 @@
         var row = $('#classlist').datagrid('getSelected')
         $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
             if (r) {
-                $.post(commonURL + 'm/webmenu/delCollegemenu.do', {menuId: row.id}, function (json) {
+                $.post(commonURL + 'm/webmenu/delWebmenu.do', {menuId: row.id}, function (json) {
                     if (json.success) {
                         $('#classlist').datagrid('deleteRow', rowIndex);
                     } else {
@@ -278,7 +282,7 @@
         var row = $('#classlist').datagrid('getSelected')
         $.post(commonURL + 'm/webmenu/infoMenu.do', {id: row.id}, function (json) {
             if(json.success){
-                var data = json.data.rows[0]
+                var data = json.data
                 data["contentType"] = data["content_type"]
                 data["showType"] = data["show_type"]
                 data["isShow"] = data["is_show"]

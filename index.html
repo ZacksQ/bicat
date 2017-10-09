@@ -77,7 +77,7 @@
 		function loginOut() {
             $.post(commonURL + 'm/user/loginout.do', {}, function(json){
                 if(json.success){
-                    window.location.href = 'login.html'
+                    window.location.href = '../home/login.html'
                 }else{
                     alert(json.msg)
                 }

@@ -14,7 +14,7 @@
 <div class="easyui-dialog" id="filelist" title="文件列表" closed="true"
      style="width:300px;height:auto;padding:10px"></div>
 <table class="easyui-datagrid" style="width:100%;height:550px"
-       title="国际经济贸易系菜单列表" toolbar="#tb"
+       title="思想政治课部菜单列表" toolbar="#tb"
        singleSelect="true" fitColumns="true" id="classlist">
 </table>
 <div id="addialog" class="easyui-dialog" closed="true" style="width:auto;height:auto;padding:10px">
@@ -52,9 +52,9 @@
 </div>
 <div id="tb" style="padding:5px;height:auto">
     <div style="margin-bottom:5px">
-        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addrow()">起草</a>
-        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()">编辑</a>
-        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()">删除</a>
+        <a href="#" class="easyui-linkbutton" onclick="addrow()">起草</a>
+        <a href="#" class="easyui-linkbutton"  onclick="editrow()">编辑</a>
+        <a hre="#" class="easyui-linkbutton"  onclick="deleterow()">删除</a>
     </div>
 </div>
 <script src="js/common.js"></script>
@@ -101,21 +101,6 @@
         valueField: 'value',
         textField: 'text'
     })
-//    $("input[name=teacher_type]").combobox({
-//        data: teachtype,
-//        valueField: 'value',
-//        textField: 'text'
-//    })
-//    $("input[name=contract_type]").combobox({
-//        data: contract_type,
-//        valueField: 'value',
-//        textField: 'text'
-//    })
-//    $("input[name=work_status]").combobox({
-//        data: work_status,
-//        valueField: 'value',
-//        textField: 'text'
-//    })
 
     $('#classlist').datagrid({
         url: commonURL + 'm/webmenu/listCollegemenus.do',
@@ -123,7 +108,7 @@
         pageSize: 10,
         pageList: [10],
         queryParams:{
-            collegeId: 1
+            collegeId: 5
         },
         loadFilter: function (data) {
             if (data.data) {
@@ -252,7 +237,7 @@
                         postdata.menuId = menuId
                     }
                     if(optype === 1){
-                        postdata.collegeId = 1
+                        postdata.collegeId = 5
 
                     }
                     optype==1?insertRow(postdata):updateRow(postdata)
@@ -268,7 +253,7 @@
                 $("#addialog").dialog("close")
                 alert("添加成功")
                 $("#classlist").datagrid('reload', {
-                    collegeId: 1
+                    collegeId: 5
                 })
             } else {
                 alert(json.msg)
@@ -294,7 +279,7 @@
 
     function editrow() {
         var row = $('#classlist').datagrid('getSelected')
-        $.post(commonURL + 'm/webmenu/listCollegemenus.do', {id: row.id, collegeId: 1}, function (json) {
+        $.post(commonURL + 'm/webmenu/listCollegemenus.do', {id: row.id, collegeId: 5}, function (json) {
             if(json.success){
                 var data = json.data.rows[0]
                 data["contentType"] = data["content_type"]
