@@ -44,6 +44,10 @@
             <td><input class="easyui-validatebox" type="text" name="desc" data-options="required:true"></input></td>
         </tr>
         <tr>
+            <td>部门:</td>
+            <td><input class="easyui-validatebox" type="text" name="branch" data-options="required:true"></input></td>
+        </tr>
+        <tr>
             <td>合同截止时间:</td>
             <td><input class="easyui-datebox" name="endTime" style="width:100%" data-options="required:true"
             ></input>
@@ -64,6 +68,11 @@
         <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()">编辑</a>
         <a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="saverow()">保存</a>
         <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()">删除</a>
+        <input class="easyui-searchbox" data-options="prompt:'',menu:'#mm',searcher:doSearch" style="width:300px"></input>
+        <div id="mm">
+            <div data-options="name:'name'">姓名</div>
+            <div data-options="name:'branch'">部门</div>
+        </div>
     </div>
 </div>
 <script src="js/common.js"></script>
@@ -115,6 +124,7 @@
                     }
                 }
             },
+            {field: 'branch', title: '部门', editor: {type: 'validatebox', options: {required: true}}, width: 100},
             {field: 'descs', title: '合同描述', editor: {type: 'validatebox', options: {required: true}}, width: 100},
             {field: 'ent_timestr', title: '合同到期时间', editor: {type: 'datebox', options: {required: true}}, width: 100},
             {
@@ -195,6 +205,7 @@
                     username: $("input[name=username]").val(),
                     name: $("input[name=name]").val(),
                     type: $("input[name=type]").val(),
+                    branch: $("input[name=branch]").val(),
                     desc: $("input[name=desc]").val(),
                     endTime: $("input[name=endTime]").val(),
                     fileIds: '' //file list set empty
@@ -324,6 +335,12 @@
 
     }
 
+    function doSearch(value,name){
+        //alert('You input: ' + value+'('+name+')');
+        var postdata = {}
+        postdata[name] = value
+        $("#contractlist").datagrid('reload', postdata)
+    }
 </script>
 </body>
 </html>

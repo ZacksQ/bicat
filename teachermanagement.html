@@ -113,8 +113,11 @@
     <div style="margin-bottom:5px">
         <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addrow()">起草</a>
         <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()">编辑</a>
-        <!--<a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="saverow()"></a>-->
         <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()">删除</a>
+        <input class="easyui-searchbox" data-options="prompt:'',menu:'#mm',searcher:doSearch" style="width:300px"></input>
+        <div id="mm">
+            <div data-options="name:'name'">姓名</div>
+        </div>
     </div>
 </div>
 <script src="js/common.js"></script>
@@ -418,6 +421,13 @@
                 }, 'json')
             }
         });
+    }
+
+    function doSearch(value,name){
+        //alert('You input: ' + value+'('+name+')');
+        var postdata = {}
+        postdata[name] = value
+        $("#userlist").datagrid('reload', postdata)
     }
 </script>
 </body>
