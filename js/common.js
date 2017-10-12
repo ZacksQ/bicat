@@ -89,3 +89,12 @@ var useraccount = {
         2: '计划外'
     }
 }
+
+$(document).ajaxComplete(function (event, xhr, settings) {
+    var sessionStatus = xhr.getResponseHeader("sessionstatus");
+    if (typeof (sessionStatus) !== 'undefined' && sessionStatus != null) {
+        if (sessionStatus === "timeout") {
+            window.location.href = "../home/login.html";
+        }
+    }
+});
