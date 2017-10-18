@@ -62,7 +62,7 @@
                     })
                     openiniframe({url: "welcome", text: "欢迎"})
 				}else{
-			        alert(json.msg)
+                    console.log(json.msg)
 				}
 			}, 'json')
 
@@ -70,7 +70,7 @@
                 if(json.success){
                     $(".username").text(json.data.name)
                 }else{
-                    alert(json.msg)
+                    console.log(json.msg)
                 }
             }, 'json')
 	
@@ -79,7 +79,7 @@
                 if(json.success){
                     window.location.href = '../home/login.html'
                 }else{
-                    alert(json.msg)
+                    console.log(json.msg)
                 }
             }, 'json')
         }

@@ -9,26 +9,14 @@
     <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
     <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.easyui.min.js"></script>
     <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
-    <script charset="utf-8" src="kindeditor/kindeditor-all.js"></script>
-    <script charset="utf-8" src="kindeditor/lang/zh-CN.js"></script>
 </head>
 <body>
 <div class="easyui-dialog" id="filelist" title="文件列表" closed="true"
      style="width:300px;height:auto;padding:10px"></div>
-<div class="easyui-layout" id="cc" style="width:100%; height:550px;">
-    <div data-options="region:'west',split:true" title="栏目列表" style="width:170px;">
-        <ul id="offmenu" class="easyui-tree">
-        </ul>
-    </div>
-    <div data-options="region:'center'">
-        <table class="easyui-datagrid" style="width:100%;height:550px"
-               title="栏目列表" toolbar="#tb"
-               singleSelect="true" fitColumns="true">
-               <!--id="classlist"-->
-        <!--&gt;-->
-        </table>
-    </div>
-</div>
+<table class="easyui-datagrid" style="width:100%;height:550px"
+       title="栏目列表" toolbar="#tb"
+       singleSelect="true" fitColumns="true" id="classlist">
+</table>
 <div id="addialog" class="easyui-dialog" closed="true" style="width:auto;height:auto;padding:10px">
     <form action="" id="formlist">
         <table cellpadding="5">
@@ -71,7 +59,7 @@
 </div>
 <script src="js/common.js"></script>
 <script>
-    var menuId = null
+
     var editRowIndex = null;
     var content_type = [
 //        {value: 1, text: '菜单'},
@@ -204,75 +192,16 @@
         }
     });
 
-    $.post(commonURL + 'm/role/cannewsMenuList.do', {menuId: 43}, function(json){
-        if(json.success){
-            $("#offmenu").tree({
-                data: json.data.rows,
-                onClick: function(node){
-
-                    if(node.parent_id != null){
-                        $(".banner").show()
-                    }else{
-                        $(".banner").hide()
-                    }
-                    var classid = node.id
-                    menuId = classid
-//                        console.log(classid)
-                    $("#articlelist").datagrid('reload', {
-                        menuId: classid
-                    })
-
-                    $("#modifymenu").dialog({
-                        closed: true,
-                        title: '菜单修改',
-                        buttons: [{
-                            text: '保存',
-                            iconCls: 'icon-ok',
-                            handler: function () {
-                                var formdata = $("#menuformlist").serializeArray()
-                                var postdata = {}
-                                $.each(formdata,
-                                    function (i) {
-                                        postdata[formdata[i]["name"]] = formdata[i]["value"]
-                                    })
-//                                    if(postdata.showType == ""){
-//                                        alert("摘要长度过长")
-//                                        return false
-//                                    }
-
-                                postdata.menuId = menuId
-                                updateMenu(postdata)
-                            }
-                        }]
-                    })
-//                    }else{
-//                        menuId = null
-//                    }
-                }
-            })
-        }else{
-            alert(json.msg)
-        }
-    }, 'json')
-
     function updateRow(changes) {
         $.post(commonURL + 'm/webmenu/editWebmenu.do', changes, function (json) {
             if (json.success) {
                 $.messager.alert('提示', '修改成功！', 'info');
                 $("#addialog").dialog("close")
                 $("#formlist").form('clear');
-//                $('#classlist').datagrid('updateRow',{
-//                    index: editRowIndex,
-//                    row: changes
-//                });
-                var selectednode = $("#offmenu").tree("getSelected")
-                if(selectednode){
-                    $("#offmenu").tree('update',{
-                        target: selectednode.target,
-                        text: changes.name
-                    })
-                }
-
+                $('#classlist').datagrid('updateRow',{
+                    index: editRowIndex,
+                    row: changes
+                });
             } else {
                 alert(json.msg)
             }
@@ -308,9 +237,8 @@
                     if(optype === 2){
                         postdata.menuId = menuId
                     }
-                    var node = $('#offmenu').tree('getSelected');
-                    if(optype === 1 && node){
-                        postdata.parentId = node.id
+                    if(optype === 1){
+                        postdata.collegeId = 3
 
                     }
                     optype==1?insertRow(postdata):updateRow(postdata)
@@ -325,21 +253,9 @@
                 $("#formlist").form('clear');
                 $("#addialog").dialog("close")
                 alert("添加成功")
-                var node = $('#offmenu').tree('getSelected');
-                var data = json.data.info
-                data.text = data.name
-                if (node){
-                    $('#offmenu').tree('append', {
-                        parent: node.target,
-                        data: json.data.info
-                    });
-                }else{
-                    $('#offmenu').tree('insert', {
-//                        before: node.target,
-                        data: json.data.info
-                    });
-                }
-                //需要服务器返回ID
+                $("#classlist").datagrid('reload', {
+                    collegeId: 3
+                })
             } else {
                 alert(json.msg)
             }
@@ -347,16 +263,13 @@
     }
 
     function deleterow() { //删除记录
-//        var rowIndex = getRowIndex($('#classlist'))
-//        var row = $('#classlist').datagrid('getSelected')
-        var selectednode = $("#offmenu").tree("getSelected")
-
-        $.messager.confirm('提示', '你确定要删除这个栏目吗？', function (r) {
+        var rowIndex = getRowIndex($('#classlist'))
+        var row = $('#classlist').datagrid('getSelected')
+        $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
             if (r) {
-                $.post(commonURL + 'm/webmenu/delWebmenu.do', {menuId: selectednode.id}, function (json) {
+                $.post(commonURL + 'm/webmenu/delCollegemenu.do', {menuId: row.id}, function (json) {
                     if (json.success) {
-                        alert("删除成功")
-                        $("#offmenu").tree("remove", selectednode.target)
+                        $('#classlist').datagrid('deleteRow', rowIndex);
                     } else {
                         alert(json.msg)
                     }
@@ -366,8 +279,8 @@
     }
 
     function editrow() {
-//        var row = $('#classlist').datagrid('getSelected')
-        $.post(commonURL + 'm/webmenu/infoMenu.do', {id: menuId}, function (json) {
+        var row = $('#classlist').datagrid('getSelected')
+        $.post(commonURL + 'm/webmenu/infoMenu.do', {id: row.id}, function (json) {
             if(json.success){
                 var data = json.data
                 data["contentType"] = data["content_type"]
@@ -375,7 +288,7 @@
                 data["isShow"] = data["is_show"]
                 data["orderNum"] = data["order_num"]
                 $('#formlist').form('load', data);
-                opdialog(2, menuId)
+                opdialog(2, row.id)
                 $("#addialog").dialog("open")
             }else{
                 alert(json.msg)

@@ -85,7 +85,7 @@ var servertype = [
                 title: '查看文件',
        
                 formatter: function (value, row, index) {
-                    return '<a href="javascript:;" onclick="showfiles(\'' + row.id + '\')">查看文件</a>'
+                    return '<a href="javascript:;" onclick="showfiles(\'' + row.id + '\')">查看下载文件</a>'
                 }
             },{
                 field: 'operation', title: '操作', width: 100, formatter: function(value, row, index){
@@ -169,7 +169,7 @@ function showfiles(rowid) { //显示文件列表
                 var filehtml = ''
                 if (filelist.length > 0) {
                     filelist.forEach(function (t, i) {
-                        filehtml += '<div></div><a href="' + commonURL + t.mename + '" target="_blank">文件' +
+                        filehtml += '<div></div><a href="' + commonURL + t.mename + '" target="_blank">下载文件' +
                                                         (i + 1) +
                             '</a>'
                     })

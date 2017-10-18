@@ -1,5 +1,5 @@
 //公共接口调用前缀
-var commonURL = "http://115.159.225.127:7070/bjcat/";
+var commonURL = "http://116.196.114.149:8080/bjcat/";
 
 //获取datagrid单选行
 function getRowIndex(selector) {

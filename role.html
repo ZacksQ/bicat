@@ -24,7 +24,7 @@
     </table>
     <p class="error hide">您还有未填的项目，无法提交！</p>
 </div>
-<div id="jurisdictionchoose" class="easyui-dialog" closed="true" title="权限选择" style="width: 600px; height: 500px;">
+<div id="jurisdictionchoose" class="easyui-dialog" closed="true" title="权限选择" style="width: 600px; height: 380px;">
     <div class="easyui-layout" style="width:600px;height:350px;">
         <div data-options="region:'west',split:true" style="width:300px; height: 450px;">
             <ul id="jurisdictionlist" data-options="animate:true,checkbox:true" class="easyui-tree">
@@ -278,8 +278,12 @@
                 continue;
             }
             s.push(nodes[i].id)
-            // if(nodes[i].parent_id != null)
-            //     s.push(nodes[i].parent_id)
+             if(nodes[i].parent_id != null){
+                 s.push(nodes[i].parent_id)
+             }
+            var pnode = $('#jurisdictionlist').tree('find', nodes[i].parent_id);
+            if(pnode != null)
+                s.push(pnode.parent_id)
         }
         var uns = unique(s)
         var rolemenus = []
@@ -292,11 +296,25 @@
             var ows = [];
             for(var i = 0; i < ownodes.length; i++){
                 ows.push(ownodes[i].id)
+                if(ownodes[i].parent_id != null){
+                    ows.push(ownodes[i].parent_id)
+                }
+                var owpnode = $('#owlist').tree('find', ownodes[i].parent_id);
+                if(owpnode != null)
+                    ows.push(owpnode.parent_id)
+
+//                if(ownodes[i].parent_id.parent_id != null){
+//                    ows.push(ownodes[i].parent_id.parent_id)
+//                }
             }
             var owuns = unique(ows)
+            var ex = []
             owuns.forEach(function (i, index) {
-                rolemenus.push({'menuId': 43, "expand": "43_" + i})
+                ex.push(i)
             })
+            var exstring = ex.join('_')
+            rolemenus.push({'menuId': 41})
+            rolemenus.push({'menuId': 43, "expand": exstring})
         }
 
         console.log(rolemenus);
@@ -320,7 +338,7 @@
                         var datastring = JSON.stringify(data)
                         var datastring = datastring.replace(/ischeck/g, 'checked')
                         var data = JSON.parse(datastring)
-                        // console.log(data)
+                         console.log(data)
                         return data
                         // if (data.data) {
                         //     return data.data;
@@ -335,12 +353,36 @@
                                  var datastring = datastring.replace(/ischeck/g, 'checked')
                                      datastring = datastring.replace(/name/g, 'text')
                                  var data = JSON.parse(datastring)
-                                  $('#owlist').tree({
-                                     data: data
-                                 });
+                                  $('#owlist').tree('loadData',data
+                                 );
                               }, 'json')
                          }
-                     }
+                     },
+                    onLoadSuccess: function (node, data) {
+//                        console.log(data)
+                        for(var i = 0; i < data.length; i++){
+                            if(data[i].id === 41){
+                                var children = data[i].children
+                                for(var j = 0; j < children.length; j++){
+                                    if(children[j].id === 43){
+                                        if(children[j].checked == true){
+                                            $.post(commonURL + 'm/menu/getSpecialLists.do', {roleId: editRowId, menuId: 43}, function (json) {
+                                                var datastring = JSON.stringify(json.data.specialList)
+                                                var datastring = datastring.replace(/ischeck/g, 'checked')
+                                                datastring = datastring.replace(/name/g, 'text')
+                                                var data = JSON.parse(datastring)
+                                                $('#owlist').tree('loadData',data);
+                                            }, 'json')
+                                        }else{
+                                            $('#owlist').tree('loadData',{});
+                                        }
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    }
                 })
             }else{
                 alert(json.msg)

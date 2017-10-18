@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>北京经贸学院管理系统</title>
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-easyui-1.5.2/themes/icon.css">
+    <link rel="stylesheet" href="css/global.css">
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
+</head>
+<body>
+<table class="easyui-datagrid" style="width:100%;height:550px"
+       title="轮播图列表" toolbar="#tb"
+       singleSelect="true" fitColumns="true" id="goodslist">
+</table>
+<div id="addgoods" class="easyui-dialog" title="添加轮播图" style="width:500px;height:auto;padding:10px">
+    <form action="" id="banneruploadform">
+        <table cellpadding="5">
+            <tr>
+                <td>标题</td><td>
+                <input class="easyui-validatebox" type="text" name="title">
+            </td></tr>
+            <tr>
+                <td>轮播图类型:</td>
+                <td><input class="easyui-combobox" name="barType" data-options="editable:false">
+                    </input>
+                </td>
+            </tr>
+            <tr><td>外链轮播图的url</td><td>
+                <input class="easyui-validatebox" type="text" name="expand">
+            </td></tr>
+            <tr>
+            <tr><td>轮播图上传</td><td>
+                <input class="easyui-filebox" type="text" style="width:300px;" id="bannerupload" buttonText="选择文件" name="bannerupload">
+                <!--<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitBanner()">上传</a>-->
+            </td></tr>
+            <tr>
+                <td>是否显示:</td>
+                <td><input class="easyui-combobox" name="isShow" data-options="editable:false">
+                    </input>
+                </td>
+            </tr>
+            <tr>
+                <td>排序</td><td>
+                <input class="easyui-validatebox" type="text" name="order_num">
+            </td></tr>
+        </table>
+    </form>
+    <p class="error hide">您还有未填的项目，无法提交！</p>
+</div>
+
+<div id="tb" style="padding:5px;height:auto">
+    <div style="margin-bottom:5px">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addrow()">起草</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()">编辑</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="saverow()">保存</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()">删除</a>
+        <!--<a href="#" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="showcontract()"></a>-->
+    </div>
+</div>
+<script src="js/common.js"></script>
+<script>
+    var editRowIndex = null;
+    var type = [
+        {value: 1, text: '展示轮播图'},
+        {value: 2, text: '外链轮播图'}
+    ]
+    var isShow = [
+        {value: 0, text: '不显示'},
+        {value: 1, text: '显示'}
+    ]
+    $("input[name=barType]").combobox({
+        data: type,
+        valueField: 'value',
+        textField: 'text'
+    })
+    $("input[name=isShow]").combobox({
+        data: isShow,
+        valueField: 'value',
+        textField: 'text'
+    })
+    $('#goodslist').datagrid({
+        url: commonURL + 'm/barimg/listBar.do',
+        pagination: true,
+        pageSize: 10,
+        pageList: [10],
+        queryParams:{
+            type: 3
+        },
+        loadFilter: function (data) {
+            if (data.data) {
+                return data.data;
+            } else {
+                return data;
+            }
+        },
+        onBeforeLoad: function (param) {
+            var startNum = Number(param.rows) * Number(param.page) - 10
+            param["startNum"] = startNum
+            param["perNum"] = param.rows;
+        },
+        columns: [[
+            {field: 'id', title: '用品编号', width: 100},
+            {field: 'title', title: '标题', editor: {type: 'validatebox', options: {required: true}}, width: 100},
+            {
+                field: 'bar_type', title: '轮播图类型', width: 100,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    type.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                },
+                editor: {
+                    type: 'combobox',
+                    options: {
+                        valueField: 'value',
+                        textField: 'text',
+                        data: type
+                    }
+                }
+            },
+            {field: 'expand', title: '外链轮播图url', editor: {type: 'validatebox'}, width: 100},
+            {
+                field: 'is_show', title: '是否显示', width: 100,
+                formatter: function (value, row, index) {
+                    var returnText = null
+                    isShow.forEach(function (t, i) {
+                        if (t["value"] == value) {
+                            returnText = t["text"]
+                        }
+                    })
+                    return returnText
+                },
+                editor: {
+                    type: 'combobox',
+                    options: {
+                        valueField: 'value',
+                        textField: 'text',
+                        data: isShow
+                    }
+                }
+            },
+            {field: 'order_num', title: '排序', editor: {type: 'validatebox', options: {required: true}}, width: 100},
+            {
+                field: 'url', title: '图片', align: 'center', width: 100,
+                editor: {type: 'filebox', options: {buttonText: '选择文件'}},
+                formatter: function (value, row, index) {
+                return '<a href="' + commonURL + value + '" target="_blank"><img src="' + commonURL + value + '" width="80" /></a>'
+            }
+            }
+        ]],
+        onSelect: function (index, row) {
+            if (editRowIndex == null) return;
+            $('#goodslist').datagrid('cancelEdit', editRowIndex);
+        },
+        onBeforeEdit: function (index, row) {
+            row.urlcopy = row.url
+//            console.log(row)
+        },
+        onEndEdit: function (index, row, changes) {
+            changes.id = row.id
+            row.url = row.urlcopy
+            if (changes.is_show != undefined) {
+                changes.isShow = changes.is_show
+            }
+            if (changes.bar_type != undefined) {
+                changes.barType = changes.bar_type
+            }
+
+            if (changes.url) {
+                var filebox = $('#goodslist').datagrid('getEditor', {index: index, field: 'url'});
+                var files = $(filebox.target[0]).parent().find("input[type=file]").get(0).files[0] //先拿一个吧
+                var fd = new FormData()
+                fd.append('file', files)
+                fd.append('filetype', 12)
+
+                $.ajax({
+                    url: commonURL + 'm/file/up.do',
+                    type: "post",
+                    dataType: "json",
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    success: function (json) {
+                        if (json["success"]) {
+                            changes.url = json.data.list[0]['mename']
+                            row.url =  json.data.list[0]['mename']
+                            row.urlcopy =  json.data.list[0]['mename']
+                            updateGoods(changes, index)
+                        } else {
+                            alert(json.msg);
+                        }
+                    }
+                });
+                return
+            }
+            updateGoods(changes)
+        }
+        , onAfterEdit: function (index, row, changes) {
+            console.log(changes)
+        }
+    });
+
+    function updateGoods(changes, index) {
+        $.post(commonURL + 'm/barimg/update.do', changes, function (json) {
+            if (json.success) {
+                $.messager.alert('提示', '修改成功！', 'info');
+                if(changes.url){
+                    $('#goodslist').datagrid('refreshRow', index)
+                }
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function addrow() {
+        $("#addgoods").dialog("open")
+    }
+
+    $("#addgoods").dialog({
+        closed: true,
+        buttons: [{
+            text: '添加',
+            iconCls: 'icon-ok',
+            handler: function () {
+                var formdata = $("#banneruploadform").serializeArray()
+                var postdata = {}
+                $.each(formdata,
+                    function (i) {
+                        postdata[formdata[i]["name"]] = formdata[i]["value"]
+                    })
+                $("#addgoods .error").addClass("hide")
+                postdata.type = 3
+                var file = $("input[name=bannerupload]").get(0).files[0]
+                if (file != undefined) {
+                    //首先上传文件，获取文件id
+                    //注：服务端现在只做了单文件上传
+                    var fd = new FormData()
+                    fd.append('file', file)
+                    fd.append('filetype', 12)
+
+                    $.ajax({
+                        url: commonURL + 'm/file/up.do',
+                        type: "post",
+                        dataType: "json",
+                        data: fd,
+                        processData: false,
+                        contentType: false,
+                        success: function (json) {
+                            if (json["success"]) {
+                                postdata.url = json.data.list[0]["mename"]
+                                insertrow(postdata)
+                            } else {
+                                alert(json.msg);
+                            }
+                        }
+                    });
+                } else {
+                    insertrow(postdata)
+                }
+            }
+        }]
+    })
+
+    function insertrow(postdata) {
+        $.post(commonURL + 'm/barimg/add.do', postdata, function (json) {
+            if (json.success) {
+                $("#banneruploadform").form('clear');
+                $("#addgoods").dialog("close")
+                alert("添加成功")
+                $("#goodslist").datagrid('reload', { type: 3})
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function deleterow() { //删除记录
+        var rowIndex = getRowIndex($('#goodslist'))
+        var row = $('#goodslist').datagrid('getSelected')
+        $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/barimg/del.do', {id: row.id}, function (json) {
+                    if (json.success) {
+                        $('#goodslist').datagrid('deleteRow', rowIndex);
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+    }
+
+    function editrow() {
+        var rowIndex = getRowIndex($('#goodslist'))
+        editRowIndex = rowIndex
+        $('#goodslist').datagrid('beginEdit', rowIndex);
+    }
+
+    function saverow() {
+        var rowIndex = editRowIndex
+        $("#goodslist").datagrid('endEdit', rowIndex)
+    }
+
+</script>
+</body>
+</html>

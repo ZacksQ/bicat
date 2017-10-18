@@ -55,6 +55,9 @@
         pagination: true,
         pageSize: 10,
         pageList: [10],
+        queryParams:{
+            usertype: 2
+        },
         loadFilter: function (data) {
             if (data.data) {
                 return data.data;
@@ -248,22 +251,38 @@
             $.messager.alert('提示', '未选择账户', 'error');
             return false;
         }
-        $.post(commonURL + 'm/role/rolelist.do', {
-            name: ''
+        $.post(commonURL + 'm/user/userlist.do', {
+            userId: editRowId
         }, function(json){
             if(json.success){
-                $("#jurisdictionchoose").dialog("open")
-                $("#rolename").combobox({
-                    data: json.data.list,
-                    valueField: 'id',
-                    textField: 'name'
-                })
+                var role_id = json.data.rows[0]["role_id"]
+
+                $.post(commonURL + 'm/role/rolelist.do', {
+                    name: ''
+                }, function(json){
+                    if(json.success){
+                        $("#jurisdictionchoose").dialog("open")
+                        $("#rolename").combobox({
+                            data: json.data.list,
+                            valueField: 'id',
+                            textField: 'name'
+                        })
+                        $("#rolename").combobox('select', role_id);
+                    }else{
+                        alert(json.msg)
+                    }
+                }, 'json')
+
+
             }else{
                 alert(json.msg)
             }
         }, 'json')
 
+
     }
+
+
 </script>
 </body>
 </html>

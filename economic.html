@@ -11,12 +11,31 @@
     <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
 </head>
 <body>
-<div class="easyui-dialog" id="filelist" title="文件列表" closed="true"
+<div class="easyui-layout" id="cc" style="width:100%; height:550px;">
+    <div data-options="region:'west',split:true" title="栏目列表" style="width:170px;">
+        <ul id="offmenu" class="easyui-tree">
+        </ul>
+    </div>
+    <div data-options="region:'center'">
+        <table class="easyui-datagrid" style="width:100%;height:550px"
+               title="经济管理系菜单列表" toolbar="#tb"
+               singleSelect="true" fitColumns="true">
+            <!--id="classlist"-->
+        </table>
+        <!--<table class="easyui-datagrid" style="width:100%;height:550px"-->
+        <!--title="栏目列表" toolbar="#tb"-->
+        <!--singleSelect="true" fitColumns="true">-->
+        <!--&lt;!&ndash;id="classlist"&ndash;&gt;-->
+        <!--&lt;!&ndash;&gt;&ndash;&gt;-->
+        <!--</table>-->
+    </div>
+</div>
+<div class="easyui-dialog" id="filelist" title="轮播图列表" closed="true"
      style="width:300px;height:auto;padding:10px"></div>
-<table class="easyui-datagrid" style="width:100%;height:550px"
-       title="经济管理系菜单列表" toolbar="#tb"
-       singleSelect="true" fitColumns="true" id="classlist">
-</table>
+<!--<table class="easyui-datagrid" style="width:100%;height:550px"-->
+       <!--title="经济管理系菜单列表" toolbar="#tb"-->
+       <!--singleSelect="true" fitColumns="true" id="classlist">-->
+<!--</table>-->
 <div id="addialog" class="easyui-dialog" closed="true" style="width:auto;height:auto;padding:10px">
     <form action="" id="formlist">
         <table cellpadding="5">
@@ -50,19 +69,325 @@
     </form>
     <p class="error hide">您还有未填的项目，无法提交！</p>
 </div>
+<div class="easyui-dialog" id="uploadbannerdialog" title="轮播图上传" closed="true"
+     style="width:500px;height:auto;padding:10px">
+    <form action="" id="banneruploadform">
+        <table cellpadding="5">
+            <tr>
+                <td>标题</td><td>
+                <input class="easyui-validatebox" type="text" name="title">
+            </td></tr>
+            <tr>
+                <td>轮播图类型:</td>
+                <td><input class="easyui-combobox" name="barType" data-options="editable:false">
+                    </input>
+                </td>
+            </tr>
+            <tr><td>外链轮播图的url</td><td>
+                <input class="easyui-validatebox" type="text" name="expand">
+            </td></tr>
+            <tr>
+            <tr><td>轮播图上传</td><td>
+                <input class="easyui-filebox" type="text" style="width:300px;" id="bannerupload" buttonText="选择文件" name="bannerupload">
+                <!--<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitBanner()">上传</a>-->
+            </td></tr>
+            <tr>
+                <td>是否显示:</td>
+                <td><input class="easyui-combobox" name="isShow" data-options="editable:false">
+                    </input>
+                </td>
+            </tr>
+            <tr>
+                <td>排序</td><td>
+                <input class="easyui-validatebox" type="text" name="order_num">
+            </td></tr>
+        </table>
+    </form>
+</div>
 <div id="tb" style="padding:5px;height:auto">
     <div style="margin-bottom:5px">
         <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addrow()">起草</a>
         <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()">编辑</a>
         <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()">删除</a>
+        <a href="#" class="easyui-linkbutton" plain="true" onclick="showbanner()">轮播图查看</a>
+        <a href="#" class="easyui-linkbutton" plain="true" onclick="uploadbanner(1)">轮播图上传</a>
+        <a href="#" class="easyui-linkbutton" plain="true" onclick="goinfolist()">进入文章列表</a>
     </div>
 </div>
 <script src="js/common.js"></script>
 <script>
+    var menuId = null
+    $.post(commonURL + 'm/webmenu/listCollegemenu.do', {collegeId: 2}, function(json){
+        if(json.success){
+            $("#offmenu").tree({
+                data: json.data.rows,
+                onClick: function(node){
+//
+//                    if(node.parent_id != null){
+//                        $(".banner").show()
+//                    }else{
+//                        $(".banner").hide()
+//                    }
+                    var classid = node.id
+                    menuId = classid
+//                        console.log(classid)
+//                    $("#articlelist").datagrid('reload', {
+//                        menuId: classid
+//                    })
+//                    $('#classlist').datagrid('reload', {id: classid, collegeId: 1})
+                    $("#modifymenu").dialog({
+                        closed: true,
+                        title: '菜单修改',
+                        buttons: [{
+                            text: '保存',
+                            iconCls: 'icon-ok',
+                            handler: function () {
+                                var formdata = $("#menuformlist").serializeArray()
+                                var postdata = {}
+                                $.each(formdata,
+                                    function (i) {
+                                        postdata[formdata[i]["name"]] = formdata[i]["value"]
+                                    })
+//                                    if(postdata.showType == ""){
+//                                        alert("摘要长度过长")
+//                                        return false
+//                                    }
 
+                                postdata.menuId = menuId
+                                updateMenu(postdata)
+                            }
+                        }]
+                    })
+//                    }else{
+//                        menuId = null
+//                    }
+                }
+            })
+        }else{
+            alert(json.msg)
+        }
+    }, 'json')
+
+    function showbanner(rowid) { //显示文件列表
+        $.post(commonURL + 'm/barimg/listBar.do', {parentId: 2, type: 2, startNum: 0, perNum: 0}, function (json) {
+            if (json.success) {
+                var filelist = json.data.rows
+                var filehtml = ''
+                if (filelist.length > 0) {
+                    filelist.forEach(function (t, i) {
+                        filehtml += '<div><img style="width: 100px" src="' + commonURL + t.url + '" target="_blank">' +
+                            '<a href="javascript:;" class="fr" onclick="delfile(\'' + t.id + '\')">删除</a><a href="javascript:;" style="margin-right: 10px" class="fr" onclick="modifybanner(\'' + t.id + '\')">修改</a></div>'
+                    })
+                } else {
+                    filehtml = "暂无上传文件"
+                }
+
+                $("#filelist").dialog({
+                    content: filehtml
+                })
+                $("#filelist").dialog('open')
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+    function delfile(id, agrId) {
+        $.messager.confirm('提示', '你确定要删除这张轮播图吗？', function (r) {
+            if (r) {
+                $.post(commonURL + 'm/barimg/del.do', { id : id}, function (json) {
+                    if (json.success) {
+                        $.messager.alert('提示', '删除成功！', 'info');
+                        $("#filelist").dialog('close')
+                    } else {
+                        alert(json.msg)
+                    }
+                }, 'json')
+            }
+        });
+
+    }
+    function modifybanner(id) {
+        $.post(commonURL + 'm/barimg/listBar.do', {id: id, startNum: 0, perNum: 0, parentId: 2, type: 2}, function (json) {
+            if(json.success){
+                var data = json.data.rows[0]
+//                data["contentType"] = data["content_type"]
+//                data["showType"] = data["show_type"]
+                data["isShow"] = data["is_show"]
+                data["barType"] = data["bar_type"]
+                data["orderNum"] = data["order_num"]
+                $('#banneruploadform').form('load', data);
+                uploadbanner(2, id)
+                $("#uploadbannerdialog").dialog("open")
+                $("#filelist").dialog("close")
+            }else{
+                alert(json.msg)
+            }
+        })
+    }
+    var barType = [
+        {value: 1, text: '展示轮播图'},
+        {value: 2, text: '外链轮播图'}
+    ]
+    var isShow = [
+        {value: 0, text: '不显示'},
+        {value: 1, text: '显示'}
+    ]
+    $("input[name=barType]").combobox({
+        data: barType,
+        valueField: 'value',
+        textField: 'text'
+    })
+    $("input[name=isShow]").combobox({
+        data: isShow,
+        valueField: 'value',
+        textField: 'text'
+    })
+    function uploadbanner(optype, id) {
+        $("#uploadbannerdialog").dialog({
+            closed: true,
+//            title: '',
+            buttons: [{
+                text: '保存',
+                iconCls: 'icon-ok',
+                handler: function () {
+                    optype==1?submitBanner():modifyBanner(id)
+                }
+            }]
+        })
+        $("#uploadbannerdialog").dialog("open")
+    }
+    function modifyBanner(id) {
+        var postdata = {}
+        postdata.id = id
+        var file = $("input[name=bannerupload]").get(0).files
+        if (file.length > 0) {
+            //首先上传文件，获取文件id
+            var fd = new FormData()
+            $.each(file, function(i, file) {
+                fd.append('file', file);
+            });
+            fd.append('filetype', 12)
+
+            $.ajax({
+                url: commonURL + 'm/file/up.do',
+                type: "post",
+                dataType: "json",
+                data: fd,
+                processData: false,
+                contentType: false,
+                success: function (json) {
+                    if (json["success"]) {
+                        var formdata = $("#banneruploadform").serializeArray()
+
+                        $.each(formdata,
+                            function (i) {
+                                postdata[formdata[i]["name"]] = formdata[i]["value"]
+                            })
+
+                        var fileid = []
+                        json.data.list.forEach(function (t, i) {
+                            fileid.push(json.data.list[i]['mename'])
+                        })
+                        postdata.url = fileid.toString()
+                        postdata.parentId = 2
+                        postdata.type = 2
+//                        insertRow(postdata)
+                        $.post(commonURL + 'm/barimg/update.do', postdata, function (json) {
+                            if (json.success) {
+                                $("#uploadbannerdialog").dialog("close")
+                                alert("添加成功")
+                                $("#banneruploadform").form('clear')
+                            } else {
+                                alert(json.msg)
+                            }
+                        }, 'json')
+                    } else {
+                        alert(json.msg);
+                    }
+                }
+            });
+        }else{
+            var formdata = $("#banneruploadform").serializeArray()
+//            var postdata = {}
+            $.each(formdata,
+                function (i) {
+                    postdata[formdata[i]["name"]] = formdata[i]["value"]
+                })
+
+
+            postdata.parentId = 2
+            postdata.type = 2
+//                        insertRow(postdata)
+            $.post(commonURL + 'm/barimg/update.do', postdata, function (json) {
+                if (json.success) {
+                    $("#uploadbannerdialog").dialog("close")
+                    alert("修改成功")
+                    $("#banneruploadform").form('clear')
+                } else {
+                    alert(json.msg)
+                }
+            }, 'json')
+        }
+
+
+    }
+    function submitBanner() {
+        var file = $("input[name=bannerupload]").get(0).files
+        if (file.length > 0) {
+            //首先上传文件，获取文件id
+            var fd = new FormData()
+            $.each(file, function(i, file) {
+                fd.append('file', file);
+            });
+            fd.append('filetype', 12)
+
+            $.ajax({
+                url: commonURL + 'm/file/up.do',
+                type: "post",
+                dataType: "json",
+                data: fd,
+                processData: false,
+                contentType: false,
+                success: function (json) {
+                    if (json["success"]) {
+                        var formdata = $("#banneruploadform").serializeArray()
+                        var postdata = {}
+                        $.each(formdata,
+                            function (i) {
+                                postdata[formdata[i]["name"]] = formdata[i]["value"]
+                            })
+
+                        var fileid = []
+                        json.data.list.forEach(function (t, i) {
+                            fileid.push(json.data.list[i]['mename'])
+                        })
+                        postdata.url = fileid.toString()
+                        postdata.parentId = 2
+                        postdata.type = 2
+//                        insertRow(postdata)
+                        $.post(commonURL + 'm/barimg/add.do', postdata, function (json) {
+                            if (json.success) {
+                                $("#uploadbannerdialog").dialog("close")
+                                alert("添加成功")
+                                $("#banneruploadform").form('clear');
+                            } else {
+                                alert(json.msg)
+                            }
+                        }, 'json')
+                    } else {
+                        alert(json.msg);
+                    }
+                }
+            });
+        }else{
+            alert("轮播图未上传")
+        }
+
+
+    }
     var editRowIndex = null;
     var content_type = [
-//        {value: 1, text: '菜单'},
+        {value: 1, text: '菜单'},
         {value: 2, text: '文档'},
         {value: 3, text: '页面跳转'}
     ]
@@ -206,16 +531,27 @@
         }
     });
 
+    function goinfolist() {
+        if(menuId == null){
+            $.messager.alert('提示', '未选择菜单栏目', 'error');
+            return false;
+        }
+        window.location.href = "infolist.html?classid=" + menuId
+    }
+
     function updateRow(changes) {
         $.post(commonURL + 'm/webmenu/editCollegemenu.do', changes, function (json) {
             if (json.success) {
                 $.messager.alert('提示', '修改成功！', 'info');
                 $("#addialog").dialog("close")
                 $("#formlist").form('clear');
-                $('#classlist').datagrid('updateRow',{
-                    index: editRowIndex,
-                    row: changes
-                });
+                var selectednode = $("#offmenu").tree("getSelected")
+                if(selectednode){
+                    $("#offmenu").tree('update',{
+                        target: selectednode.target,
+                        text: changes.name
+                    })
+                }
             } else {
                 alert(json.msg)
             }
@@ -251,9 +587,14 @@
                     if(optype === 2){
                         postdata.menuId = menuId
                     }
-                    if(optype === 1){
-                        postdata.collegeId = 2
+                    var node = $('#offmenu').tree('getSelected');
 
+
+                    if(optype === 1){
+                        if(node){
+                            postdata.parentId = node.id
+                        }
+                        postdata.collegeId = 2
                     }
                     optype==1?insertRow(postdata):updateRow(postdata)
                 }
@@ -267,9 +608,20 @@
                 $("#formlist").form('clear');
                 $("#addialog").dialog("close")
                 alert("添加成功")
-                $("#classlist").datagrid('reload', {
-                    collegeId: 2
-                })
+                var node = $('#offmenu').tree('getSelected');
+                var data = json.data.info
+                data.text = data.name
+                if (node){
+                    $('#offmenu').tree('append', {
+                        parent: node.target,
+                        data: json.data.info
+                    });
+                }else{
+                    $('#offmenu').tree('insert', {
+//                        before: node.target,
+                        data: json.data.info
+                    });
+                }
             } else {
                 alert(json.msg)
             }
@@ -277,13 +629,15 @@
     }
 
     function deleterow() { //删除记录
-        var rowIndex = getRowIndex($('#classlist'))
-        var row = $('#classlist').datagrid('getSelected')
+//        var rowIndex = getRowIndex($('#classlist'))
+//        var row = $('#classlist').datagrid('getSelected')
+        var selectednode = $("#offmenu").tree("getSelected")
         $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
             if (r) {
-                $.post(commonURL + 'm/webmenu/delCollegemenu.do', {menuId: row.id}, function (json) {
+                $.post(commonURL + 'm/webmenu/delCollegemenu.do', {menuId: menuId}, function (json) {
                     if (json.success) {
-                        $('#classlist').datagrid('deleteRow', rowIndex);
+                        alert("删除成功")
+                        $("#offmenu").tree("remove", selectednode.target)
                     } else {
                         alert(json.msg)
                     }
@@ -293,8 +647,8 @@
     }
 
     function editrow() {
-        var row = $('#classlist').datagrid('getSelected')
-        $.post(commonURL + 'm/webmenu/listCollegemenus.do', {id: row.id, collegeId: 2}, function (json) {
+//        var row = $('#classlist').datagrid('getSelected')
+        $.post(commonURL + 'm/webmenu/listCollegemenus.do', {id: menuId, collegeId: 2}, function (json) {
             if(json.success){
                 var data = json.data.rows[0]
                 data["contentType"] = data["content_type"]
@@ -302,7 +656,7 @@
                 data["isShow"] = data["is_show"]
                 data["orderNum"] = data["order_num"]
                 $('#formlist').form('load', data);
-                opdialog(2, row.id)
+                opdialog(2, menuId)
                 $("#addialog").dialog("open")
             }else{
                 alert(json.msg)
