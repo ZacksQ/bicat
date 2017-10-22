@@ -19,6 +19,10 @@
 <div id="tb" style="padding:5px;height:auto">
     <div style="margin-bottom:5px">
         <!--<a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()"></a>-->
+        <input class="easyui-searchbox" data-options="prompt:'',menu:'#mm',searcher:doSearch" style="width:300px"></input>
+        <div id="mm">
+            <div data-options="name:'name'">姓名</div>
+        </div>
     </div>
 </div>
 <script src="js/common.js"></script>
@@ -119,6 +123,13 @@
                 }, 'json')
             }
         });
+    }
+
+    function doSearch(value,name){
+        //alert('You input: ' + value+'('+name+')');
+        var postdata = {}
+        postdata[name] = value
+        $("#userlist").datagrid('reload', postdata)
     }
 
 </script>

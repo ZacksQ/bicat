@@ -33,8 +33,8 @@
 
                 <td>标题:</td>
                 <td><input class="easyui-validatebox" type="text" name="title"></input></td>
-                <td></td>
-                <td></td>
+                <td>创建时间：</td>
+                <td><input class="easyui-datetimebox" style="width: 120px" type="text" name="createtime" /></td>
             </tr>
             <tr>
                 <td>排序值:</td>
@@ -236,6 +236,7 @@
         $.post(commonURL + 'm/news/info.do', {newsId: row.id}, function (json) {
             if(json.success){
                 var data = json.data
+                data.createtime = data.create_timestr
                 $("#uploadcover").filebox("setText", data.cover_img)
                 window.editor.html(data.content)
                 $('#formlist').form('load', data);

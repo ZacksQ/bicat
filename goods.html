@@ -56,7 +56,10 @@
         <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()">编辑</a>
         <a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="saverow()">保存</a>
         <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()">删除</a>
-        <!--<a href="#" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="showcontract()"></a>-->
+        <input class="easyui-searchbox" data-options="prompt:'',menu:'#mm',searcher:doSearch" style="width:300px"></input>
+        <div id="mm">
+        <div data-options="name:'name'">名称</div>
+        </div>
     </div>
 </div>
 <script src="js/common.js"></script>
@@ -292,6 +295,13 @@
     function saverow() {
         var rowIndex = editRowIndex
         $("#goodslist").datagrid('endEdit', rowIndex)
+    }
+
+    function doSearch(value,name){
+        //alert('You input: ' + value+'('+name+')');
+        var postdata = {}
+        postdata[name] = value
+        $("#goodslist").datagrid('reload', postdata)
     }
 
 </script>

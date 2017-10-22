@@ -120,7 +120,7 @@
     function passrequesition(appId, index) {
         $.messager.confirm('提示', '你确定要通过这条申请吗？', function (r) {
             if (r) {
-                $.post(commonURL + 'm/serverapply/update.do', {appId: appId}, function (json) {
+                $.post(commonURL + 'm/tserverapply/update.do', {appId: appId}, function (json) {
                     if (json.success) {
                         $('#srlist').datagrid('updateRow',{
                             index: index,
@@ -143,8 +143,9 @@
                 var filehtml = ''
                 if (filelist.length > 0) {
                     filelist.forEach(function (t, i) {
-                        filehtml += '<div></div><a href="' + commonURL + t.mename + '" target="_blank">文件' +
-                            (i + 1) +
+                        filehtml += '<div></div><a href="' + commonURL + t.mename + '" target="_blank">' +
+//                            (i + 1) +
+                            t.name +
                             '</a>'
                             //+ '<a href="javascript:;" class="fr" onclick="delfile(\'' + t.id + '\', \'' + rowid + '\')">删除</a></div>'
                     })

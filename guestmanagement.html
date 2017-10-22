@@ -76,6 +76,10 @@
         <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()">编辑</a>
         <!--<a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="saverow()"></a>-->
         <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()">删除</a>
+        <input class="easyui-searchbox" data-options="prompt:'',menu:'#mm',searcher:doSearch" style="width:300px"></input>
+        <div id="mm">
+            <div data-options="name:'name'">姓名</div>
+        </div>
     </div>
 </div>
 <script src="js/common.js"></script>
@@ -187,8 +191,9 @@
             }}
         ]],
         onSelect: function (index, row) {
+            editRowIndex = index
             if (editRowIndex == null) return;
-            $('#userlist').datagrid('cancelEdit', editRowIndex);
+//            $('#userlist').datagrid('cancelEdit', editRowIndex);
         }
     });
 
@@ -198,6 +203,10 @@
                 $.messager.alert('提示', '修改成功！', 'info');
                 $("#addialog").dialog("close")
                 $("#formlist").form('clear');
+                $('#userlist').datagrid('updateRow',{
+                    index: editRowIndex,
+                    row: changes
+                });
             } else {
                 alert(json.msg)
             }
@@ -316,6 +325,13 @@
                 }, 'json')
             }
         });
+    }
+
+    function doSearch(value,name){
+        //alert('You input: ' + value+'('+name+')');
+        var postdata = {usertype: 4}
+        postdata[name] = value
+        $("#userlist").datagrid('reload', postdata)
     }
 </script>
 </body>

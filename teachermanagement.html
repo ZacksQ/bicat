@@ -257,8 +257,9 @@
             }}
         ]],
         onSelect: function (index, row) {
+            editRowIndex = index
             if (editRowIndex == null) return;
-            $('#userlist').datagrid('cancelEdit', editRowIndex);
+//            $('#userlist').datagrid('cancelEdit', editRowIndex);
         }
     });
 
@@ -268,6 +269,10 @@
                 $.messager.alert('提示', '修改成功！', 'info');
                 $("#addialog").dialog("close")
                 $("#formlist").form('clear');
+                $('#userlist').datagrid('updateRow',{
+                    index: editRowIndex,
+                    row: changes
+                });
             } else {
                 alert(json.msg)
             }
@@ -425,7 +430,7 @@
 
     function doSearch(value,name){
         //alert('You input: ' + value+'('+name+')');
-        var postdata = {}
+        var postdata = {usertype: 2}
         postdata[name] = value
         $("#userlist").datagrid('reload', postdata)
     }

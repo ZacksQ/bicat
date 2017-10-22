@@ -41,7 +41,7 @@
 		</div>
 	</div>
 	<div data-options="region:'east'" style="width:350px;">
-		<div class="easyui-panel" title="学校动态" style="width:350px; height:300px;">
+		<div class="easyui-panel" title="校务公开" style="width:350px; height:300px;">
 			<div class="easyui-accordion" data-options="fit:true,border:false">
 				<ul id="scnews"></ul>
 			</div>
@@ -88,7 +88,7 @@
         }
     }, 'json')
     $.post(commonURL + 'm/news/list.do', {
-        menuId:71,
+        menuId:74,
         startNum:0,
         perNum:8
     }, function(json){

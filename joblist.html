@@ -18,25 +18,31 @@
        title="招聘列表" toolbar="#tb"
        singleSelect="true" fitColumns="true" id="joblist">
 </table>
-<div id="addialog" class="easyui-dialog" title="添加招聘信息" closed="true" style="width:600px;height:480px;padding:10px">
+<div id="addialog" class="easyui-dialog" title="添加招聘信息" closed="true" style="width:700px;height:420px;padding:10px">
     <form action="" id="formlist">
     <table cellpadding="5">
         <tr>
-            <td>标题:</td>
+            <td width="100">招聘岗位:</td>
             <td><input class="easyui-validatebox" type="text" name="name"></input></td>
+            <td width="100">薪资:</td>
+            <td><input class="easyui-validatebox" type="text" name="money"></input></td>
         </tr>
         <tr>
-            <td>求职种类:</td>
+            <td>招聘种类:</td>
             <td><input class="easyui-combobox" type="text" name="type"></input></td>
+            <td width="100">人数:</td>
+            <td><input class="easyui-validatebox" type="text" name="num"></input></td>
         </tr>
         <tr>
             <td>是否显示:</td>
-            <td><input class="easyui-combobox" type="text" name="isShow"></input></td>
+            <td><input class="easyui-combobox" type="text" id="isShow" name="isShow"></input></td>
+            <td>创建时间：</td>
+            <td><input class="easyui-datetime box" style="width: 120px" type="text" name="createtime" /></td>
         </tr>
         <tr>
-            <td>描述:</td>
+            <td>职位说明:</td>
             <!--<td><input class="easyui-validatebox" type="text" name="descs"></input></td>-->
-            <td>
+            <td colspan="3">
                 <textarea id="editor_id" name="descs" style="width:90%;height:200px;">
                 </textarea>
             </td>
@@ -69,11 +75,17 @@
         valueField: 'value',
         textField: 'text'
     })
-    $("input[name=isShow]").combobox({
+    $("#isShow").combobox({
         data: is_show,
         valueField: 'value',
-        textField: 'text'
+        textField: 'text',
+        onLoadSuccess: function () {
+            $("#isShow").combobox("select",1)
+        }
     })
+
+
+
     $('#joblist').datagrid({
         url: commonURL + 'm/recruit/list.do',
         pagination: true,
@@ -93,10 +105,10 @@
         },
         columns: [[
             {field: 'id', title: '编号', width: 20},
-            {field: 'name', title: '标题', width: 100},
-            {field: 'descs', title: '描述', width: 100},
+            {field: 'name', title: '招聘职位', width: 100},
+//            {field: 'descs', title: '职位说明', width: 100},
             {field: 'create_timestr', title: '创建时间', width: 80},
-            {field: 'type', title: '求职种类', width: 40,
+            {field: 'type', title: '招聘种类', width: 40,
                 formatter: function (value, row, index) {
                     var returnText = null
                     jobtype.forEach(function (t, i) {
@@ -120,6 +132,7 @@
             }
         ]],
         onSelect: function (index, row) {
+            editRowIndex = index
             if (editRowIndex == null) return;
             $('#joblist').datagrid('cancelEdit', editRowIndex);
         }
@@ -132,6 +145,10 @@
                 $.messager.alert('提示', '修改成功！', 'info');
                 $("#addialog").dialog("close")
                 $("#formlist").form('clear');
+                $('#joblist').datagrid('updateRow',{
+                    index: editRowIndex,
+                    row: changes
+                });
                 window.editor.html('')
                 $('#joblist').datagrid('updateRow',{
                     index: rowIndex,
@@ -187,7 +204,11 @@
                     postdata.descs = editor.html()
                     optype==1?insertRow(postdata):updateRow(postdata)
                 }
-            }]
+            }],
+            onClose: function () {
+//                return false
+                $("#formlist").form('clear');
+            }
         })
     }
 
@@ -226,6 +247,7 @@
         $.post(commonURL + 'm/recruit/list.do', {id: row.id}, function (json) {
             if(json.success){
                 var data = json.data.rows[0];
+                data.createtime = data.create_timestr
                 window.editor.html(data.descs)
                 data.isShow = data.is_show
                 $('#formlist').form('load', data);

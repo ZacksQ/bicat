@@ -146,6 +146,8 @@ function addrow(id, index) {
                         }
                     });
                     
+                }else{
+                        alert("文件未上传")
                 }
             }}]
         })
@@ -156,6 +158,7 @@ function addrow(id, index) {
             if (json.success) {
                 $("#addialog").dialog("close")
                 alert("填报成功")
+                $("#formlist").form('clear');
             } else {
                 alert(json.msg)
             }
@@ -169,8 +172,8 @@ function showfiles(rowid) { //显示文件列表
                 var filehtml = ''
                 if (filelist.length > 0) {
                     filelist.forEach(function (t, i) {
-                        filehtml += '<div></div><a href="' + commonURL + t.mename + '" target="_blank">下载文件' +
-                                                        (i + 1) +
+                        filehtml += '<div></div><a href="' + commonURL + t.mename + '" target="_blank">下载文件:' +
+                                                        t.name +
                             '</a>'
                     })
                 } else {
