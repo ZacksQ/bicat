@@ -231,7 +231,7 @@
 
 
     function showbanner(rowid) { //显示文件列表
-        $.post(commonURL + 'm/barimg/listBar.do', {parentId: 1, type: 2, startNum: 0, perNum: 0}, function (json) {
+        $.post(commonURL + 'm/barimg/listBar.do', {parentId: branchId, type: 2, startNum: 0, perNum: 0}, function (json) {
             if (json.success) {
                 var filelist = json.data.rows
                 var filehtml = ''
@@ -271,7 +271,7 @@
     }
 
     function modifybanner(id) {
-        $.post(commonURL + 'm/barimg/listBar.do', {id: id, startNum: 0, perNum: 0, parentId: 1, type: 2}, function (json) {
+        $.post(commonURL + 'm/barimg/listBar.do', {id: id, startNum: 0, perNum: 0, parentId: branchId, type: 2}, function (json) {
             if(json.success){
                 var data = json.data.rows[0]
 //                data["contentType"] = data["content_type"]
