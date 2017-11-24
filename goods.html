@@ -31,10 +31,8 @@
         </tr>
         <tr>
             <td>是否显示:</td>
-            <td><select class="easyui-combobox" name="is_show" data-options="editable:false">
-                <option value="0">不显示</option>
-                <option value="1">显示</option>
-            </select>
+            <td><input class="easyui-combobox" data-options="editable:false" type="text" id="is_show" name="is_show">
+
             </td>
         </tr>
         <tr>
@@ -73,6 +71,15 @@
         {value: 0, text: '不显示'},
         {value: 1, text: '显示'}
     ]
+    $("input[name=is_show]").combobox({
+        data: isShow,
+        valueField: 'value',
+        textField: 'text',
+        onLoadSuccess: function () {
+            $("#is_show").combobox("select",1)
+        }
+    })
+//    $("#is_show").combobox("select",1)
     $('#goodslist').datagrid({
         url: commonURL + 'm/gift/list.do',
         pagination: true,

@@ -13,23 +13,13 @@
 <body>
 
 <div class="easyui-layout" id="cc" style="width:100%; height:550px;">
-    <div data-options="region:'west',split:true" style="width:350px;">
-        <div class="easyui-layout" data-options="fit:true">
-        <div data-options="region:'west',split:true" title="分院列表" style="width:200px;padding:10px">
-            <ul id="offmenu2" class="easyui-tree" >
-
-            </ul>
-        </div>
-        <div data-options="region:'east'" title="栏目列表" style="width:150px;padding:10px">
-            <ul id="offmenu" class="easyui-tree">
-            </ul>
-        </div>
-        </div>
-
+    <div data-options="region:'west',split:true" title="栏目列表" style="width:170px;">
+        <ul id="offmenu" class="easyui-tree">
+        </ul>
     </div>
     <div data-options="region:'center'">
         <table class="easyui-datagrid" style="width:100%;height:550px"
-               title="菜单列表" toolbar="#tb"
+               title="国际经济贸易系菜单列表" toolbar="#tb"
                singleSelect="true" fitColumns="true">
                <!--id="classlist"-->
         </table>
@@ -80,33 +70,11 @@
     </form>
     <p class="error hide">您还有未填的项目，无法提交！</p>
 </div>
-<div id="addialog_branch" class="easyui-dialog" closed="true" style="width:auto;height:auto;padding:10px">
-    <form action="" id="formlist_branch">
-        <table cellpadding="5">
-            <tr>
-                <td>菜单名:</td>
-                <td><input class="easyui-validatebox" data-options="required:true" type="text" name="name"></input></td>
-            </tr>
-            <!--<tr>-->
-                <!--<td>英文标识:</td>-->
-                <!--<td><input class="easyui-validatebox" data-options="required:true" type="text" name="english"></input></td>-->
-            <!--</tr>-->
-            <tr>
-                <td>排序:</td>
-                <td><input class="easyui-validatebox" type="text" name="order_num"></input></td>
-            </tr>
-        </table>
-    </form>
-    <p class="error hide">您还有未填的项目，无法提交！</p>
-</div>
 <div id="tb" style="padding:5px;height:auto">
     <div style="margin-bottom:5px">
-        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addrow_branch()">分院起草</a>
-        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="editrow_branch()">分院编辑</a>
-        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="deleterow_branch()">分院删除</a>
-        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addrow()">栏目起草</a>
-        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()">栏目编辑</a>
-        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()">栏目删除</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addrow()">起草</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()">编辑</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()">删除</a>
         <a href="#" class="easyui-linkbutton" plain="true" onclick="showbanner()">轮播图查看</a>
         <a href="#" class="easyui-linkbutton" plain="true" onclick="uploadbanner(1)">轮播图上传</a>
         <a href="#" class="easyui-linkbutton" plain="true" onclick="goinfolist()">进入文章列表</a>
@@ -151,10 +119,9 @@
 <script src="js/common.js"></script>
 <script>
     var menuId = null
-    var branchId = null
-    $.post(commonURL + 'm/college/list.do', {}, function(json){
+    $.post(commonURL + 'm/webmenu/listCollegemenu.do', {collegeId: 1}, function(json){
         if(json.success){
-            $("#offmenu2").tree({
+            $("#offmenu").tree({
                 data: json.data.rows,
                 onClick: function(node){
 //
@@ -163,71 +130,45 @@
 //                    }else{
 //                        $(".banner").hide()
 //                    }
-
-                    branchId = node.id
-
-                    $.post(commonURL + 'm/webmenu/listCollegemenu.do', {collegeId: branchId}, function(json){
-                        if(json.success){
-                            $("#offmenu").tree({
-                                data: json.data.rows,
-                                onClick: function(node){
-//
-//                    if(node.parent_id != null){
-//                        $(".banner").show()
-//                    }else{
-//                        $(".banner").hide()
-//                    }
-                                    var classid = node.id
-                                    menuId = classid
+                    var classid = node.id
+                    menuId = classid
 //                        console.log(classid)
 //                    $("#articlelist").datagrid('reload', {
 //                        menuId: classid
 //                    })
 //                    $('#classlist').datagrid('reload', {id: classid, collegeId: 1})
-                                    $("#modifymenu").dialog({
-                                        closed: true,
-                                        title: '菜单修改',
-                                        buttons: [{
-                                            text: '保存',
-                                            iconCls: 'icon-ok',
-                                            handler: function () {
-                                                var formdata = $("#menuformlist").serializeArray()
-                                                var postdata = {}
-                                                $.each(formdata,
-                                                    function (i) {
-                                                        postdata[formdata[i]["name"]] = formdata[i]["value"]
-                                                    })
+                    $("#modifymenu").dialog({
+                        closed: true,
+                        title: '菜单修改',
+                        buttons: [{
+                            text: '保存',
+                            iconCls: 'icon-ok',
+                            handler: function () {
+                                var formdata = $("#menuformlist").serializeArray()
+                                var postdata = {}
+                                $.each(formdata,
+                                    function (i) {
+                                        postdata[formdata[i]["name"]] = formdata[i]["value"]
+                                    })
 //                                    if(postdata.showType == ""){
 //                                        alert("摘要长度过长")
 //                                        return false
 //                                    }
 
-                                                postdata.menuId = menuId
-                                                updateMenu(postdata)
-                                            }
-                                        }]
-                                    })
+                                postdata.menuId = menuId
+                                updateMenu(postdata)
+                            }
+                        }]
+                    })
 //                    }else{
 //                        menuId = null
 //                    }
-                                }
-                            })
-                        }else{
-                            alert(json.msg)
-                        }
-                    }, 'json')
                 }
             })
         }else{
             alert(json.msg)
         }
     }, 'json')
-
-
-
-
-
-
 
 
     function showbanner(rowid) { //显示文件列表
@@ -492,6 +433,119 @@
         textField: 'text'
     })
 
+//    $.post(commonURL + 'm/webmenu/listCollegemenu.do', {collegeId: 1}, function (json) {
+//        if (json.success) {
+//            $("#parentId").combobox({
+//                data: json.data.rows,
+//                valueField: 'id',
+//                textField: 'text'
+//            })
+//        } else {
+//            console.log(json.msg)
+//        }
+//    }, 'json')
+
+//    $("input[name=contract_type]").combobox({
+//        data: contract_type,
+//        valueField: 'value',
+//        textField: 'text'
+//    })
+//    $("input[name=work_status]").combobox({
+//        data: work_status,
+//        valueField: 'value',
+//        textField: 'text'
+//    })
+
+//    $('#classlist').datagrid({
+//        url: commonURL + 'm/webmenu/infoMenu.do',
+////        url: commonURL + 'm/webmenu/listCollegemenu.do',
+//        pagination: true,
+//        pageSize: 10,
+//        pageList: [10],
+////        queryParams:{
+////            collegeId: 1
+////        },
+//        loadFilter: function (data) {
+//            if (data.data) {
+//                return data.data;
+//            } else {
+//                return data;
+//            }
+//        },
+//        onBeforeLoad: function (param) {
+//            var startNum = Number(param.rows) * Number(param.page) - 10
+//            param["startNum"] = startNum
+//            param["perNum"] = param.rows;
+//        },
+//        columns: [[
+//            {field: 'id', title: '编号', width: 20},
+//            {field: 'name', title: '菜单名', width: 40},
+////            {field: 'username', title: '职工号', width: 40},
+//            {field: 'content_type', title: '菜单下的内容类型', width: 40,
+//                formatter: function (value, row, index) {
+//                    var returnText = null
+//                    content_type.forEach(function (t, i) {
+//                        if (t["value"] == value) {
+//                            returnText = t["text"]
+//                        }
+//                    })
+//                    return returnText
+//                }
+//            },
+//            {field: 'show_type', title: '文档列表展示类型', width: 40,
+//                formatter: function (value, row, index) {
+//                    var returnText = null
+//                    show_type.forEach(function (t, i) {
+//                        if (t["value"] == value) {
+//                            returnText = t["text"]
+//                        }
+//                    })
+//                    return returnText
+//                }
+//            },
+//            {field: 'menu_type', title: '文档列表展示类型', width: 40,
+//                formatter: function (value, row, index) {
+//                    var returnText = null
+//                    menu_type.forEach(function (t, i) {
+//                        if (t["value"] == value) {
+//                            returnText = t["text"]
+//                        }
+//                    })
+//                    return returnText
+//                }
+//            },
+////            {field: 'college_type', title: '分院官网菜单类型', width: 40,
+////                formatter: function (value, row, index) {
+////                    var returnText = null
+////                    college_type.forEach(function (t, i) {
+////                        if (t["value"] == value) {
+////                            returnText = t["text"]
+////                        }
+////                    })
+////                    return returnText
+////                }
+////            },
+//            {field: 'is_show', title: '是否显示', width: 40,
+//                formatter: function (value, row, index) {
+//                    var returnText = null
+//                    is_show.forEach(function (t, i) {
+//                        if (t["value"] == value) {
+//                            returnText = t["text"]
+//                        }
+//                    })
+//                    return returnText
+//                }
+//            },
+//            {field: 'order_num', title: '排序', width: 40},
+//            {field: 'detail', title: '详情', width: 40, formatter: function (value, row, index) {
+//                return '<a href="infolist.html?classid=' + row.id + '">内容管理</a>'
+//            }}
+//        ]],
+//        onSelect: function (index, row) {
+//            editRowIndex = index
+//        }
+//    });
+
     function goinfolist() {
         if(menuId == null){
             $.messager.alert('提示', '未选择菜单栏目', 'error');
@@ -523,72 +577,11 @@
         }, 'json')
     }
 
-    function updateRow_branch(changes) {
-        $.post(commonURL + 'm/college/update.do', changes, function (json) {
-            if (json.success) {
-                $.messager.alert('提示', '修改成功！', 'info');
-                $("#addialog_branch").dialog("close")
-                $("#formlist_branch").form('clear');
-//                $('#classlist').datagrid('updateRow',{
-//                    index: editRowIndex,
-//                    row: changes
-//                });
-                var selectednode = $("#offmenu2").tree("getSelected")
-                if(selectednode){
-                    $("#offmenu2").tree('update',{
-                        target: selectednode.target,
-                        text: changes.name
-                    })
-                }
-            } else {
-                alert(json.msg)
-            }
-        }, 'json')
-    }
-
     function addrow() {
         opdialog(1)
         $("#addialog").dialog("open")
     }
 
-    function addrow_branch() {
-        opdialog_branch(1)
-        $("#addialog_branch").dialog("open")
-    }
-
-    function opdialog_branch(optype, menuId) {
-        $("#addialog_branch").dialog({
-            closed: true,
-            title: optype==1?'添加分院':'信息修改',
-            buttons: [{
-                text: '保存',
-                iconCls: 'icon-ok',
-                handler: function () {
-                    var formdata = $("#formlist_branch").serializeArray()
-                    var postdata = {}
-                    $.each(formdata,
-                        function (i) {
-                            postdata[formdata[i]["name"]] = formdata[i]["value"]
-                        })
-                    if(postdata.name === ""){
-                        $("#addialog_branch .error").removeClass("hide")
-                        return false
-                    }
-
-                    $("#addialog_branch .error").addClass("hide")
-
-                    if(optype === 2){
-                        postdata.collegeId = branchId
-                    }
-                    var node = $('#offmenu2').tree('getSelected');
-
-
-                    optype==1?insertRow_branch(postdata):updateRow_branch(postdata)
-                }
-            }]
-        })
-    }
-//存在选择后只能添加子项目Bug
     function opdialog(optype, menuId) {
         $("#addialog").dialog({
             closed: true,
@@ -620,7 +613,7 @@
                         if(node){
                             postdata.parentId = node.id
                         }
-                        postdata.collegeId = branchId
+                        postdata.collegeId = 1
                     }
 
                     optype==1?insertRow(postdata):updateRow(postdata)
@@ -628,34 +621,6 @@
             }]
         })
     }
-
-
-    function insertRow_branch(postdata) {
-        $.post(commonURL + 'm/college/add.do', postdata, function (json) {
-            if (json.success) {
-                $("#formlist_branch").form('clear');
-                $("#addialog_branch").dialog("close")
-                alert("添加成功")
-                var node = $('#offmenu2').tree('getSelected');
-                var data = json.data.info
-                data.text = data.name
-                if (node){
-                    $('#offmenu2').tree('append', {
-                        parent: node.target,
-                        data: json.data.info
-                    });
-                }else{
-                    $('#offmenu2').tree('insert', {
-//                        before: node.target,
-                        data: json.data.info
-                    });
-                }
-            } else {
-                alert(json.msg)
-            }
-        }, 'json')
-    }
-
 
     function insertRow(postdata) {
         $.post(commonURL + 'm/webmenu/addCollegemenu.do', postdata, function (json) {
@@ -705,30 +670,9 @@
         });
     }
 
-    function deleterow_branch() { //删除记录
-        var selectednode = $("#offmenu2").tree("getSelected")
-        $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
-            if (r) {
-                $.post(commonURL + 'm/college/del.do', {collegeId: branchId}, function (json) {
-                    if (json.success) {
-//                        $('#classlist').datagrid('deleteRow', rowIndex);
-                        alert("删除成功")
-                        $("#offmenu2").tree("remove", selectednode.target)
-                    } else {
-                        alert(json.msg)
-                    }
-                }, 'json')
-            }
-        });
-    }
-
     function editrow() {
 //        var row = $('#classlist').datagrid('getSelected')
-        if(!menuId){
-            $.messager.alert('提示', '栏目未选择！', 'error');
-            return false;
-        }
-        $.post(commonURL + 'm/webmenu/listCollegemenus.do', {id: menuId, collegeId: branchId}, function (json) {
+        $.post(commonURL + 'm/webmenu/listCollegemenus.do', {id: menuId, collegeId: 1}, function (json) {
             if(json.success){
                 var data = json.data.rows[0]
                 data["contentType"] = data["content_type"]
@@ -738,26 +682,6 @@
                 $('#formlist').form('load', data);
                 opdialog(2, menuId)
                 $("#addialog").dialog("open")
-            }else{
-                alert(json.msg)
-            }
-        })
-
-    }
-
-    function editrow_branch() {
-//        var row = $('#classlist').datagrid('getSelected')
-        if(!branchId){
-            $.messager.alert('提示', '分院未选择！', 'error');
-            return false;
-        }
-        $.post(commonURL + 'm/college/list.do', {id: branchId}, function (json) {
-            if(json.success){
-                var data = json.data.rows[0]
-                data["orderNum"] = data["order_num"]
-                $('#formlist_branch').form('load', data);
-                opdialog_branch(2, menuId)
-                $("#addialog_branch").dialog("open")
             }else{
                 alert(json.msg)
             }

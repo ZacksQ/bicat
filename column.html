@@ -52,7 +52,7 @@
             </tr>
             <tr>
                 <td>是否在官网首页显示:</td>
-                <td><input class="easyui-combobox" data-options="editable:false"type="text" name="isShow"></input></td>
+                <td><input class="easyui-combobox" data-options="editable:false"type="text" id="isShow" name="isShow"></input></td>
             </tr>
             <tr>
                 <td>排序:</td>
@@ -111,7 +111,10 @@
     $("input[name=isShow]").combobox({
         data: is_show,
         valueField: 'value',
-        textField: 'text'
+        textField: 'text',
+        onLoadSuccess: function () {
+            $("#isShow").combobox("select",1)
+        }
     })
 
     $('#classlist').datagrid({
@@ -204,12 +207,12 @@
         }
     });
 
-    $.post(commonURL + 'm/role/cannewsMenuList.do', {menuId: 43}, function(json){
+    $.post(commonURL + 'm/webmenu/allWebmenu.do', {}, function(json){
+//    $.post(commonURL + 'm/role/cannewsMenuList.do', {menuId: 43}, function(json){
         if(json.success){
             $("#offmenu").tree({
                 data: json.data.rows,
                 onClick: function(node){
-
                     if(node.parent_id != null){
                         $(".banner").show()
                     }else{
@@ -261,17 +264,20 @@
                 $.messager.alert('提示', '修改成功！', 'info');
                 $("#addialog").dialog("close")
                 $("#formlist").form('clear');
-//                $('#classlist').datagrid('updateRow',{
-//                    index: editRowIndex,
-//                    row: changes
-//                });
-                var selectednode = $("#offmenu").tree("getSelected")
-                if(selectednode){
-                    $("#offmenu").tree('update',{
-                        target: selectednode.target,
-                        text: changes.name
-                    })
-                }
+
+
+                $.post(commonURL + 'm/webmenu/allWebmenu.do', {}, function(json){
+                    if(json.success){
+                        $("#offmenu").tree("loadData",json.data.rows)
+                    }
+                })
+//                var selectednode = $("#offmenu").tree("getSelected")
+//                if(selectednode){
+//                    $("#offmenu").tree('update',{
+//                        target: selectednode.target,
+//                        text: changes.name
+//                    })
+//                }
 
             } else {
                 alert(json.msg)
