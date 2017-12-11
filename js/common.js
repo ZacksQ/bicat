@@ -1,5 +1,5 @@
 //公共接口调用前缀
-var commonURL = "http://116.62.245.62:8080/bjcat/";
+var commonURL = "http://116.62.245.62:8080/";
 // var commonURL = "http://116.196.114.149:8080/bjcat/";
 
 //获取datagrid单选行

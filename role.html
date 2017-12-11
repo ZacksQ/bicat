@@ -24,14 +24,18 @@
     </table>
     <p class="error hide">您还有未填的项目，无法提交！</p>
 </div>
-<div id="jurisdictionchoose" class="easyui-dialog" closed="true" title="权限选择" style="width: 600px; height: 380px;">
-    <div class="easyui-layout" style="width:600px;height:350px;">
+<div id="jurisdictionchoose" class="easyui-dialog" closed="true" title="权限选择" style="width: 900px; height: 450px;">
+    <div class="easyui-layout" style="width:900px;height:350px;">
         <div data-options="region:'west',split:true" style="width:300px; height: 450px;">
             <ul id="jurisdictionlist" data-options="animate:true,checkbox:true" class="easyui-tree">
             </ul>
         </div>
-        <div data-options="region:'east',split:true" style="width:300px; height: 450px">
+        <div data-options="region:'center',split:true" style="width:300px; height: 450px">
             <ul id="owlist" data-options="animate:true,checkbox:true" class="easyui-tree">
+            </ul>
+        </div>
+        <div data-options="region:'east',split:true" style="width:300px; height: 450px">
+            <ul id="branchlist" data-options="animate:true,checkbox:true" class="easyui-tree">
             </ul>
         </div>
     </div>
@@ -243,10 +247,43 @@
             text: '权限赋予',
             iconCls: 'icon-ok',
             handler: function () {
+                var nodes = $('#jurisdictionlist').tree('getChecked');
+                var s = [];
+                var owchecked = false;
+                for(var i=0; i<nodes.length; i++){
+                    // if (s != '') s += ',';
+                    // s.push({'menuId': nodes[i].text});
+                    if(nodes[i].id == 43 || nodes[i].id == 68){
+                        owchecked = true
+                        continue;
+                    }
+                    s.push(nodes[i].id)
+                    if(nodes[i].parent_id != null){
+                        s.push(nodes[i].parent_id)
+                    }
+                    var pnode = $('#jurisdictionlist').tree('find', nodes[i].parent_id);
+                    if(pnode != null)
+                        s.push(pnode.parent_id)
+                }
+                var uns = unique(s)
+                var rolemenus = []
+                uns.forEach(function (i, index) {
+                    rolemenus.push({'menuId': i})
+                })
+
+                var checkednode = getChecked(43)
+//                var checkednode = getChecked(43)
+                var check68 = getChecked(68)
+//                check68.map(function (i, it) {
+//                    checkednode.push(it)
+//                })
+
+
                 var postdata = {
-                    rolemenus: getChecked(),
+                    rolemenus: rolemenus.concat(checkednode.concat(check68)),
                     roleId: editRowId
                 }
+                console.log(postdata.rolemenus)
 //                return false;
                  $.ajax({
                     url: commonURL + 'm/rolemenu/refresh.do', 
@@ -266,14 +303,26 @@
         }]
     })
 
-    function getChecked(ele){
+    function getChecked(menuId){
+        var parentId = null
+        var treeid = null
+        switch (menuId){
+            case 43:
+                parentId = 41;
+                treeid = "owlist"
+                break;
+            case 68:
+                parentId = 44;
+                treeid = "branchlist"
+                break;
+        }
         var nodes = $('#jurisdictionlist').tree('getChecked');
         var s = [];
         var owchecked = false;
         for(var i=0; i<nodes.length; i++){
             // if (s != '') s += ',';
             // s.push({'menuId': nodes[i].text});
-            if(nodes[i].id == 43){
+            if(nodes[i].id == menuId){
                 owchecked = true
                 continue;
             }
@@ -287,19 +336,19 @@
         }
         var uns = unique(s)
         var rolemenus = []
-        uns.forEach(function (i, index) {
-            rolemenus.push({'menuId': i})
-        })
+//        uns.forEach(function (i, index) {
+//            rolemenus.push({'menuId': i})
+//        })
 
         if(owchecked == true){
-            var ownodes = $('#owlist').tree('getChecked');
+            var ownodes = $('#' + treeid).tree('getChecked');
             var ows = [];
             for(var i = 0; i < ownodes.length; i++){
                 ows.push(ownodes[i].id)
                 if(ownodes[i].parent_id != null){
                     ows.push(ownodes[i].parent_id)
                 }
-                var owpnode = $('#owlist').tree('find', ownodes[i].parent_id);
+                var owpnode = $('#' + treeid).tree('find', ownodes[i].parent_id);
                 if(owpnode != null)
                     ows.push(owpnode.parent_id)
 
@@ -313,11 +362,13 @@
                 ex.push(i)
             })
             var exstring = ex.join('_')
-            rolemenus.push({'menuId': 41})
-            rolemenus.push({'menuId': 43, "expand": exstring})
+//            rolemenus.push({'menuId': parentId})
+//            rolemenus.push({'menuId': 44})
+            rolemenus.push({'menuId': menuId, "expand": exstring})
+//            rolemenus.push({'menuId': 68, "expand": exstring})
         }
 
-        console.log(rolemenus);
+//        console.log(rolemenus);
         return rolemenus
     }
     
@@ -347,14 +398,22 @@
                         // }
                     },
                      onCheck: function(node){
+                        console.log(node.special_type);
                          if(node.special_type != null){
                               $.post(commonURL + 'm/menu/getSpecialLists.do', {roleId: editRowId, menuId: node.id}, function (json) {
                                  var datastring = JSON.stringify(json.data.specialList)
                                  var datastring = datastring.replace(/ischeck/g, 'checked')
                                      datastring = datastring.replace(/name/g, 'text')
                                  var data = JSON.parse(datastring)
+                                  console.log(node.id)
+                                  if(node.id == 43){
                                   $('#owlist').tree('loadData',data
                                  );
+                                  }
+                                 else if(node.id == 68){
+                                      $('#branchlist').tree('loadData',data
+                                      );
+                                  }
                               }, 'json')
                          }
                      },
@@ -379,9 +438,32 @@
                                         break;
                                     }
                                 }
-                                break;
+
+                            }
+
+                            if(data[i].id === 44){
+                                var children = data[i].children
+                                for(var j = 0; j < children.length; j++){
+                                    if(children[j].id === 68){
+                                        if(children[j].checked == true){
+                                            $.post(commonURL + 'm/menu/getSpecialLists.do', {roleId: editRowId, menuId: 68}, function (json) {
+                                                var datastring = JSON.stringify(json.data.specialList)
+                                                var datastring = datastring.replace(/ischeck/g, 'checked')
+                                                datastring = datastring.replace(/name/g, 'text')
+                                                var data = JSON.parse(datastring)
+                                                $('#branchlist').tree('loadData',data);
+                                            }, 'json')
+                                        }else{
+                                            $('#branchlist').tree('loadData',{});
+                                        }
+                                        break;
+                                    }
+                                }
+
                             }
                         }
+
+
                     }
                 })
             }else{
