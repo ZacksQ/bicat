@@ -272,7 +272,7 @@
                 var filehtml = ''
                 if (filelist.length > 0) {
                     filelist.forEach(function (t, i) {
-                        filehtml += '<div></div><a href="' + commonURL + t.mename + '" target="_blank">合同文件' +
+                        filehtml += '<div></div><a href="' + commonURL + t.mename + '" target="_blank">' + t.name +
                             //                            (i + 1) +
                             '</a>' +
                             '<a href="javascript:;" class="fr" onclick="delfile(\'' + t.id + '\', \'' + contractid + '\')">删除</a></div>'
