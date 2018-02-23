@@ -19,6 +19,10 @@
 <div id="tb" style="padding:5px;height:auto">
     <div style="margin-bottom:5px">
         <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()">删除</a>
+        <input class="easyui-searchbox" data-options="prompt:'',menu:'#mm',searcher:doSearch" style="width:300px"></input>
+        <div id="mm">
+            <div data-options="name:'name'">姓名</div>
+        </div>
     </div>
 </div>
 <script src="js/common.js"></script>
@@ -39,8 +43,8 @@
     $('#salist').datagrid({
         url: commonURL + 'm/baoming/list.do',
         pagination: true,
-        pageSize: 10,
-        pageList: [10],
+        pageSize: 50,
+        pageList: [50],
         queryParams:{
             type: ''
         },
@@ -52,7 +56,7 @@
             }
         },
         onBeforeLoad: function (param) {
-            var startNum = Number(param.rows) * Number(param.page) - 10
+            var startNum = Number(param.rows) * Number(param.page) - 50
             param["startNum"] = startNum
             param["perNum"] = param.rows;
         },
@@ -144,6 +148,13 @@
                 }, 'json')
             }
         });
+    }
+
+    function doSearch(value,name){
+        //alert('You input: ' + value+'('+name+')');
+        var postdata = {type:''}
+        postdata[name] = value
+        $("#salist").datagrid('reload', postdata)
     }
 
 </script>

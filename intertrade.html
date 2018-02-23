@@ -353,7 +353,7 @@
                             fileid.push(json.data.list[i]['mename'])
                         })
                         postdata.url = fileid.toString()
-                        postdata.parentId = 1
+                        postdata.parentId = branchId
                         postdata.type = 2
 //                        insertRow(postdata)
                         $.post(commonURL + 'm/barimg/update.do', postdata, function (json) {
@@ -379,7 +379,7 @@
                 })
 
 
-            postdata.parentId = 1
+            postdata.parentId = branchId
             postdata.type = 2
 //                        insertRow(postdata)
             $.post(commonURL + 'm/barimg/update.do', postdata, function (json) {
@@ -427,7 +427,7 @@
                             fileid.push(json.data.list[i]['mename'])
                         })
                         postdata.url = fileid.toString()
-                        postdata.parentId = 1
+                        postdata.parentId = branchId
                         postdata.type = 2
 //                        insertRow(postdata)
                         $.post(commonURL + 'm/barimg/add.do', postdata, function (json) {
