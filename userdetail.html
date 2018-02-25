@@ -12,7 +12,8 @@
 </head>
 <body>
 <div class="easyui-panel" data-options="border:false" style="padding:5px;">
-    <button type="button" class="easyui-linkbutton" id="goback" data-options="plain:true,iconCls:'icon-back'">返回</button>
+    <button type="button" class="easyui-linkbutton" id="goback" data-options="plain:true,iconCls:'icon-back'">返回
+    </button>
     <table class="pa-main-table">
         <tbody>
 
@@ -33,113 +34,119 @@
             var data = json.data;
             var tbody = ''
 
-                tbody += '<tr>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>' + (usertype==2?'职工号':(usertype==3?'学号':'登录账号')) + '&nbsp;</b></td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["username"]) + '</td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>姓名&nbsp;</b></td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["name"]) + '</td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>性别&nbsp;</b></td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.sex[data["sex"]]) + '</td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>联系方式&nbsp;</b></td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["phone"]) + '</td>'+
-                '</tr>'+
-                '<tr>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>联系地址&nbsp;</b></td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["addr"]) + '</td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>身份证号&nbsp;</b></td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["id_card"]) + '</td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>省份&nbsp;</b></td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["province"]) + '</td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>城市&nbsp;</b></td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["city"]) + '</td>'+
-                '</tr>'+
-                '<tr>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>邮编&nbsp;</b></td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["zip_code"]) + '</td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>账户类型&nbsp;</b></td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.usertype[data["type"]]) + '</td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>出生日期&nbsp;</b></td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["birthday"]) + '</td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>民族&nbsp;</b></td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["nation"]) + '</td>'+
+            tbody += '<tr>' +
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>' + (usertype == 2 ? '职工号' : (usertype == 3 ? '学号' : '登录账号')) + '&nbsp;</b></td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["username"]) + '</td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>姓名&nbsp;</b></td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["name"]) + '</td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>性别&nbsp;</b></td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.sex[data["sex"]]) + '</td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>联系方式&nbsp;</b></td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["phone"]) + '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>联系地址&nbsp;</b></td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["addr"]) + '</td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>身份证号&nbsp;</b></td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["id_card"]) + '</td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>省份&nbsp;</b></td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["province"]) + '</td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>城市&nbsp;</b></td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["city"]) + '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>邮编&nbsp;</b></td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["zip_code"]) + '</td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>账户类型&nbsp;</b></td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.usertype[data["type"]]) + '</td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>出生日期&nbsp;</b></td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["birthday"]) + '</td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>民族&nbsp;</b></td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["nation"]) + '</td>' +
                 '</tr>'
 
-                if(usertype != 4){
-            tbody += '<tr>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>政治面貌&nbsp;</b></td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["political"]) + '</td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>户籍类型&nbsp;</b></td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.census_type[data["census_type"]]) + '</td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>户口所在地&nbsp;</b></td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["census"]) + '</td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>出生地&nbsp;</b></td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["homeplace"]) + '</td>'+
-                '</tr>'+
-                '<tr>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>学习经历&nbsp;</b></td>'+
-                '<td style="align:left;valign:middle" colspan="5" class="portlet-table-even">&nbsp;' + filterNull(data["study"]) + '</td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>档案存放部门&nbsp;</b></td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["record"]) + '</td>'+
-                '</tr>'
-                }else{
-                    tbody += '<tr>'+
-                        '<td style="align:left;valign:middle" class="portlet-table-odd"><b>政治面貌&nbsp;</b></td>'+
-                        '<td style="align:left;valign:middle" colspan="7" class="portlet-table-even">&nbsp;' + filterNull(data["political"]) + '</td>'+
-                            '</tr>'
-                }
-            if(usertype == 2){
-                tbody += '<tr>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>参加工作时间&nbsp;</b></td>'+
-                    '<td style="align:left;valign:middle" colspan="2" class="portlet-table-even">&nbsp;' + filterNull(data["teach_timestr"]) + '</td>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>教师类型&nbsp;</b></td>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.teachtype[data["teacher_type"]]) + '</td>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>签订合同类型&nbsp;</b></td>'+
-                    '<td style="align:left;valign:middle" colspan="2" class="portlet-table-even">&nbsp;' + filterNull(useraccount.contractype[data["contract_type"]]) + '</td>'+
-                    '</tr>'+
-                    '<tr>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>工作经历&nbsp;</b></td>'+
-                    '<td style="align:left;valign:middle" colspan="3" class="portlet-table-even">&nbsp;' + filterNull(data["work"]) + '</td>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>岗位变动&nbsp;</b></td>'+
-                    '<td style="align:left;valign:middle" colspan="3" class="portlet-table-even">&nbsp;' + filterNull(data["job_change"]) + '</td>'+
-                    '</tr>'+
-                    '<tr>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>专业技术职务聘任&nbsp;</b></td>'+
-                    '<td style="align:left;valign:middle" colspan="3" class="portlet-table-even">&nbsp;' + filterNull(data["expertise"]) + '</td>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>教师资格证书&nbsp;</b></td>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["qts"]) + '</td>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>工作状态&nbsp;</b></td>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.workstatus[data["work_status"]]) + '</td>'+
+            if (usertype != 4) {
+                tbody += '<tr>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>政治面貌&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["political"]) + '</td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>户籍类型&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.census_type[data["census_type"]]) + '</td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>户口所在地&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["census"]) + '</td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>出生地&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["homeplace"]) + '</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>学习经历&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" colspan="5" class="portlet-table-even">&nbsp;' + filterNull(data["study"]) + '</td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>档案存放部门&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["record"]) + '</td>' +
                     '</tr>'
-            }else if(usertype == 3){
-                tbody += '<tr>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>学生证号&nbsp;</b></td>'+
-                    '<td style="align:left;valign:middle" colspan="2" class="portlet-table-even">&nbsp;' + filterNull(data["student_id"]) + '</td>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>专业&nbsp;</b></td>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["major"]) + '</td>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>班级&nbsp;</b></td>'+
-                    '<td style="align:left;valign:middle" colspan="2" class="portlet-table-even">&nbsp;' + filterNull(data["class_name"]) + '</td>'+
-                    '</tr>'+
-                    '<tr>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>分院&nbsp;</b></td>'+
-                    '<td style="align:left;valign:middle" colspan="3" class="portlet-table-even">&nbsp;' + filterNull(data["branch"]) + '</td>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>学习状态&nbsp;</b></td>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.study_status[data["study_status"]]) + '</td>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>毕业时间&nbsp;</b></td>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["graduation_time"]) + '</td>'+
-                    '</tr>'+
-                    '<tr>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>入学方式&nbsp;</b></td>'+
-                    '<td style="align:left;valign:middle" colspan="3" class="portlet-table-even">&nbsp;' + filterNull(useraccount.enter_type[data["enter_type"]]) + '</td>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>&nbsp;</b></td>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;</td>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>进本校时间&nbsp;</b></td>'+
-                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["enter_timestr"]) + '</td>'+
+            } else {
+                tbody += '<tr>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>政治面貌&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" colspan="7" class="portlet-table-even">&nbsp;' + filterNull(data["political"]) + '</td>' +
                     '</tr>'
-                '<tr>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>参加工作时间&nbsp;</b></td>'+
-                '<td style="align:left;valign:middle" colspan="3" class="portlet-table-even">&nbsp;' + filterNull(data["teach_timestr"]) + '</td>'+
-                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>毕业时间&nbsp;</b></td>'+
-                '<td style="align:left;valign:middle" colspan="3" class="portlet-table-even">&nbsp;' + filterNull(data["graduation_timestr"]) + '</td>'+
+            }
+            if (usertype == 2) {
+                tbody += '<tr>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>参加工作时间&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["teach_timestr"]) + '</td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>教师类型&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.teachtype[data["teacher_type"]]) + '</td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>签订合同类型&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.contractype[data["contract_type"]]) + '</td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>部门&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["branch"]) + '</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td colspan="4" style="align:left;valign:middle" class="portlet-table-odd"><b>电子邮箱</b></td>' +
+                    '<td colspan="4" style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["email"]) + '</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>工作经历&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" colspan="3" class="portlet-table-even">&nbsp;' + filterNull(data["work"]) + '</td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>岗位变动&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" colspan="3" class="portlet-table-even">&nbsp;' + filterNull(data["job_change"]) + '</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>专业技术职务聘任&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" colspan="3" class="portlet-table-even">&nbsp;' + filterNull(data["expertise"]) + '</td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>教师资格证书&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["qts"]) + '</td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>工作状态&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.workstatus[data["work_status"]]) + '</td>' +
+                    '</tr>'
+            } else if (usertype == 3) {
+                tbody += '<tr>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>学生证号&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" colspan="2" class="portlet-table-even">&nbsp;' + filterNull(data["student_id"]) + '</td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>专业&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["major"]) + '</td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>班级&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" colspan="2" class="portlet-table-even">&nbsp;' + filterNull(data["class_name"]) + '</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>分院&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" colspan="3" class="portlet-table-even">&nbsp;' + filterNull(data["branch"]) + '</td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>学习状态&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(useraccount.study_status[data["study_status"]]) + '</td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>毕业时间&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["graduation_time"]) + '</td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>入学方式&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" colspan="3" class="portlet-table-even">&nbsp;' + filterNull(useraccount.enter_type[data["enter_type"]]) + '</td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;</td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-odd"><b>进本校时间&nbsp;</b></td>' +
+                    '<td style="align:left;valign:middle" class="portlet-table-even">&nbsp;' + filterNull(data["enter_timestr"]) + '</td>' +
+                    '</tr>'
+                '<tr>' +
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>参加工作时间&nbsp;</b></td>' +
+                '<td style="align:left;valign:middle" colspan="3" class="portlet-table-even">&nbsp;' + filterNull(data["teach_timestr"]) + '</td>' +
+                '<td style="align:left;valign:middle" class="portlet-table-odd"><b>毕业时间&nbsp;</b></td>' +
+                '<td style="align:left;valign:middle" colspan="3" class="portlet-table-even">&nbsp;' + filterNull(data["graduation_timestr"]) + '</td>' +
                 '</tr>'
             }
             $(".pa-main-table tbody").html(tbody)

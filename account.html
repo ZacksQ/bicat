@@ -15,11 +15,21 @@
        title="角色列表" toolbar="#tb"
        singleSelect="true" fitColumns="true" id="rolelist">
 </table>
-<div id="jurisdictionchoose" class="easyui-dialog" closed="true" title="角色选择" style="width: 300px; height: 150px;">
+<div id="jurisdictionchoose" class="easyui-dialog" closed="true" title="角色选择" style="width: 300px; height: 120px;">
     <table cellpadding="5" style="width:100%">
         <tr>
             <td>角色名:</td>
             <td><input class="easyui-combobox" data-options="required:true,editable:false" type="text" id="rolename" name="name" style="width:100%"></input></td>
+        </tr>
+    </table>
+</div>
+<div id="modifypwd" class="easyui-dialog" closed="true" title="密码修改" style="width: 300px; height: 130px;">
+    <table cellpadding="5" style="width:100%">
+        <tr>
+            <td>新密码：</td>
+            <td>
+    <input class="easyui-textbox" type="password" id="pwd" data-options="required:true"></input>
+            </td>
         </tr>
     </table>
 </div>
@@ -30,6 +40,7 @@
         <div id="mm">
             <div data-options="name:'name'">姓名</div>
         </div>
+        <a href="#" class="easyui-linkbutton" plain="true" onclick="modifypwd()">密码修改</a>
     </div>
 </div>
 <script src="js/common.js"></script>
@@ -291,6 +302,38 @@
         var postdata = {}
         postdata[name] = value
         $("#rolelist").datagrid('reload', postdata)
+    }
+
+    function modifypwd() {
+        if(editRowId == null){
+            $.messager.alert('提示', '未选择账户', 'error');
+            return false;
+        }
+
+        $("#modifypwd").dialog({
+            closed: true,
+            buttons: [{
+                text: '密码修改',
+                iconCls: 'icon-ok',
+                handler: function () {
+                    $.post(commonURL + 'm/user/resetPassword.do', {
+                        userId: editRowId,
+                        newpwd: $("#pwd").textbox('getValue')
+                    }, function (json) {
+                        if (json.success) {
+                            $("#pwd").textbox('setValue', '');
+                            $("#modifypwd").dialog("close");
+                            $.messager.alert('提示', '修改成功！', 'info');
+                        } else {
+                            alert(json.msg)
+                        }
+                    }, 'json')
+                }
+            }]
+        });
+
+        $("#modifypwd").dialog("open");
+
     }
 
 </script>

@@ -83,8 +83,8 @@
     $('#goodslist').datagrid({
         url: commonURL + 'm/gift/list.do',
         pagination: true,
-        pageSize: 10,
-        pageList: [10],
+        pageSize: 50,
+        pageList: [50],
         loadFilter: function (data) {
             if (data.data) {
                 return data.data;
@@ -93,7 +93,7 @@
             }
         },
         onBeforeLoad: function (param) {
-            var startNum = Number(param.rows) * Number(param.page) - 10
+            var startNum = Number(param.rows) * Number(param.page) - 50
             param["startNum"] = startNum
             param["perNum"] = param.rows;
         },
