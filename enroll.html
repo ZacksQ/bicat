@@ -105,8 +105,8 @@
     $('#enrollist').datagrid({
         url: commonURL + 'm/luqu/list.do',
         pagination: true,
-        pageSize: 10,
-        pageList: [10],
+        pageSize: 50,
+        pageList: [50],
         queryParams:{
             type: ''
         },
@@ -118,7 +118,7 @@
             }
         },
         onBeforeLoad: function (param) {
-            var startNum = Number(param.rows) * Number(param.page) - 10
+            var startNum = Number(param.rows) * Number(param.page) - 50
             param["startNum"] = startNum;
             param["perNum"] = param.rows;
         },
