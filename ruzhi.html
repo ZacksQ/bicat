@@ -11,166 +11,193 @@
     <script type="text/javascript" src="jquery-easyui-1.5.2/locale/easyui-lang-zh_CN.js"></script>
 </head>
 <body>
-    <div class="service-wrapper">
-        <img src="images/rz.png" alt="">
-    </div>
-    <div class="easyui-dialog" id="filelist" title="文件列表" closed="true"
-               style="width:300px;height:auto;padding:10px"></div>
-    <table class="easyui-datagrid" style="width:100%;height:350px"
-           title="入职服务列表"
-           singleSelect="true" fitColumns="true" id="serverlist">
-    </table>
-    <div id="addialog" class="easyui-dialog" closed="true" title="填报" style="width:400px;height:auto;padding:10px">
-        <form action="" id="formlist">
-            <table cellpadding="5">
-                <tr>
-                    <td>描述:</td>
-                    <td><input class="easyui-validatebox" type="text" name="descs" data-options="required:true"></input></td>
-                </tr>
-                <tr>
-                    <td>文件:</td>
-                    <td><input class="easyui-filebox" name="uploadfiles" multiple="" buttonText="选择文件" style="width:100%"></td>
-                </tr>
-            </table>
-        </form>
-        <p class="error hide">您还有未填的项目，无法提交！</p>
-    </div>
-    <script src="js/common.js"></script><script>
-        var servertype = [
-            {value: 1, text: '职称评审'},
-            {value: 2, text: '年度考核'},
-            {value: 3, text: '进修培训'},
-            {value: 4, text: '请假服务'},
-            {value: 5, text: '入职服务'},
-            {value: 6, text: '社保服务'},
-            {value: 7, text: '调动服务'}
-        ]
-        $('#serverlist').datagrid({
-            url: commonURL + 'm/tserver/mylist.do',
-            pagination: true,
-            pageSize: 10,
-            pageList: [10],
-            queryParams:{
-                type: 5
-            },
-            loadFilter: function (data) {
-                if (data.data) {
-                    return data.data;
-                } else {
-                    return data;
-                }
-            },
-            onBeforeLoad: function (param) {
-                var startNum = Number(param.rows) * Number(param.page) - 10
-                param["startNum"] = startNum;
-                param["perNum"] = param.rows;
-            },
-            columns: [[
-                {field: 'id', title: '编号', width: 20},
-                {
-                    field: 'uploadfiles',
-                    title: '查看文件',
+<div class="service-wrapper">
+    <img src="images/rz.png" alt="">
+</div>
+<div class="easyui-dialog" id="filelist" title="文件列表" closed="true"
+     style="width:300px;height:auto;padding:10px"></div>
+<table class="easyui-datagrid" style="width:100%;height:350px"
+       title="入职服务列表"
+       singleSelect="true" fitColumns="true" id="serverlist">
+</table>
+<div id="addialog" class="easyui-dialog" closed="true" title="填报" style="width:400px;height:auto;padding:10px">
+    <form action="" id="formlist">
+        <table cellpadding="5">
+            <tr>
+                <td>描述:</td>
+                <td><input class="easyui-validatebox" type="text" name="descs" data-options="required:true"></input>
+                </td>
+            </tr>
+            <tr>
+                <td>文件:</td>
+                <td><input class="easyui-filebox" name="uploadfiles" multiple="" buttonText="选择文件" style="width:100%">
+                </td>
+            </tr>
+        </table>
+    </form>
+    <p class="error hide">您还有未填的项目，无法提交！</p>
+</div>
+<script src="js/common.js"></script>
+<script>
+    var servertype = [
+        {value: 1, text: '职称评审'},
+        {value: 2, text: '年度考核'},
+        {value: 3, text: '进修培训'},
+        {value: 4, text: '请假服务'},
+        {value: 5, text: '入职服务'},
+        {value: 6, text: '社保服务'},
+        {value: 7, text: '调动服务'}
+    ]
+    $('#serverlist').datagrid({
+        url: commonURL + 'm/tserver/mylist.do',
+        pagination: true,
+        pageSize: 10,
+        pageList: [10],
+        queryParams: {
+            type: 5
+        },
+        loadFilter: function (data) {
+            if (data.data) {
+                return data.data;
+            } else {
+                return data;
+            }
+        },
+        onBeforeLoad: function (param) {
+            var startNum = Number(param.rows) * Number(param.page) - 10
+            param["startNum"] = startNum;
+            param["perNum"] = param.rows;
+        },
+        columns: [[
+            {field: 'id', title: '编号', width: 20},
+            {
+                field: 'uploadfiles',
+                title: '查看文件',
 
-                    formatter: function (value, row, index) {
-                        return '<a href="javascript:;" onclick="showfiles(\'' + row.id + '\')">查看下载文件</a>'
-                    }
-                },{
-                    field: 'operation', title: '操作', width: 100, formatter: function(value, row, index){
-                        return '<a href="javascript:;" onclick="addrow(' + row.id + ', ' + index + ')" target="_blank">填报</a>'
-                    }}
-            ]],
-        });
-
-        function addrow(id, index) {
-            opdialog(1, id, index)
-            $("#addialog").dialog("open")
-        }
-
-        function opdialog(optype, server_id, index) {
-            $("#addialog").dialog({
-                buttons: [{
-                    text: '提交申报',
-                    iconCls: 'icon-ok',
-                    handler: function () {
-                        var formdata = $("#formlist").serializeArray()
-                        var postdata = {}
-                        $.each(formdata,
-                            function (i) {
-                                postdata[formdata[i]["name"]] = formdata[i]["value"]
-                            })
-
-                        $("#addialog .error").addClass("hide")
-                        var file = $("input[name=uploadfiles]").get(0).files
-                        if (file.length > 0) {
-                            //首先上传文件，获取文件id
-                            var fd = new FormData()
-                            $.each(file, function(i, file) {
-                                fd.append('file', file);
-                            });
-                            fd.append('filetype', 6)
-                            $.ajax({
-                                url: commonURL + 'm/file/up.do',
-                                type: "post",
-                                dataType: "json",
-                                data: fd,
-                                processData: false,
-                                contentType: false,
-                                success: function (json) {
-                                    if (json["success"]) {
-                                        var fileid = []
-                                        json.data.list.forEach(function (t, i) {
-                                            fileid.push(json.data.list[i]['fileId'])
-                                        })
-                                        postdata.fileIds = fileid.toString()
-                                        if(optype === 1){
-                                            postdata.server_id = server_id
-                                        }
-
-                                        insertRow(postdata, index)
-                                    } else {
-                                        alert(json.msg);
-                                    }
-                                }
-                            });
-
-                        }
-                    }}]
-            })
-        }
-
-        function insertRow(postdata, index) {
-            $.post(commonURL + 'm/tserverapply/add.do', postdata, function (json) {
-                if (json.success) {
-                    $("#addialog").dialog("close")
-                    alert("填报成功")
-                } else {
-                    alert(json.msg)
-                }
-            }, 'json')
-        }
-
-        function showfiles(rowid) { //显示文件列表
-            $.post(commonURL + 'm/tserver/getFilelist.do', {serverId: rowid}, function (json) {
-                if (json.success) {
-                    var filelist = json.data.list
+                formatter: function (value, row, index) {
                     var filehtml = ''
-                    if (filelist.length > 0) {
-                        filelist.forEach(function (t, i) {
-                            filehtml += '<div></div><a href="' + commonURL + t.mename + '" target="_blank">' + t.name +
-                                (i + 1) +
-                                '</a>'
-                        })
-                    } else {
-                        filehtml = "暂无上传文件"
-                    }
-
-                    $("#filelist").dialog({
-                        content: filehtml
+                    $.ajax({
+                        url: commonURL + 'm/tserver/getFilelist.do',
+                        data: {serverId: row.id},
+                        async: false,
+                        success: function (json) {
+                            if (json.success) {
+                                var filelist = json.data.list;
+                                if (filelist.length > 0) {
+                                    filelist.forEach(function (t, i) {
+                                        filehtml += '<div><a href="' + commonURL + t.mename + '" target="_blank">' + t.name +
+                                            //                                            (i + 1) +
+                                            '</a></div>'
+                                    })
+                                } else {
+                                    filehtml = "暂无上传文件"
+                                }
+                            }
+                        }
                     })
-                    $("#filelist").dialog('open')
-                } else {
-                    alert(json.msg)
+
+                    return filehtml;
+//                        return '<a href="javascript:;" onclick="showfiles(\'' + row.id + '\')">查看下载文件</a>'
                 }
-            }, 'json')
-        }
-    </script>
+            }, {
+                field: 'operation', title: '操作', width: 100, formatter: function (value, row, index) {
+                    return '<a href="javascript:;" onclick="addrow(' + row.id + ', ' + index + ')" target="_blank">填报</a>'
+                }
+            }
+        ]],
+    });
+
+    function addrow(id, index) {
+        opdialog(1, id, index)
+        $("#addialog").dialog("open")
+    }
+
+    function opdialog(optype, server_id, index) {
+        $("#addialog").dialog({
+            buttons: [{
+                text: '提交申报',
+                iconCls: 'icon-ok',
+                handler: function () {
+                    var formdata = $("#formlist").serializeArray()
+                    var postdata = {}
+                    $.each(formdata,
+                        function (i) {
+                            postdata[formdata[i]["name"]] = formdata[i]["value"]
+                        })
+
+                    $("#addialog .error").addClass("hide")
+                    var file = $("input[name=uploadfiles]").get(0).files
+                    if (file.length > 0) {
+                        //首先上传文件，获取文件id
+                        var fd = new FormData()
+                        $.each(file, function (i, file) {
+                            fd.append('file', file);
+                        });
+                        fd.append('filetype', 6)
+                        $.ajax({
+                            url: commonURL + 'm/file/up.do',
+                            type: "post",
+                            dataType: "json",
+                            data: fd,
+                            processData: false,
+                            contentType: false,
+                            success: function (json) {
+                                if (json["success"]) {
+                                    var fileid = []
+                                    json.data.list.forEach(function (t, i) {
+                                        fileid.push(json.data.list[i]['fileId'])
+                                    })
+                                    postdata.fileIds = fileid.toString()
+                                    if (optype === 1) {
+                                        postdata.server_id = server_id
+                                    }
+
+                                    insertRow(postdata, index)
+                                } else {
+                                    alert(json.msg);
+                                }
+                            }
+                        });
+
+                    }
+                }
+            }]
+        })
+    }
+
+    function insertRow(postdata, index) {
+        $.post(commonURL + 'm/tserverapply/add.do', postdata, function (json) {
+            if (json.success) {
+                $("#addialog").dialog("close")
+                alert("填报成功")
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+
+    function showfiles(rowid) { //显示文件列表
+        $.post(commonURL + 'm/tserver/getFilelist.do', {serverId: rowid}, function (json) {
+            if (json.success) {
+                var filelist = json.data.list
+                var filehtml = ''
+                if (filelist.length > 0) {
+                    filelist.forEach(function (t, i) {
+                        filehtml += '<div></div><a href="' + commonURL + t.mename + '" target="_blank">' + t.name +
+                            (i + 1) +
+                            '</a>'
+                    })
+                } else {
+                    filehtml = "暂无上传文件"
+                }
+
+                $("#filelist").dialog({
+                    content: filehtml
+                })
+                $("#filelist").dialog('open')
+            } else {
+                alert(json.msg)
+            }
+        }, 'json')
+    }
+</script>

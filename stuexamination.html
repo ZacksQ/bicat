@@ -19,10 +19,14 @@
 <div id="tb" style="padding:5px;height:auto">
     <div style="margin-bottom:5px">
         <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()">删除</a>
+        <a href="#" class="easyui-linkbutton" plain="true" onclick="exportdata()">导出所选数据</a>
         <input class="easyui-searchbox" data-options="prompt:'',menu:'#mm',searcher:doSearch" style="width:300px"></input>
         <div id="mm">
             <div data-options="name:'name'">姓名</div>
         </div>
+        起始时间: <input class="easyui-datetimebox" id="startime" style="width:10%;">
+        结束时间: <input class="easyui-datetimebox" id="endtime" style="width:10%;">
+        <a href="#" class="easyui-linkbutton"iconCls="icon-search" plain="true" onclick="filiter()">筛选</a>
     </div>
 </div>
 <script src="js/common.js"></script>
@@ -43,6 +47,8 @@
     $('#salist').datagrid({
         url: commonURL + 'm/baoming/list.do',
         pagination: true,
+        singleSelect: false,
+
         pageSize: 50,
         pageList: [50],
         queryParams:{
@@ -61,6 +67,7 @@
             param["perNum"] = param.rows;
         },
         columns: [[
+            {field: 'checkbox', checkbox:true},
             {field: 'id', title: '编号', width: 100},
             {field: 'ksh', title: '考生号', width: 100},
             {field: 'name', title: '姓名', width: 100},
@@ -117,16 +124,24 @@
 
     function deleterow() { //删除记录
         var rowIndex = getRowIndex($('#salist'))
-        var row = $('#salist').datagrid('getSelected')
+        var rows = $('#salist').datagrid('getSelections');
+//        var row = $('#salist').datagrid('getSelected')
+        if(rows.length <= 0){
+            $.messager.alert('提示', '未选择记录', 'error');
+            return false;
+        }
+
         $.messager.confirm('提示', '你确定要删除这条记录吗？', function (r) {
             if (r) {
-                $.post(commonURL + 'm/baoming/del.do', {appId: row.id}, function (json) {
-                    if (json.success) {
-                        $('#salist').datagrid('deleteRow', rowIndex);
-                    } else {
-                        alert(json.msg)
-                    }
-                }, 'json')
+                rows.forEach(function (row) {
+                    $.post(commonURL + 'm/baoming/del.do', {appId: row.id}, function (json) {
+                        if (json.success) {
+                            $('#salist').datagrid('deleteRow', rowIndex);
+                        } else {
+                            alert(json.msg)
+                        }
+                    }, 'json')
+                });
             }
         });
     }
@@ -149,11 +164,33 @@
             }
         });
     }
-
+    function exportdata() {
+        var rows = $('#salist').datagrid('getSelections');
+        if(rows.length <= 0){
+            $.messager.alert('提示', '未选择记录', 'error');
+            return false;
+        }
+        var ids = rows.map(function (row) {
+            return row.id;
+        })
+        window.location.href = commonURL + 'm/baoming/down.do?ids=' + ids.toString();
+//        $.post(commonURL + 'm/baoming/down.do', {ids: ids.toString()}, function (json) {
+//            if (json.success) {
+//                $.messager.alert('提示', '导出成功', 'info');
+//            } else {
+//                alert(json.msg)
+//            }
+//        }, 'json')
+    }
     function doSearch(value,name){
         //alert('You input: ' + value+'('+name+')');
         var postdata = {type:''}
         postdata[name] = value
+        $("#salist").datagrid('reload', postdata)
+    }
+    
+    function filiter() {
+        var postdata = {startDate: $("#startime").val(), endDate: $("#endtime").val()}
         $("#salist").datagrid('reload', postdata)
     }
 
