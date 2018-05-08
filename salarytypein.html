@@ -25,6 +25,37 @@
         </td></tr>
     </table>
 </div>
+<div class="easyui-dialog" id="salaryeardialog" title="年终奖编辑" closed="true"
+     style="width:400px;height:auto;padding:10px">
+    <table cellpadding="5">
+        <tr><td>
+            年份：
+        </td><td>
+            <input class="easyui-datebox" id="yearend" data-options="required:true,formatter:yearFormatter,parser:yearParser">
+        </td></tr>
+        <tr><td>
+            年终奖：
+        </td><td>
+            <input class="easyui-validatebox" id="yearendbonus">
+        </td></tr>
+    </table>
+</div>
+<div class="easyui-dialog" id="salarperformancedialog" title="年终奖编辑" closed="true"
+     style="width:400px;height:auto;padding:10px">
+    <table cellpadding="5">
+        <tr><td>
+            年份：
+        </td><td>
+            <input class="easyui-datebox" id="yyyyd-yyyy" data-options="required:true,formatter:yearFormatter,parser:yearParser">
+            <input class="easyui-combobox" name="yyyyd-d" id="yyyyd-d" data-options="editable:false">
+        </td></tr>
+        <tr><td>
+            年终奖：
+        </td><td>
+            <input class="easyui-validatebox" id="jidujixiao">
+        </td></tr>
+    </table>
+</div>
 <table class="easyui-datagrid" style="width:100%;height:550px"
        title="工资列表" toolbar="#tb"
        singleSelect="true" fitColumns="true" id="salarylist">
@@ -103,6 +134,8 @@
     <div style="margin-bottom:5px">
         <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addrow()">起草</a>
         <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow()">编辑</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow_year()">编辑年终奖</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editrow_performance()">编辑季度绩效</a>
         <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleterow()">删除</a>
         <a href="#" class="easyui-linkbutton" iconCls="icon-large-chart" plain="true" onclick="uploadsalary()">工资导入</a>
         <a href="#" class="easyui-linkbutton fr" id="btn-downloadsalary" target="_blank">下载工资模板</a>
@@ -118,6 +151,17 @@
 ////        var d = date.getDate();
 //        return y+'-'+m;
 //    }
+    var yyyyd_d = [
+        {value: 1, text: '1'},
+        {value: 2, text: '2'},
+        {value: 3, text: '3'},
+        {value: 4, text: '4'}
+    ]
+    $("input[name=yyyyd-d]").combobox({
+        data: yyyyd_d,
+        valueField: 'value',
+        textField: 'text'
+    })
 
     $("#btn-downloadsalary").attr("href", commonURL + "m/file/down.do?fileId=3")
 
@@ -329,6 +373,86 @@
             alert("请上传工资文件")
         }
     }
+    
+    function editrow_year() {
+        $('#yearendbonus').val('');
+        $("#salaryeardialog").dialog({
+            closed: true,
+            title: '年终奖编辑',
+            buttons: [{
+                text: '保存',
+                iconCls: 'icon-ok',
+                handler: function () {
+                    var row = $('#salarylist').datagrid('getSelected')
+                    $.post(commonURL + 'm/wages/add.do', {
+                        'yyyy': $('#yearend').val(),
+                        'nianzhongjiang': $('#yearendbonus').val(),
+                        'username': row.username,
+                        'name': row.name
+                    }, function (json) {
+                        if(json.success){
+                            $("#salaryeardialog").dialog("close");
+                            $.messager.alert('提示', '保存成功！', 'info');
+                        }else{
+                            alert(json.msg);
+                        }
+                    },'json')
+                }
+            }]
+        })
+        $("#salaryeardialog").dialog("open");
+    }
+
+    function editrow_performance() {
+        $('#performancebonus').val('');
+        $("#salarperformancedialog").dialog({
+            closed: true,
+            title: '季度绩效编辑',
+            buttons: [{
+                text: '保存',
+                iconCls: 'icon-ok',
+                handler: function () {
+                    if($('#yyyyd-d').val()==="" || $('#yyyyd-yyyy').val()===""){
+                        $.messager.alert('提示', '必要参数为空！', 'info');
+                        return false;
+                    }
+                    var row = $('#salarylist').datagrid('getSelected')
+                    $.post(commonURL + 'm/wages/add.do', {
+                        'yyyyd': $('#yyyyd-yyyy').val() + '-' + $('#yyyyd-d').val(),
+                        'jidujixiao': $('#jidujixiao').val(),
+                        'username': row.username,
+                        'name': row.name
+                    }, function (json) {
+                        if(json.success){
+                            $("#salarperformancedialog").dialog("close");
+                            $.messager.alert('提示', '保存成功！', 'info');
+                        }else{
+                            alert(json.msg);
+                        }
+                    },'json')
+                }
+            }]
+        })
+        $("#salarperformancedialog").dialog("open");
+    }
+
+    function yearFormatter(date){
+        var y = date.getFullYear();
+        var m = date.getMonth()+1;
+        var d = date.getDate();
+        return y;
+    };
+
+    function yearParser(s){
+        if (!s) return new Date();
+        var y = s;
+        var date;
+        if (!isNaN(y)){
+            return new Date(y,0,1);
+        } else {
+            return new Date();
+        }
+    };
 </script>
 </body>
 </html>
